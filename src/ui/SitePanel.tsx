@@ -1,0 +1,207 @@
+import { useCallback, useRef } from 'react';
+import { LOCATION_PRESETS, useStore } from '../state/store';
+import { seasonShift } from '../model/phenology';
+import { compassLabel, formatHour, useSun } from './useSun';
+
+/** Drag the ring to say which way north lies on the drawing. */
+function NorthDial() {
+  const site = useStore((s) => s.site);
+  const setSite = useStore((s) => s.setSite);
+  const ref = useRef<SVGSVGElement>(null);
+  const { position, light } = useSun();
+
+  const setFromEvent = useCallback(
+    (clientX: number, clientY: number) => {
+      const rect = ref.current?.getBoundingClientRect();
+      if (!rect) return;
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const angle = (Math.atan2(clientX - cx, cy - clientY) * 180) / Math.PI;
+      setSite({ northAngle: Math.round(((angle % 360) + 360) % 360) });
+    },
+    [setSite],
+  );
+
+  const sunAngle = light.altitude > -6 ? position.azimuth + site.northAngle : null;
+
+  return (
+    <div className="dial-wrap">
+      <svg
+        ref={ref}
+        viewBox="-60 -60 120 120"
+        className="dial"
+        onPointerDown={(e) => {
+          e.currentTarget.setPointerCapture(e.pointerId);
+          setFromEvent(e.clientX, e.clientY);
+        }}
+        onPointerMove={(e) => {
+          if (e.buttons) setFromEvent(e.clientX, e.clientY);
+        }}
+      >
+        <circle r="46" className="dial-face" />
+        {[0, 45, 90, 135, 180, 225, 270, 315].map((a) => (
+          <line
+            key={a}
+            x1="0"
+            y1="-46"
+            x2="0"
+            y2={a % 90 === 0 ? -38 : -42}
+            className="dial-tick"
+            transform={`rotate(${a})`}
+          />
+        ))}
+
+        {sunAngle !== null && (
+          <g transform={`rotate(${sunAngle})`}>
+            <line x1="0" y1="0" x2="0" y2="-46" className="dial-sunray" />
+            <circle cy="-46" r="6" className={light.altitude > 0 ? 'dial-sun' : 'dial-sun down'} />
+          </g>
+        )}
+
+        <g transform={`rotate(${site.northAngle})`} className="dial-north">
+          <line x1="0" y1="24" x2="0" y2="-24" />
+          <polygon points="0,-34 -6,-20 6,-20" />
+          <text x="0" y="-40" textAnchor="middle">
+            N
+          </text>
+        </g>
+      </svg>
+      <label className="inline">
+        North at
+        <input
+          type="number"
+          value={site.northAngle}
+          min={0}
+          max={359}
+          onChange={(e) => setSite({ northAngle: Number(e.target.value) || 0 })}
+        />
+        °
+      </label>
+    </div>
+  );
+}
+
+export function SitePanel() {
+  const site = useStore((s) => s.site);
+  const setSite = useStore((s) => s.setSite);
+  const showShadows = useStore((s) => s.showShadows);
+  const showGrid = useStore((s) => s.showGrid);
+  const showOverlay = useStore((s) => s.showOverlay);
+  const toggle = useStore((s) => s.toggle);
+  const { position, day } = useSun();
+
+  const shift = seasonShift(site);
+  const shiftText =
+    Math.abs(shift.spring) < 1.5
+      ? 'Season as London'
+      : shift.spring > 0
+        ? `Spring ${Math.round(shift.spring)} days later, autumn ${Math.round(shift.spring)} earlier`
+        : `Spring ${Math.round(-shift.spring)} days earlier, autumn ${Math.round(-shift.spring)} later`;
+
+  return (
+    <aside className="site-panel">
+      <h2>Site</h2>
+
+      <NorthDial />
+
+      <label className="field">
+        <span>Location</span>
+        <select
+          value={LOCATION_PRESETS.some((p) => p.label === site.label) ? site.label : 'custom'}
+          onChange={(e) => {
+            const preset = LOCATION_PRESETS.find((p) => p.label === e.target.value);
+            if (preset) {
+              setSite({
+                label: preset.label,
+                latitude: preset.latitude,
+                longitude: preset.longitude,
+                altitude: preset.altitude,
+              });
+            }
+          }}
+        >
+          {LOCATION_PRESETS.map((p) => (
+            <option key={p.label} value={p.label}>
+              {p.label}
+            </option>
+          ))}
+          <option value="custom">Custom…</option>
+        </select>
+      </label>
+
+      <div className="field-row">
+        <label className="field">
+          <span>Latitude</span>
+          <input
+            type="number"
+            step="0.01"
+            value={site.latitude}
+            onChange={(e) => setSite({ latitude: Number(e.target.value), label: 'Custom' })}
+          />
+        </label>
+        <label className="field">
+          <span>Longitude</span>
+          <input
+            type="number"
+            step="0.01"
+            value={site.longitude}
+            onChange={(e) => setSite({ longitude: Number(e.target.value), label: 'Custom' })}
+          />
+        </label>
+      </div>
+
+      <label className="field">
+        <span>Altitude (m)</span>
+        <input
+          type="number"
+          step="10"
+          value={site.altitude}
+          onChange={(e) => setSite({ altitude: Number(e.target.value), label: 'Custom' })}
+        />
+      </label>
+
+      <label className="check">
+        <input type="checkbox" checked={site.dst} onChange={() => setSite({ dst: !site.dst })} />
+        Summer time (BST)
+      </label>
+
+      <div className="readout">
+        <div className="readout-row">
+          <span>Sun</span>
+          <b>
+            {position.altitude > 0
+              ? `${position.altitude.toFixed(1)}° up, ${compassLabel(position.azimuth)}`
+              : 'below the horizon'}
+          </b>
+        </div>
+        <div className="readout-row">
+          <span>Sunrise</span>
+          <b>{day.sunrise === null ? '—' : formatHour(day.sunrise)}</b>
+        </div>
+        <div className="readout-row">
+          <span>Sunset</span>
+          <b>{day.sunset === null ? '—' : formatHour(day.sunset)}</b>
+        </div>
+        <div className="readout-row">
+          <span>Daylight</span>
+          <b>{day.daylight.toFixed(1)} h</b>
+        </div>
+        <div className="readout-note">{shiftText}</div>
+      </div>
+
+      <h3>Show</h3>
+      <label className="check">
+        <input type="checkbox" checked={showShadows} onChange={() => toggle('showShadows')} />
+        Shadows
+      </label>
+      <label className="check">
+        <input type="checkbox" checked={showGrid} onChange={() => toggle('showGrid')} />
+        Metre grid
+      </label>
+      <label className="check">
+        <input type="checkbox" checked={showOverlay} onChange={() => toggle('showOverlay')} />
+        Sun / shade map
+      </label>
+    </aside>
+  );
+}

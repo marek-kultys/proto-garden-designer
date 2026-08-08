@@ -1,0 +1,25 @@
+import { chromium } from 'playwright';
+const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
+const page = await browser.newPage({ viewport: { width: 1440, height: 940 } });
+const errors = [];
+const requests = [];
+page.on('pageerror', (e) => errors.push(String(e)));
+page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
+page.on('request', (r) => { if (!r.url().startsWith('file:') && !r.url().startsWith('data:')) requests.push(r.url()); });
+await page.goto('file:///home/user/proto-garden-designer/dist/index.html');
+await page.waitForFunction(() => Boolean(window.gardenStore), { timeout: 15000 });
+await page.evaluate(() => {
+  const s = window.gardenStore.getState();
+  s.addPlant('betula-jacquemontii', { x: 4, y: 4 });
+  s.addPlant('taxus-baccata', { x: 10, y: 6 });
+  s.setTime({ doy: 288, hour: 15, year: 12 });
+  s.toggle('showOverlay');
+});
+await page.waitForTimeout(1200);
+await page.screenshot({ path: '/tmp/claude-0/-home-user-proto-garden-designer/ef2f318f-8222-51b3-900b-0e787fb0cb36/scratchpad/singlefile.png' });
+const planted = await page.evaluate(() => window.gardenStore.getState().plants.length);
+await browser.close();
+console.log('plants placed:', planted);
+console.log('off-origin requests:', requests.length ? requests : 'none');
+console.log('errors:', errors.length ? errors : 'none');
+process.exit(errors.length || requests.length ? 1 : 0);
