@@ -227,10 +227,33 @@ export function getForm(species: Species, seed: number): PlantForm {
       form.planClumps = makeClumps(rng, 7, 0.4, 0.4, 0, [0.07, 0.12]);
       break;
     }
+    case 'globe': {
+      // Few stems, near-vertical, spaced apart: a clump of alliums is read as a
+      // handful of distinct heads, not as a mass.
+      form.outline = wobbleProfile(rng, 10, 0.1);
+      form.trunkFraction = 0;
+      form.stems = Array.from({ length: 3 + Math.floor(rng() * 3) }, () => ({
+        ax: (rng() - 0.5) * 0.7,
+        h: 0.78 + rng() * 0.22,
+        lean: (rng() - 0.5) * 0.28,
+        bend: (rng() - 0.5) * 0.1,
+        seed: Math.floor(rng() * 1e9),
+      }));
+      form.planClumps = makeClumps(rng, 5, 0.3, 0.3, 0, [0.1, 0.16]);
+      break;
+    }
   }
 
   const flowerCount =
-    species.habit === 'airy' ? 14 : species.habit === 'tussock' ? 18 : species.type === 'tree' ? 22 : 14;
+    species.habit === 'globe'
+      ? 8
+      : species.habit === 'airy'
+        ? 14
+        : species.habit === 'tussock'
+          ? 18
+          : species.type === 'tree'
+            ? 22
+            : 14;
   form.flowers = Array.from({ length: flowerCount }, () => {
     const a = rng() * Math.PI * 2;
     const d = Math.sqrt(rng());

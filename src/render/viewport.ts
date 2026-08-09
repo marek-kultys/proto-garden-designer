@@ -16,7 +16,10 @@ export function fitViewport(
 ): Viewport {
   const w = Math.max(0.5, bounds.maxX - bounds.minX);
   const h = Math.max(0.5, bounds.maxY - bounds.minY);
-  const scale = Math.min((width - padding * 2) / w, (height - padding * 2) / h);
+  // Scale the inset to the canvas: a fixed 64 px margin is comfortable on a
+  // desktop and swallows most of a phone screen.
+  const inset = Math.max(12, Math.min(padding, width * 0.07, height * 0.09));
+  const scale = Math.min((width - inset * 2) / w, (height - inset * 2) / h);
   const cx = (bounds.minX + bounds.maxX) / 2;
   const cy = (bounds.minY + bounds.maxY) / 2;
   return {

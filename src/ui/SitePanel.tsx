@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, type ReactNode } from 'react';
 import { LOCATION_PRESETS, useStore } from '../state/store';
 import { seasonShift } from '../model/phenology';
 import { compassLabel, formatHour, useSun } from './useSun';
@@ -81,7 +81,12 @@ function NorthDial() {
   );
 }
 
-export function SitePanel() {
+export interface SitePanelProps {
+  /** On a phone the plot tools have nowhere else to live, so they come here. */
+  extraTools?: ReactNode;
+}
+
+export function SitePanel({ extraTools }: SitePanelProps) {
   const site = useStore((s) => s.site);
   const setSite = useStore((s) => s.setSite);
   const showShadows = useStore((s) => s.showShadows);
@@ -99,7 +104,7 @@ export function SitePanel() {
         : `Spring ${Math.round(-shift.spring)} days earlier, autumn ${Math.round(-shift.spring)} later`;
 
   return (
-    <aside className="site-panel">
+    <>
       <h2>Site</h2>
 
       <NorthDial />
@@ -202,6 +207,13 @@ export function SitePanel() {
         <input type="checkbox" checked={showOverlay} onChange={() => toggle('showOverlay')} />
         Sun / shade map
       </label>
-    </aside>
+
+      {extraTools && (
+        <>
+          <h3>Plot</h3>
+          <div className="tools stacked">{extraTools}</div>
+        </>
+      )}
+    </>
   );
 }

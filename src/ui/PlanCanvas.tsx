@@ -70,7 +70,7 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
     if (!el) return;
     const observer = new ResizeObserver(() => {
       const r = el.getBoundingClientRect();
-      setSize({ width: Math.max(320, r.width), height: Math.max(240, r.height) });
+      setSize({ width: Math.max(260, r.width), height: Math.max(110, r.height) });
     });
     observer.observe(el);
     return () => observer.disconnect();

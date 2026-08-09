@@ -43,13 +43,6 @@ function flowerFill(species: Species, light: Lighting, seasonT: number, alpha = 
   return shade(flowerColour(species.colors, seasonT), light, { alpha, value: 1.05 });
 }
 
-/** How far through its flowering window the plant is, for blooms that age. */
-export function flowerAge(species: Species, doy: number): number {
-  const span = species.flowerEnd - species.flowerStart;
-  if (span <= 0) return 0;
-  return Math.max(0, Math.min(1, (doy - species.flowerStart) / span));
-}
-
 // ---------------------------------------------------------------- plan view
 
 export function drawPlantPlan(
@@ -87,7 +80,9 @@ export function drawPlantPlan(
     ctx.setLineDash([]);
   }
 
-  if (species.habit === 'tussock' || species.habit === 'airy') {
+  if (species.habit === 'globe') {
+    drawPlanGlobes(dc, species, form, phase, radius, cx, cy, seasonT);
+  } else if (species.habit === 'tussock' || species.habit === 'airy') {
     drawPlanRadiating(dc, species, form, phase, radius, cx, cy, seasonT);
   } else if (species.habit === 'clump') {
     drawPlanRosette(dc, species, form, phase, radius, cx, cy, seasonT);
@@ -129,8 +124,13 @@ export function drawPlantPlan(
       ctx.setLineDash([]);
     }
 
-    if (phase.flower > 0.05 && leafy) {
+    // Not gated on leaf cover: magnolia opens its whole crop of flowers on
+    // bare wood, weeks before a leaf appears.
+    if (phase.flower > 0.05) {
       drawPlanFlowers(dc, species, form, phase, radius, cx, cy, seasonT);
+    }
+    if (phase.fruit > 0.05) {
+      drawPlanFruit(dc, species, form, phase, radius, cx, cy);
     }
 
     // The stem itself, so you can see exactly where the plant is planted.
@@ -202,6 +202,84 @@ function drawPlanFlowers(
     ctx.beginPath();
     ctx.arc(cx + f.ax * radius * 1.6, cy + f.ay * radius * 1.6, r, 0, Math.PI * 2);
     ctx.fill();
+  }
+}
+
+/**
+ * Berries and fruit, drawn from the tail of the same position list the flowers
+ * use — so a crab apple's fruit sits roughly where its blossom was, which is
+ * where fruit actually comes from.
+ */
+function drawPlanFruit(
+  dc: DrawContext,
+  species: Species,
+  form: PlantForm,
+  phase: Phase,
+  radius: number,
+  cx: number,
+  cy: number,
+): void {
+  const { ctx, light } = dc;
+  ctx.fillStyle = shade(species.colors.fruit ?? '#b8322a', light, { alpha: 0.92, value: 1.02 });
+  const shown = Math.round(form.flowers.length * phase.fruit * 0.75);
+  for (let i = 0; i < shown; i++) {
+    const f = form.flowers[form.flowers.length - 1 - i];
+    const r = Math.max(1, f.r * radius * 1.25 * (0.7 + 0.3 * phase.fruit));
+    ctx.beginPath();
+    ctx.arc(cx + f.ax * radius * 1.5, cy + f.ay * radius * 1.5, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+/**
+ * Alliums in plan: a scatter of small circles, one per flower stem, because
+ * from above that is genuinely all there is — the foliage has usually gone over
+ * by the time the heads are up.
+ */
+function drawPlanGlobes(
+  dc: DrawContext,
+  species: Species,
+  form: PlantForm,
+  phase: Phase,
+  radius: number,
+  cx: number,
+  cy: number,
+  seasonT: number,
+): void {
+  const { ctx, light } = dc;
+  const presence = Math.max(phase.flower, phase.seedhead);
+
+  if (phase.leafCover > 0.05) {
+    // Strappy basal leaves, flopping outward.
+    ctx.strokeStyle = leafFill(species, phase, light, 0, 0.8);
+    ctx.lineWidth = Math.max(0.8, radius * 0.14);
+    for (let i = 0; i < 6; i++) {
+      const a = (i / 6) * Math.PI * 2 + form.rotation;
+      const len = radius * (0.7 + 0.5 * phase.leafCover);
+      roughLine(ctx, cx, cy, cx + Math.cos(a) * len, cy + Math.sin(a) * len, subSeed(form.seed, i), {
+        roughness: 0.9,
+        passes: 1,
+      });
+    }
+  }
+
+  if (presence < 0.05) return;
+  const dry = phase.seedhead > phase.flower;
+  ctx.fillStyle = dry
+    ? shade(species.colors.leafAutumn, light, { alpha: 0.9 })
+    : flowerFill(species, light, seasonT, 0.92);
+  ctx.strokeStyle = inkColour(light, 0.3);
+  ctx.lineWidth = 0.8;
+
+  for (let i = 0; i < form.stems.length; i++) {
+    const stem = form.stems[i];
+    const gx = cx + stem.ax * radius * 1.3;
+    const gy = cy + stem.lean * radius * 1.3;
+    const r = Math.max(1.5, radius * 0.38 * presence);
+    ctx.beginPath();
+    ctx.arc(gx, gy, r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
   }
 }
 
@@ -343,6 +421,9 @@ export function drawPlantElevation(
     case 'airy':
       drawElevAiry(dc, species, form, phase, w, h, baseX, baseY, seasonT);
       break;
+    case 'globe':
+      drawElevGlobes(dc, species, form, phase, w, h, baseX, baseY, seasonT);
+      break;
     case 'clump':
       drawElevMound(dc, species, form, phase, w, h, baseX, baseY, seasonT, 0.9);
       break;
@@ -424,6 +505,9 @@ function drawElevTree(
 
   if (phase.flower > 0.05) {
     drawElevFlowers(dc, species, form, phase, w, h, baseX, baseY, seasonT, 0.55, 1);
+  }
+  if (phase.fruit > 0.05) {
+    drawElevFruit(dc, species, form, phase, w, h, baseX, baseY, 0.6);
   }
 }
 
@@ -521,6 +605,9 @@ function drawElevMound(
 
   if (phase.flower > 0.05) {
     drawElevFlowers(dc, species, form, phase, w, h, baseX, baseY, seasonT, 0.75, 1.3);
+  }
+  if (phase.fruit > 0.05) {
+    drawElevFruit(dc, species, form, phase, w, h, baseX, baseY, 0.72);
   }
 }
 
@@ -652,6 +739,99 @@ function drawElevFlowers(
     ctx.ellipse(baseX + f.ax * w * 1.2, Math.min(baseY - 1, fy), r, r * 1.15, 0, 0, Math.PI * 2);
     ctx.fill();
   }
+}
+
+function drawElevFruit(
+  dc: DrawContext,
+  species: Species,
+  form: PlantForm,
+  phase: Phase,
+  w: number,
+  h: number,
+  baseX: number,
+  baseY: number,
+  heightBias: number,
+): void {
+  const { ctx, light } = dc;
+  ctx.fillStyle = shade(species.colors.fruit ?? '#b8322a', light, { alpha: 0.95, value: 1.02 });
+  const shown = Math.round(form.flowers.length * phase.fruit * 0.75);
+  for (let i = 0; i < shown; i++) {
+    const f = form.flowers[form.flowers.length - 1 - i];
+    const r = Math.max(1.2, f.r * w * 1.15);
+    const fy = baseY - h * (heightBias + f.ay * 0.5);
+    ctx.beginPath();
+    ctx.arc(baseX + f.ax * w * 1.4, Math.min(baseY - 1, fy), r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+/**
+ * Alliums in elevation, which is the view that earns them: bare vertical stems,
+ * each holding a sphere well clear of everything around it.
+ */
+function drawElevGlobes(
+  dc: DrawContext,
+  species: Species,
+  form: PlantForm,
+  phase: Phase,
+  w: number,
+  h: number,
+  baseX: number,
+  baseY: number,
+  seasonT: number,
+): void {
+  const { ctx, light } = dc;
+  const presence = Math.max(phase.flower, phase.seedhead);
+
+  if (phase.leafCover > 0.05) {
+    ctx.strokeStyle = leafFill(species, phase, light, 0, 0.85);
+    ctx.lineWidth = Math.max(1, w * 0.12);
+    for (let i = 0; i < 5; i++) {
+      const lean = ((i - 2) / 5) * 1.6;
+      roughLine(
+        ctx,
+        baseX,
+        baseY,
+        baseX + lean * w * 0.9,
+        baseY - h * 0.3 * phase.leafCover,
+        subSeed(form.seed, i + 60),
+        { roughness: 1, passes: 1 },
+      );
+    }
+  }
+
+  if (presence < 0.05) return;
+  const dry = phase.seedhead > phase.flower;
+  const headColour = dry
+    ? shade(species.colors.leafAutumn, light, { value: 0.95 })
+    : flowerFill(species, light, seasonT);
+  const stemColour = shade(dry ? species.colors.leafAutumn : species.colors.bark, light, {
+    value: 0.9,
+  });
+
+  // The head is about as wide as the plant's spread — that is what an allium is.
+  const headR = Math.max(2, (w / 2) * 0.9 * (0.55 + 0.45 * presence));
+
+  form.stems.forEach((stem, i) => {
+    const stemH = h * (0.78 + stem.h * 0.22) * (0.5 + 0.5 * presence);
+    const topX = baseX + stem.ax * w * 1.1 + stem.lean * w * 0.3;
+    const topY = baseY - stemH;
+
+    ctx.strokeStyle = stemColour;
+    ctx.lineWidth = Math.max(0.8, w * 0.06);
+    roughLine(ctx, baseX + stem.ax * w * 0.5, baseY, topX, topY, subSeed(form.seed, i), {
+      roughness: 0.5,
+      passes: 1,
+    });
+
+    ctx.fillStyle = headColour;
+    ctx.beginPath();
+    ctx.arc(topX, topY - headR * 0.6, headR, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = inkColour(light, 0.28);
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+  });
 }
 
 function drawDormantSoil(

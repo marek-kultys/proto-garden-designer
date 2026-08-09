@@ -21,6 +21,16 @@ body,
 #root {
   height: 100%;
   margin: 0;
+  /*
+   * The single most important rule in this file for mobile.
+   *
+   * Published as an artifact, this page lives inside a sheet in a host app. A
+   * scroll gesture that reaches the end of its own scroller keeps going, the
+   * host takes it as a dismiss, and the pane closes underneath the user. This
+   * severs that chain at every level, and the layout below is built so that on
+   * a phone there is nothing to scroll in the first place.
+   */
+  overscroll-behavior: none;
 }
 
 body {
@@ -141,9 +151,24 @@ select {
   border-right: 1px solid var(--line);
   padding: 14px;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.library-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.library-count {
+  font-size: 11px;
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
 }
 
 .library h2,
@@ -197,7 +222,65 @@ select {
 .cards {
   display: flex;
   flex-direction: column;
+  gap: 12px;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
   gap: 6px;
+}
+
+.group-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 0;
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--line);
+  font-size: 11px;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+}
+
+.group-head span {
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.chip.planted:disabled {
+  opacity: 0.4;
+}
+
+/* A species already on the plan carries its tally, so the library doubles as a
+   plant schedule rather than only a palette. */
+.count {
+  flex: 0 0 auto;
+  min-width: 26px;
+  height: 24px;
+  margin-left: auto;
+  padding: 0 6px;
+  border-radius: 999px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  line-height: 24px;
+  text-align: center;
+}
+
+.count:hover:not(:disabled) {
+  background: #2f6c99;
+  color: #fff;
+}
+
+.card-outer.planted {
+  border-color: #bcd4e6;
+  background: #fbfdff;
 }
 
 .card-outer {
@@ -347,6 +430,7 @@ select {
 
 .elevation-wrap canvas {
   display: block;
+  touch-action: none;
 }
 
 .elevation-label {
@@ -443,9 +527,21 @@ select {
   border-left: 1px solid var(--line);
   padding: 14px;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
   gap: 9px;
+}
+
+.tools.stacked {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.tools.stacked .rect-tool {
+  border-left: none;
+  padding-left: 0;
 }
 
 .dial-wrap {
@@ -649,6 +745,7 @@ select {
 
 .track input[type='range'] {
   position: absolute;
+  touch-action: none;
   inset: 0;
   width: 100%;
   height: 100%;
@@ -735,48 +832,185 @@ select {
   }
 }
 
+/* The sheet tabs exist only on the phone layout, where the side panels become
+   slide-up sheets and need something to open them. */
+.sheet-tabs {
+  display: none;
+}
+
 /*
- * Below this the three-column layout cannot hold without the page scrolling
- * sideways, so it stacks instead: canvas first, then the panels beneath it.
- * Worth having — this gets opened on a tablet and handed across a table.
+ * Phone layout.
+ *
+ * The previous version of this stacked the three columns into one tall column
+ * and let the page scroll. That is what was closing the host pane: a swipe that
+ * runs past the end of the document chains upward and reads as a dismiss.
+ *
+ * So on a phone nothing scrolls at the page level at all. The canvas and the
+ * time sliders fill the viewport exactly, and the two panels become sheets that
+ * slide up over the canvas with their own contained scrolling.
  */
 @media (max-width: 900px) {
-  body {
-    overflow: auto;
-  }
-
   .app {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto auto auto auto auto;
+    grid-template-rows: auto minmax(0, 1fr) auto;
     grid-template-areas:
       'top'
       'stage'
-      'time'
-      'lib'
-      'site';
-    height: auto;
-    max-height: none;
-    min-height: 100dvh;
+      'time';
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
   }
 
-  .stage {
-    height: 72dvh;
-    min-height: 420px;
+  .brand h1 {
+    font-size: 14px;
+  }
+
+  .brand span,
+  .topbar > .tools {
+    display: none;
+  }
+
+  .topbar {
+    padding: 8px 12px;
+    flex-wrap: nowrap;
+  }
+
+  .sheet-tabs {
+    display: flex;
+    gap: 6px;
+  }
+
+  .sheet-tabs button {
+    padding: 7px 12px;
+    font-size: 13px;
   }
 
   .library,
   .site-panel {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    height: min(66dvh, 620px);
     border: none;
     border-top: 1px solid var(--line);
-    overflow-y: visible;
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.22);
+    transform: translateY(101%);
+    transition: transform 0.24s ease;
+    padding-top: 0;
+  }
+
+  .app[data-sheet='plants'] .library,
+  .app[data-sheet='site'] .site-panel {
+    transform: none;
+  }
+
+  .sheet-head {
+    position: sticky;
+    top: -14px;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin: -14px -14px 2px;
+    padding: 12px 12px 6px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .grabber {
+    position: absolute;
+    top: 7px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 36px;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--line-strong);
+  }
+
+  .sheet-close {
+    padding: 4px 14px;
+    font-size: 13px;
+  }
+
+  .sheet-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    border: none;
+    border-radius: 0;
+    background: rgba(28, 26, 22, 0.28);
+    cursor: pointer;
+  }
+
+  .stage {
+    min-height: 0;
   }
 
   .sliders {
     grid-template-columns: minmax(0, 1fr);
-    gap: 14px;
+    gap: 10px;
   }
 
-  .elevation-wrap {
-    flex: 0 0 200px;
+  .timebar {
+    padding: 8px 12px 12px;
+  }
+
+  .timebar-readout {
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+
+  /* Touch targets: a 12px slider thumb is not usable with a thumb. */
+  .track {
+    height: 30px;
+  }
+
+  .track input[type='range']::-webkit-slider-thumb {
+    width: 18px;
+    height: 34px;
+  }
+
+  .legend {
+    right: 8px;
+    bottom: 8px;
+    font-size: 11px;
+    min-width: 0;
+    padding: 7px 9px;
+  }
+
+  /* Time-of-day and age carry their value in the readout above, so their tick
+     rows are redundant on a phone and the space is better spent on the canvas.
+     The month letters stay — they are the only way to read the season slider. */
+  .ticks:not(.months) {
+    display: none;
+  }
+
+  .slider-head {
+    margin-bottom: 3px;
+  }
+
+  .slider-head label {
+    font-size: 10.5px;
+  }
+
+  .card {
+    padding: 9px 8px;
+  }
+
+  /* The A and B markers already identify the strip, and the caption collides
+     with the height ruler once the drawing is only a few hundred pixels wide. */
+  .elevation-label {
+    display: none;
+  }
+
+  .info-toggle {
+    width: 26px;
+    height: 26px;
   }
 }
+

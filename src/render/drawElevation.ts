@@ -6,7 +6,7 @@ import { canopyDensity } from '../model/shade';
 import type { PlantInstance, Site, TimeState, Vec2 } from '../model/types';
 import { inkColour, shade, type Lighting } from './palette';
 import { getForm } from './form';
-import { drawPlantElevation, flowerAge } from './plant';
+import { drawPlantElevation } from './plant';
 import { roughLine } from './sketch';
 import { MIN_ELEVATION_HEIGHT, SIGHT_BAND } from './constants';
 
@@ -156,7 +156,7 @@ export function drawElevation(
       size,
       x,
       groundY,
-      flowerAge(species, time.doy),
+      phase.flowerAge,
       scene.selectedId === item.plant.id,
     );
     ctx.restore();

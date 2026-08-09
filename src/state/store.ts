@@ -45,6 +45,8 @@ export interface AppState {
   removePlant: (id: string) => void;
   clearPlants: () => void;
   select: (id: string | null) => void;
+  /** Step the selection through the instances of one species, for the count badge. */
+  selectNextOfSpecies: (speciesId: string) => void;
 
   setTime: (patch: Partial<TimeState>) => void;
   setSite: (patch: Partial<Site>) => void;
@@ -117,6 +119,16 @@ export const useStore = create<AppState>((set) => ({
 
   clearPlants: () => set({ plants: [], selectedId: null }),
   select: (id) => set({ selectedId: id }),
+
+  selectNextOfSpecies: (speciesId) =>
+    set((s) => {
+      const matches = s.plants.filter((p) => p.speciesId === speciesId);
+      if (matches.length === 0) return {};
+      const at = matches.findIndex((p) => p.id === s.selectedId);
+      // Tapping the badge repeatedly walks round the group rather than sticking
+      // on the first one, which is how you find the third of five hostas.
+      return { selectedId: matches[(at + 1) % matches.length].id };
+    }),
 
   setTime: (patch) => set((s) => ({ time: { ...s.time, ...patch } })),
   setSite: (patch) => set((s) => ({ site: { ...s.site, ...patch } })),

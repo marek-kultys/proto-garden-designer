@@ -1,4 +1,4 @@
-export type PlantType = 'tree' | 'shrub' | 'conifer' | 'grass' | 'perennial';
+export type PlantType = 'tree' | 'shrub' | 'conifer' | 'grass' | 'perennial' | 'annual';
 
 /** Silhouette family — picks which draw function renders the plant. */
 export type Habit =
@@ -8,7 +8,8 @@ export type Habit =
   | 'mound' // dense dome (hydrangea, lavender)
   | 'tussock' // arching clump with flower spikes (grasses)
   | 'clump' // low leafy mound (hosta, geranium)
-  | 'airy'; // sparse see-through stems (verbena)
+  | 'airy' // sparse see-through stems (verbena)
+  | 'globe'; // bare stems each topped with a sphere (allium)
 
 /**
  * deciduous  — woody, drops its leaves
@@ -19,6 +20,27 @@ export type Foliage = 'deciduous' | 'evergreen' | 'herbaceous';
 
 export type SunPref = 'full' | 'partial' | 'shade';
 export type SizeClass = 'small' | 'medium' | 'large';
+
+/**
+ * How the plant persists, where that differs from "it just carries on".
+ *
+ * This does not feed the maths — growth and phenology handle these through
+ * their ordinary parameters — but it changes what the age slider *means*, and a
+ * designer needs telling. A cosmos is the same size in year 20 as in year 1
+ * because it is a different plant each year; an allium is gone by midsummer
+ * because it has gone back to the bulb, not because it died.
+ */
+export type Lifecycle = 'annual' | 'bulb';
+
+/**
+ * A window in the year during which dry structure stands: seedheads, dead
+ * stems, spent flowerheads. `to` earlier than `from` means it crosses the new
+ * year, which is the normal case for grasses left up until a February cut-back.
+ */
+export interface StandingWindow {
+  from: number;
+  to: number;
+}
 
 export interface Species {
   id: string;
@@ -47,10 +69,21 @@ export interface Species {
   fullLeaf: number;
   autumnStart: number;
   leafFall: number;
+  /**
+   * Flowering window. `flowerEnd` earlier than `flowerStart` means it crosses
+   * the new year — Viburnum tinus opens in November and carries on to April.
+   */
   flowerStart: number;
   flowerEnd: number;
-  /** Grasses and seedheads that stand through winter. */
-  winterStructure?: boolean;
+  /** Flowers open on bare wood before the leaves — magnolia, forsythia. */
+  flowersOnBareWood?: boolean;
+  /** Dry structure left standing; omit for anything that collapses and goes. */
+  standing?: StandingWindow;
+  /** Berries or fruit, if they are worth drawing. */
+  fruitStart?: number;
+  fruitEnd?: number;
+
+  lifecycle?: Lifecycle;
 
   colors: {
     leafSpring: string;
@@ -59,6 +92,11 @@ export interface Species {
     flower: string;
     /** Some flowers age through a second colour — hydrangea lime to pink. */
     flowerLate?: string;
+    fruit?: string;
+    /**
+     * Trunk and stems. For a dogwood grown for its winter stems this is the
+     * whole point of the plant, so it carries the flame colour, not a brown.
+     */
     bark: string;
   };
 
@@ -131,6 +169,10 @@ export interface Phase {
   spring: number;
   /** 0 = no flower, 1 = peak flower. */
   flower: number;
+  /** How far through the flowering window, for blooms that age through a colour. */
+  flowerAge: number;
+  /** Berries or fruit on the plant. */
+  fruit: number;
   /** Dry seedheads standing over winter. */
   seedhead: number;
   /** Herbaceous plant is below ground — draw nothing. */

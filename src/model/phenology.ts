@@ -1,4 +1,4 @@
-import type { Phase, Site, Species } from './types';
+import type { Phase, Site, Species, StandingWindow } from './types';
 
 /**
  * What a plant is doing on a given day of the year.
@@ -48,23 +48,54 @@ function bell(start: number, end: number, x: number): number {
   return smoothstep(start, start + span * 0.2, x) * (1 - smoothstep(end - span * 0.35, end, x));
 }
 
-/** Late winter, when standing seedheads and dead stems get cut down. */
-const CUT_BACK_START = 40;
-const CUT_BACK_END = 70;
+const RISE_DAYS = 32;
+const FALL_DAYS = 30;
 
 /**
- * Dry structure that stands over winter.
+ * Dry structure standing on the plant: seedheads, spent flowerheads, dead stems.
  *
- * This is the one thing in the model that has to survive the turn of the year:
- * grass plumes rise in late summer, stand through December and January, and are
- * only cut down in February. A plain ramp on day-of-year cannot express that —
- * it resets to zero on 1 January and the garden loses its winter structure
- * overnight — so the wrap is handled explicitly.
+ * Two shapes, and the difference matters. Grass plumes rise in late summer,
+ * stand through December and January, and only come down at the February cut —
+ * a window that crosses the new year, which a plain day-of-year ramp cannot
+ * express at all (it resets on 1 January and the garden loses its winter
+ * structure overnight). Allium seedheads are the opposite: they go over in high
+ * summer and are gone long before autumn, entirely inside one year.
  */
-function standingStructure(riseStart: number, riseEnd: number, doy: number): number {
-  if (doy <= CUT_BACK_END) return 1 - smoothstep(CUT_BACK_START, CUT_BACK_END, doy);
-  if (doy >= riseStart) return smoothstep(riseStart, riseEnd, doy);
+function standingAt(window: StandingWindow, doy: number): number {
+  if (window.to > window.from) {
+    const span = window.to - window.from;
+    const rise = Math.min(RISE_DAYS, span * 0.35);
+    const fall = Math.min(FALL_DAYS, span * 0.35);
+    return (
+      smoothstep(window.from, window.from + rise, doy) *
+      (1 - smoothstep(window.to - fall, window.to, doy))
+    );
+  }
+  if (doy >= window.from) return smoothstep(window.from, window.from + RISE_DAYS, doy);
+  if (doy <= window.to) return 1 - smoothstep(Math.max(0, window.to - FALL_DAYS), window.to, doy);
   return 0;
+}
+
+/**
+ * A bell over a window that may cross the new year.
+ *
+ * Viburnum tinus opens in November and carries on to April; a straight
+ * `bell(305, 110, doy)` has its end before its start and silently returns zero,
+ * so the plant would never flower at all. Evaluating the window in both the
+ * previous year and the next and taking whichever is live handles it.
+ */
+function wrappedBell(start: number, end: number, doy: number): number {
+  if (end > start) return bell(start, end, doy);
+  if (end === start) return 0;
+  return Math.max(bell(start, end + 365, doy), bell(start - 365, end, doy));
+}
+
+/** How far through a window a day sits, 0–1, wrap included. */
+function windowProgress(start: number, end: number, doy: number): number {
+  const span = end > start ? end - start : end + 365 - start;
+  if (span <= 0) return 0;
+  const offset = doy >= start ? doy - start : doy + 365 - start;
+  return Math.max(0, Math.min(1, offset / span));
 }
 
 interface Anchors {
@@ -94,13 +125,30 @@ export function anchorsFor(species: Species, site: Site): Anchors {
 
 export function phaseAt(species: Species, doy: number, site: Site): Phase {
   const a = anchorsFor(species, site);
-  const flower = bell(a.flowerStart, a.flowerEnd, doy);
+  const flower = wrappedBell(a.flowerStart, a.flowerEnd, doy);
+  const flowerAge = windowProgress(a.flowerStart, a.flowerEnd, doy);
+  const fruit =
+    species.fruitStart !== undefined && species.fruitEnd !== undefined
+      ? wrappedBell(species.fruitStart, species.fruitEnd, doy)
+      : 0;
 
   if (species.foliage === 'evergreen') {
     // Evergreens still flush new growth in spring; that flush is a visibly
     // lighter green for a few weeks, which is worth showing.
     const spring = bell(a.budBurst, a.fullLeaf + 30, doy);
-    return { leafCover: 1, autumn: 0, spring, flower, seedhead: 0, dormant: false };
+    return {
+      leafCover: 1,
+      autumn: 0,
+      spring,
+      flower,
+      flowerAge,
+      fruit,
+      // Evergreen foliage and dry standing structure are not exclusive: Stipa
+      // gigantea keeps a green basal clump all year and holds its oat panicles
+      // above it from midsummer until they are cut in late winter.
+      seedhead: species.standing ? standingAt(species.standing, doy) : 0,
+      dormant: false,
+    };
   }
 
   const flushing = smoothstep(a.budBurst, a.fullLeaf, doy);
@@ -114,31 +162,38 @@ export function phaseAt(species: Species, doy: number, site: Site): Phase {
   const autumn = smoothstep(a.autumnStart, fallStart, doy);
   const spring = bell(a.budBurst, a.fullLeaf + 25, doy);
 
+  const seedhead = species.standing ? standingAt(species.standing, doy) : 0;
+
   if (species.foliage === 'herbaceous') {
     // Dies back to the ground: nothing above soil once the foliage has gone.
-    const seedhead = species.winterStructure
-      ? standingStructure(a.autumnStart, a.leafFall, doy)
-      : 0;
     // Herbaceous stems collapse rather than hanging on, so they clear faster.
     const collapse = smoothstep(a.autumnStart, a.autumnStart + 30, doy);
     const cover = Math.max(0, flushing - collapse);
     return {
       leafCover: cover,
-      // Anything still standing in January is dead material, and must be
-      // coloured as such. Autumn alone ramps on day-of-year and so resets to
-      // zero on 1 January, which would repaint a winter grass in summer green.
+      // Anything still standing is dead material and must be coloured as such.
+      // Autumn alone ramps on day-of-year and so resets to zero on 1 January,
+      // which would repaint a winter grass in summer green.
       autumn: Math.max(autumn, seedhead),
       spring,
       flower,
+      flowerAge,
+      fruit,
       seedhead,
-      dormant: cover < 0.03 && seedhead < 0.03,
+      dormant: cover < 0.03 && seedhead < 0.03 && flower < 0.03,
     };
   }
 
-  const seedhead = species.winterStructure
-    ? standingStructure(a.leafFall - 20, a.leafFall + 15, doy)
-    : 0;
-  return { leafCover, autumn: Math.max(autumn, seedhead), spring, flower, seedhead, dormant: false };
+  return {
+    leafCover,
+    autumn: Math.max(autumn, seedhead),
+    spring,
+    flower,
+    flowerAge,
+    fruit,
+    seedhead,
+    dormant: false,
+  };
 }
 
 const MONTHS = [
@@ -168,9 +223,10 @@ export function monthStartDoy(month: number): number {
 
 /** Plain-language summary of what the plant is doing, for the canvas readout. */
 export function phaseSummary(species: Species, phase: Phase): string {
-  if (phase.dormant) return 'dormant below ground';
+  if (phase.dormant) return species.lifecycle === 'bulb' ? 'back to the bulb' : 'dormant below ground';
   const bits: string[] = [];
   if (phase.flower > 0.35) bits.push('in flower');
+  if (phase.fruit > 0.35) bits.push(species.type === 'tree' ? 'in fruit' : 'in berry');
   if (phase.autumn > 0.5 && phase.leafCover > 0.1) bits.push('autumn colour');
   if (phase.leafCover < 0.15 && species.foliage === 'deciduous') bits.push('bare');
   else if (phase.spring > 0.4) bits.push('fresh growth');

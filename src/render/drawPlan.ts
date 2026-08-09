@@ -8,7 +8,7 @@ import type { PlantInstance, Plot, Site, TimeState, Vec2 } from '../model/types'
 import { inkColour, shade, type Lighting } from './palette';
 import { blobPoints, curvePath, roughCurve, roughLine, roughPolygon, subSeed } from './sketch';
 import { getForm } from './form';
-import { canopyOutline, drawPlantPlan, flowerAge } from './plant';
+import { canopyOutline, drawPlantPlan } from './plant';
 import { drawShadeOverlay } from './overlay';
 import { niceScaleStep, toScreen, type Viewport } from './viewport';
 import { SIGHT_BAND } from './constants';
@@ -103,7 +103,7 @@ export function drawPlan(
       d.size,
       d.screen.x,
       d.screen.y,
-      flowerAge(d.species, time.doy),
+      d.phase.flowerAge,
       scene.selectedId === d.plant.id,
     );
   }
@@ -123,7 +123,7 @@ export function drawPlan(
 
   drawSunMarker(ctx, width, height, viewport, scene);
   drawNorthArrow(ctx, width, site.northAngle, light);
-  drawScaleBar(ctx, height, viewport, light);
+  drawScaleBar(ctx, width, height, viewport, light);
 }
 
 /** Straight-edged path — a plot boundary is surveyed, not sketched freehand. */
@@ -356,16 +356,22 @@ function drawNorthArrow(
 
 function drawScaleBar(
   ctx: CanvasRenderingContext2D,
+  width: number,
   height: number,
   viewport: Viewport,
   light: Lighting,
 ): void {
-  const metres = niceScaleStep(viewport.scale);
+  const compact = width < 560;
+  const metres = niceScaleStep(viewport.scale, compact ? 56 : 110);
   const px = metres * viewport.scale;
-  const x = 24;
-  const y = height - 28;
+  const x = compact ? 12 : 24;
+  const y = height - (compact ? 16 : 28);
 
   ctx.save();
+  // A plate behind it, because on a small canvas the plot runs right up to the
+  // edge and an unbacked hairline rule disappears into the grid.
+  ctx.fillStyle = 'rgba(247, 244, 236, 0.72)';
+  ctx.fillRect(x - 6, y - 11, px + 12, 28);
   ctx.strokeStyle = inkColour(light, 0.8);
   ctx.fillStyle = inkColour(light, 0.8);
   ctx.lineWidth = 1.5;
@@ -392,6 +398,10 @@ function drawSunMarker(
 ): void {
   const { light, site } = scene;
   if (light.altitude <= -6) return;
+  // On a phone the plot fills the canvas edge to edge, so there is no "outside"
+  // to put this in — it would land on the planting. The north dial in the site
+  // panel shows the same thing, so drop it rather than obscure the design.
+  if (height < 260 || width < 380) return;
 
   const angle = bearingToCanvas(light.azimuth, site.northAngle);
   const cx = width / 2;

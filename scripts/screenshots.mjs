@@ -27,6 +27,33 @@ const DESIGN = [
   ['geranium-rozanne', 9.8, 6.2],
 ];
 
+/**
+ * A second planting, made of the species that exercise behaviours the first ten
+ * never did — flowering on bare wood, fruit held after leaf fall, coloured
+ * winter stems, a bulb that vanishes in high summer, an annual.
+ */
+const SHOWCASE = [
+  ['magnolia-soulangeana', 3.2, 3.0],
+  ['malus-evereste', 10.8, 2.8],
+  ['eucalyptus-gunnii', 7.0, 7.8],
+  ['cornus-midwinter-fire', 2.4, 6.6],
+  ['viburnum-tinus', 12.6, 6.6],
+  ['allium-purple-sensation', 5.2, 5.0],
+  ['allium-purple-sensation', 5.9, 5.4],
+  ['cosmos-bipinnatus', 7.4, 4.8],
+  ['stipa-gigantea', 9.2, 5.2],
+  ['helleborus-hybridus', 3.8, 5.2],
+  ['rudbeckia-goldsturm', 10.6, 5.0],
+];
+
+const SHOWCASE_SHOTS = [
+  { name: '11-showcase-april-magnolia', doy: 96, hour: 13, year: 8 },
+  { name: '12-showcase-may-allium', doy: 143, hour: 13, year: 8 },
+  { name: '13-showcase-august', doy: 228, hour: 14, year: 8 },
+  { name: '14-showcase-november-fruit', doy: 320, hour: 12, year: 8 },
+  { name: '15-showcase-january-stems', doy: 20, hour: 12, year: 8 },
+];
+
 const SHOTS = [
   { name: '01-june-midday-now', doy: 155, hour: 13, year: 0 },
   { name: '02-june-midday-20y', doy: 155, hour: 13, year: 20 },
@@ -71,6 +98,25 @@ for (const shot of SHOTS) {
   }, shot);
   // Let the debounced shade computation land before capturing.
   await page.waitForTimeout(shot.overlay ? 900 : 250);
+  await page.screenshot({ path: `${outDir}/${shot.name}.png` });
+  process.stdout.write(`captured ${shot.name}\n`);
+}
+
+// Second pass: swap the planting and walk the same year.
+await page.evaluate((design) => {
+  const store = window.gardenStore.getState();
+  store.clearPlants();
+  for (const [speciesId, x, y] of design) store.addPlant(speciesId, { x, y });
+  const s = window.gardenStore.getState();
+  s.select(null);
+  if (s.showOverlay) s.toggle('showOverlay');
+}, SHOWCASE);
+
+for (const shot of SHOWCASE_SHOTS) {
+  await page.evaluate((s) => {
+    window.gardenStore.getState().setTime({ doy: s.doy, hour: s.hour, year: s.year });
+  }, shot);
+  await page.waitForTimeout(250);
   await page.screenshot({ path: `${outDir}/${shot.name}.png` });
   process.stdout.write(`captured ${shot.name}\n`);
 }

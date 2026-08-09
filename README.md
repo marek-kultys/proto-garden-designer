@@ -8,15 +8,15 @@ respond. Shadows sweep round, light warms and cools, leaves come and go, autumn
 colour arrives, and the planting grows up.
 
 This is built to test whether the interaction idea has depth, not to be a
-comprehensive plant database. Ten plants, each researched properly and simulated
-seriously, rather than a hundred stubs.
+comprehensive plant database. Thirty plants, each researched properly and
+simulated seriously, rather than a hundred stubs.
 
 ## Running it
 
 ```bash
 npm install
 npm run dev        # http://localhost:5173
-npm test           # 49 model tests
+npm test           # 70 model tests
 npm run build      # normal production build into dist/
 ```
 
@@ -24,15 +24,16 @@ For something you can email to a tester, or open by double-clicking with no
 server at all:
 
 ```bash
-SINGLEFILE=1 npm run build     # one self-contained dist/index.html, ~220 kB
+SINGLEFILE=1 npm run build     # one self-contained dist/index.html, ~250 kB
 node scripts/check-singlefile.mjs   # confirms it runs from file:// with zero network requests
 ```
 
-To see it working across the slider range:
+To see it working across the slider range, and to check the phone layout:
 
 ```bash
 npx vite preview --port 4173
 node scripts/screenshots.mjs http://localhost:4173 screenshots
+node scripts/check-mobile.mjs http://localhost:4173 screenshots
 ```
 
 ## What is actually simulated
@@ -94,35 +95,63 @@ would stay the same size on screen and the age slider would appear to do nothing
 
 ## The plant palette
 
-Chosen to span the axes the simulation exercises — vigorous to slow, evergreen to
-fully dormant, sun to deep shade, tree to groundcover. Dimensions and flowering
-periods are from the RHS entry for each plant; where a nursery gives a realistic
-twenty-year size well below the RHS "ultimate" figure, the growth curve is tuned
-to hit the twenty-year number, since that is the range the age slider covers.
+Thirty plants, chosen to span the axes the simulation exercises — vigorous to
+slow, evergreen to fully dormant, sun to deep shade, tree to groundcover.
+Dimensions and flowering periods are from the RHS entry for each plant (every
+entry in `src/model/plants.ts` carries its source URL); where a nursery gives a
+realistic twenty-year size well below the RHS "ultimate" figure, the growth curve
+is tuned to hit the twenty-year number, since that is the range the age slider
+covers.
 
-| Plant | Latin | Notes |
-|---|---|---|
-| West Himalayan birch | *Betula utilis* var. *jacquemontii* | 12–18 m, vigorous, white bark, yellow autumn |
-| Snowy mespilus | *Amelanchier lamarckii* | multistem, April blossom, orange-red autumn |
-| Japanese maple | *Acer palmatum* 'Ōsakazuki' | 4 × 3 m at 20 years, orange-scarlet autumn |
-| Yew | *Taxus baccata* | clipped column, 20–40 cm/yr, takes deep shade |
-| Panicle hydrangea | *Hydrangea paniculata* 'Limelight' | flowers age lime → cream → pink through the season |
-| English lavender | *Lavandula angustifolia* 'Hidcote' | evergreen grey, full sun only |
-| Feather reed grass | *Calamagrostis* × *acutiflora* 'Karl Foerster' | plumes stand all winter, cut back in February |
-| Plantain lily | *Hosta* (Tardiana Gp) 'Halcyon' | vanishes below ground November–April |
-| Purple top | *Verbena bonariensis* | see-through, July to first frosts |
-| Cranesbill | *Geranium* Rozanne | flowers across most of the season slider |
+**Trees** — West Himalayan birch, snowy mespilus, Japanese maple 'Ōsakazuki',
+cider gum, saucer magnolia, crab apple 'Evereste', Tibetan cherry, rowan.
+**Shrubs** — panicle hydrangea 'Limelight', English lavender, mānuka, dogwood
+'Midwinter Fire', laurustinus, shrub rose 'Gertrude Jekyll', Mexican orange
+blossom 'Sundance'. **Conifers** — clipped yew, dwarf mountain pine.
+**Grasses** — feather reed grass 'Karl Foerster', giant oat grass, maiden grass.
+**Perennials** — hosta 'Halcyon', purple top, cranesbill Rozanne, salvia
+'Caradonna', coneflower, lady's mantle, black-eyed Susan, Lenten rose,
+ornamental onion. **Annuals** — cosmos.
 
-Each entry in `src/model/plants.ts` carries its source URL.
+Several of them exist to exercise a specific piece of the model, and it is worth
+knowing which, because each is a case where the obvious implementation silently
+does nothing rather than failing loudly:
+
+| Plant | What it exercises |
+|---|---|
+| Saucer magnolia | flowers on completely bare wood, weeks before a leaf |
+| Laurustinus | a flowering window that crosses the new year (November–April) |
+| Dogwood 'Midwinter Fire' | grown for the colour of its leafless stems |
+| Crab apple, rowan | fruit still held long after leaf fall |
+| Ornamental onion | a bulb: dormant in high summer, not in winter, with seedheads that go over before autumn |
+| Cosmos | an annual — the same size in year 20 as in year 1, because it is a different plant each year |
+| Giant oat grass | evergreen foliage *and* standing winter seedheads at once |
+| Cider gum | the fastest grower here, and evergreen, so it shades in winter too |
+
+## On a phone
+
+The page never scrolls on a phone, and that is deliberate rather than incidental.
+Published as an artifact it lives inside a sheet in a host app, and a swipe that
+runs past the end of the document chains upward and reads as a dismiss — the pane
+closes underneath you mid-gesture. So the phone layout fits the viewport exactly:
+canvas, elevation and the three sliders, with the plant library and site settings
+as sheets that slide up over the canvas and contain their own scrolling.
+`overscroll-behavior: none` severs the chain at every level as a second line of
+defence. `scripts/check-mobile.mjs` asserts all of this rather than trusting it.
+
+Dragging onto a canvas you cannot see is not a real option on a phone, so tapping
+a plant drops it in the middle of the plot and closes the sheet; you then drag it
+into place on the canvas.
 
 ## Deliberately not in this build
 
 - **Soil type and suitability alerts.** Next obvious step; the plant data already
-  carries what it needs.
+  carries what it needs, including a hardiness rating per plant — and the palette
+  now includes genuinely borderline things (mānuka at H3, cosmos at H2) for that
+  check to have something to say.
 - **Save / load / export.** All state is one serialisable object, so this is a
   small addition — but as things stand, closing the tab loses the design. Worth
   adding before any unsupervised testing.
-- **Anything beyond ten plants.** The point is interaction depth.
 
 ## Known trade-offs
 
@@ -157,4 +186,5 @@ s.toggle('showOverlay');
 
 The moments that have landed hardest so far: the same design at year 0 versus
 year 20; mid-October at twenty years, when the birch goes yellow and the maple
-scarlet; and January, when half the planting simply is not there.
+scarlet; and January, when half the planting simply is not there — but the
+dogwood stems are flaming orange and the laurustinus is in full flower.

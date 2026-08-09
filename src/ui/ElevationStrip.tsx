@@ -13,12 +13,17 @@ import { useSun } from './useSun';
  * the shared scale and fills the width as a side effect.
  */
 const HEIGHTS = [170, 300, 470];
+const NARROW_HEIGHTS = [110, 190, 300];
 
 export function ElevationStrip() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const [heightIndex, setHeightIndex] = useState(1);
   const [size, setSize] = useState({ width: 800, height: HEIGHTS[1] });
+  // A phone has a third of the vertical room, so the same three steps are
+  // offered at a smaller scale rather than the control being taken away.
+  const narrow = typeof window !== 'undefined' && window.matchMedia('(max-width: 900px)').matches;
+  const heights = narrow ? NARROW_HEIGHTS : HEIGHTS;
 
   const plants = useStore((s) => s.plants);
   const site = useStore((s) => s.site);
@@ -32,7 +37,7 @@ export function ElevationStrip() {
     if (!el) return;
     const observer = new ResizeObserver(() => {
       const r = el.getBoundingClientRect();
-      setSize({ width: Math.max(320, r.width), height: Math.max(140, r.height) });
+      setSize({ width: Math.max(260, r.width), height: Math.max(90, r.height) });
     });
     observer.observe(el);
     return () => observer.disconnect();
@@ -61,13 +66,13 @@ export function ElevationStrip() {
     <div
       className="elevation-wrap"
       ref={wrapRef}
-      style={{ flex: `0 0 ${HEIGHTS[heightIndex]}px` }}
+      style={{ flex: `0 0 ${heights[heightIndex]}px` }}
     >
       <canvas ref={canvasRef} style={{ width: size.width, height: size.height }} />
       <div className="elevation-label">Elevation — slice A→B</div>
       <button
         className="elevation-size"
-        onClick={() => setHeightIndex((i) => (i + 1) % HEIGHTS.length)}
+        onClick={() => setHeightIndex((i) => (i + 1) % heights.length)}
         title="Change the height of the elevation view"
       >
         {['Compact', 'Normal', 'Tall'][heightIndex]} ↕
