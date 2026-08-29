@@ -5,7 +5,15 @@ import { lightingFor } from '../render/palette';
 import { getForm } from '../render/form';
 import { drawPlantElevation } from '../render/plant';
 import { useStore } from '../state/store';
-import type { Foliage, PlantType, Species, SunPref } from '../model/types';
+import type {
+  DrainagePref,
+  Foliage,
+  PlantType,
+  SoilPh,
+  SoilType,
+  Species,
+  SunPref,
+} from '../model/types';
 
 const REFERENCE_SITE = {
   latitude: 51.5,
@@ -100,18 +108,66 @@ const TYPES: { id: PlantType | 'all'; label: string }[] = [
 ];
 
 const FOLIAGE: { id: Foliage | 'all'; label: string }[] = [
-  { id: 'all', label: 'Any foliage' },
+  { id: 'all', label: 'Any' },
   { id: 'deciduous', label: 'Deciduous' },
   { id: 'evergreen', label: 'Evergreen' },
   { id: 'herbaceous', label: 'Dies back' },
 ];
 
+/** Ordered sunniest to shadiest, which is how anyone reads a row like this. */
 const SUN: { id: SunPref | 'all'; label: string }[] = [
-  { id: 'all', label: 'Any aspect' },
+  { id: 'all', label: 'Any' },
   { id: 'full', label: 'Full sun' },
-  { id: 'partial', label: 'Partial shade' },
+  { id: 'dappled', label: 'Dappled shade' },
+  { id: 'partial', label: 'Semi shade' },
   { id: 'shade', label: 'Shade' },
 ];
+
+const SOIL_PH: { id: SoilPh | 'all'; label: string }[] = [
+  { id: 'all', label: 'Any' },
+  { id: 'acidic', label: 'Acidic' },
+  { id: 'neutral', label: 'Neutral' },
+  { id: 'alkaline', label: 'Alkaline' },
+];
+
+const SOIL_TYPE: { id: SoilType | 'all'; label: string }[] = [
+  { id: 'all', label: 'Any' },
+  { id: 'clay', label: 'Clay' },
+  { id: 'loam', label: 'Loam' },
+  { id: 'sand', label: 'Sand' },
+  { id: 'chalk', label: 'Chalk' },
+];
+
+/** Driest to wettest. */
+const DRAINAGE: { id: DrainagePref | 'all'; label: string }[] = [
+  { id: 'all', label: 'Any' },
+  { id: 'free', label: 'Free draining' },
+  { id: 'retentive', label: 'Water retentive' },
+  { id: 'waterlogged', label: 'Waterlogged' },
+  { id: 'bog', label: 'Bog' },
+  { id: 'pond', label: 'Pond' },
+];
+
+export const SUN_LABELS: Record<SunPref, string> = {
+  full: 'full sun',
+  dappled: 'dappled shade',
+  partial: 'semi shade',
+  shade: 'shade',
+};
+
+const SOIL_PH_LABELS: Record<SoilPh, string> = {
+  acidic: 'acidic',
+  neutral: 'neutral',
+  alkaline: 'alkaline',
+};
+
+const DRAINAGE_LABELS: Record<DrainagePref, string> = {
+  free: 'free draining',
+  retentive: 'water retentive',
+  waterlogged: 'tolerates waterlogging',
+  bog: 'bog',
+  pond: 'pond',
+};
 
 const TYPE_ORDER: PlantType[] = ['tree', 'shrub', 'conifer', 'grass', 'perennial', 'annual'];
 
@@ -125,12 +181,60 @@ function lifecycleLabel(species: Species): string {
   return species.foliage === 'herbaceous' ? 'dies back' : species.foliage;
 }
 
+/**
+ * One axis of filtering, captioned.
+ *
+ * There are four of these now, and without captions three rows of chips read as
+ * one undifferentiated soup in which "Any" appears three times over.
+ */
+function FilterRow<T extends string>({
+  caption,
+  options,
+  value,
+  onPick,
+  countFor,
+  extra,
+}: {
+  caption: string;
+  options: { id: T; label: string }[];
+  value: T;
+  onPick: (id: T) => void;
+  countFor: (id: T) => number;
+  extra?: React.ReactNode;
+}) {
+  return (
+    <div className="filter-group">
+      <span className="filter-caption">{caption}</span>
+      <div className="chips">
+        {options.map((o) => {
+          const empty = countFor(o.id) === 0;
+          return (
+            <button
+              key={o.id}
+              className={`chip ${value === o.id ? 'on' : ''} ${empty ? 'empty' : ''}`}
+              onClick={() => onPick(o.id)}
+              title={empty ? 'Nothing in the library matches this' : undefined}
+            >
+              {o.label}
+            </button>
+          );
+        })}
+        {extra}
+      </div>
+    </div>
+  );
+}
+
 export function LibraryPanel({ onStartDrag }: LibraryProps) {
   const [query, setQuery] = useState('');
   const [type, setType] = useState<PlantType | 'all'>('all');
   const [foliage, setFoliage] = useState<Foliage | 'all'>('all');
   const [sun, setSun] = useState<SunPref | 'all'>('all');
+  const [soilPh, setSoilPh] = useState<SoilPh | 'all'>('all');
+  const [soilType, setSoilType] = useState<SoilType | 'all'>('all');
+  const [drainage, setDrainage] = useState<DrainagePref | 'all'>('all');
   const [plantedOnly, setPlantedOnly] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
   const [openId, setOpenId] = useState<string | null>(null);
 
   const plants = useStore((s) => s.plants);
@@ -150,13 +254,16 @@ export function LibraryPanel({ onStartDrag }: LibraryProps) {
       if (type !== 'all' && s.type !== type) return false;
       if (foliage !== 'all' && s.foliage !== foliage) return false;
       if (sun !== 'all' && !s.sun.includes(sun)) return false;
+      if (soilPh !== 'all' && !s.soilPh.includes(soilPh)) return false;
+      if (soilType !== 'all' && !s.soilType.includes(soilType)) return false;
+      if (drainage !== 'all' && !s.drainage.includes(drainage)) return false;
       if (!q) return true;
       return [s.common, s.latin, s.genus, s.family, s.flowerColour, s.foliageColour]
         .join(' ')
         .toLowerCase()
         .includes(q);
     });
-  }, [query, type, foliage, sun, plantedOnly, counts]);
+  }, [query, type, foliage, sun, soilPh, soilType, drainage, plantedOnly, counts]);
 
   const grouped = useMemo(() => {
     return TYPE_ORDER.map((t) => ({
@@ -167,15 +274,50 @@ export function LibraryPanel({ onStartDrag }: LibraryProps) {
   }, [results]);
 
   const distinctPlanted = counts.size;
+  // How many of the secondary axes are narrowing the list, so the disclosure can
+  // say so without being opened.
+  const activeConditions = [sun, soilPh, soilType, drainage, foliage].filter((v) => v !== 'all').length;
+  const filtered = activeConditions > 0 || type !== 'all' || plantedOnly || query.trim() !== '';
+
+  const clearFilters = () => {
+    setQuery('');
+    setType('all');
+    setFoliage('all');
+    setSun('all');
+    setSoilPh('all');
+    setSoilType('all');
+    setDrainage('all');
+    setPlantedOnly(false);
+  };
+
+  /**
+   * How many plants a chip would leave, given everything else that is already
+   * set. Chips that would empty the list are dimmed rather than hidden — with
+   * bog and pond in the drainage row and no marginals in the palette, a tab
+   * that silently returns nothing reads as a bug.
+   */
+  const countIf = (predicate: (s: Species) => boolean) =>
+    SPECIES.filter(
+      (s) =>
+        predicate(s) &&
+        (type === 'all' || s.type === type) &&
+        (sun === 'all' || s.sun.includes(sun)) &&
+        (soilPh === 'all' || s.soilPh.includes(soilPh)) &&
+        (soilType === 'all' || s.soilType.includes(soilType)) &&
+        (drainage === 'all' || s.drainage.includes(drainage)) &&
+        (foliage === 'all' || s.foliage === foliage),
+    ).length;
 
   return (
     <>
       <div className="library-head">
         <h2>Plants</h2>
         <span className="library-count">
-          {plants.length === 0
-            ? `${SPECIES.length} in library`
-            : `${plants.length} placed · ${distinctPlanted} of ${SPECIES.length} used`}
+          {filtered
+            ? `${results.length} of ${SPECIES.length}`
+            : plants.length === 0
+              ? `${SPECIES.length} in library`
+              : `${plants.length} placed · ${distinctPlanted} of ${SPECIES.length} used`}
         </span>
       </div>
 
@@ -186,44 +328,89 @@ export function LibraryPanel({ onStartDrag }: LibraryProps) {
         onChange={(e) => setQuery(e.target.value)}
       />
 
-      <div className="chips">
-        {TYPES.map((t) => (
-          <button
-            key={t.id}
-            className={`chip ${type === t.id ? 'on' : ''}`}
-            onClick={() => setType(t.id)}
-          >
-            {t.label}
-          </button>
-        ))}
+      <div className="filters">
+        <FilterRow
+          caption="Type"
+          options={TYPES}
+          value={type}
+          onPick={setType}
+          countFor={(id) => (id === 'all' ? 1 : countIf((s) => s.type === id))}
+          extra={
+            <button
+              className={`chip planted ${plantedOnly ? 'on' : ''}`}
+              onClick={() => setPlantedOnly((v) => !v)}
+              disabled={plants.length === 0}
+              title="Show only plants already on the plan"
+            >
+              Planted{plants.length > 0 ? ` (${distinctPlanted})` : ''}
+            </button>
+          }
+        />
+
+        {/* Six axes visible at once would leave no room for the plants
+            themselves, so the conditions fold away until wanted. */}
         <button
-          className={`chip planted ${plantedOnly ? 'on' : ''}`}
-          onClick={() => setPlantedOnly((v) => !v)}
-          disabled={plants.length === 0}
-          title="Show only plants already on the plan"
+          className={`disclosure ${showFilters ? 'open' : ''}`}
+          onClick={() => setShowFilters((v) => !v)}
+          aria-expanded={showFilters}
         >
-          Planted{plants.length > 0 ? ` (${distinctPlanted})` : ''}
+          <span>Growing conditions</span>
+          <span className="disclosure-meta">
+            {activeConditions > 0 && <b>{activeConditions}</b>}
+            {showFilters ? '−' : '+'}
+          </span>
         </button>
+
+        {showFilters && (
+          <>
+            <FilterRow
+              caption="Aspect"
+              options={SUN}
+              value={sun}
+              onPick={setSun}
+              countFor={(id) => (id === 'all' ? 1 : countIf((s) => s.sun.includes(id)))}
+            />
+            <FilterRow
+              caption="Soil type"
+              options={SOIL_TYPE}
+              value={soilType}
+              onPick={setSoilType}
+              countFor={(id) => (id === 'all' ? 1 : countIf((s) => s.soilType.includes(id)))}
+            />
+            <FilterRow
+              caption="Soil pH"
+              options={SOIL_PH}
+              value={soilPh}
+              onPick={setSoilPh}
+              countFor={(id) => (id === 'all' ? 1 : countIf((s) => s.soilPh.includes(id)))}
+            />
+            <FilterRow
+              caption="Drainage"
+              options={DRAINAGE}
+              value={drainage}
+              onPick={setDrainage}
+              countFor={(id) => (id === 'all' ? 1 : countIf((s) => s.drainage.includes(id)))}
+            />
+            <FilterRow
+              caption="Foliage"
+              options={FOLIAGE}
+              value={foliage}
+              onPick={setFoliage}
+              countFor={(id) => (id === 'all' ? 1 : countIf((s) => s.foliage === id))}
+            />
+          </>
+        )}
       </div>
 
-      <div className="filter-row">
-        <select value={foliage} onChange={(e) => setFoliage(e.target.value as Foliage | 'all')}>
-          {FOLIAGE.map((f) => (
-            <option key={f.id} value={f.id}>
-              {f.label}
-            </option>
-          ))}
-        </select>
-        <select value={sun} onChange={(e) => setSun(e.target.value as SunPref | 'all')}>
-          {SUN.map((f) => (
-            <option key={f.id} value={f.id}>
-              {f.label}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <p className="hint">Drag onto the plan, or tap to drop one in the middle.</p>
+      <p className="hint">
+        {filtered ? (
+          <button className="linkish" onClick={clearFilters}>
+            Clear filters
+          </button>
+        ) : (
+          'Drag onto the plan, or tap to drop one in the middle.'
+        )}
+      </p>
 
       <div className="cards">
         {grouped.map((group) => (
@@ -291,7 +478,20 @@ export function LibraryPanel({ onStartDrag }: LibraryProps) {
                         </div>
                         <div>
                           <dt>Aspect</dt>
-                          <dd>{s.sun.join(', ')}</dd>
+                          <dd>{s.sun.map((x) => SUN_LABELS[x]).join(', ')}</dd>
+                        </div>
+                        <div>
+                          <dt>Soil</dt>
+                          <dd>
+                            {s.soilType.length === 4 ? 'any' : s.soilType.join(', ')}
+                            {s.soilPh.length < 3
+                              ? ` · ${s.soilPh.map((x) => SOIL_PH_LABELS[x]).join(' or ')}`
+                              : ''}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt>Drainage</dt>
+                          <dd>{s.drainage.map((x) => DRAINAGE_LABELS[x]).join(', ')}</dd>
                         </div>
                         <div>
                           <dt>Hardiness</dt>

@@ -20,7 +20,7 @@ simulated seriously, rather than a hundred stubs.
 ```bash
 npm install
 npm run dev        # http://localhost:5173
-npm test           # 111 tests
+npm test           # 126 tests
 npm run build      # normal production build into dist/
 ```
 
@@ -123,6 +123,37 @@ the same garden genuinely disagree about whether it is enclosed. Presets run
 from a seven-year-old to a tall adult, and a separate ground offset covers
 standing on a raised terrace or looking down from an upstairs window — the
 geometry only ever needs the sum of the two.
+
+## Filtering by growing conditions
+
+The library filters on six axes. Type and a **Planted** toggle stay visible;
+the rest fold behind a **Growing conditions** disclosure that shows how many are
+active, because six rows of chips at once leave no room for the plants
+themselves — especially in the phone sheet.
+
+| Axis | Values |
+|---|---|
+| Aspect | full sun · dappled shade · semi shade · shade |
+| Soil type | clay · loam · sand · chalk |
+| Soil pH | acidic · neutral · alkaline |
+| Drainage | free draining · water retentive · waterlogged · bog · pond |
+| Foliage | deciduous · evergreen · dies back |
+
+**Dappled shade is a real category, not a midpoint.** It is the moving, broken
+light under a deciduous canopy, and it is what a hellebore or a Japanese maple
+actually wants rather than merely tolerates — the same plant in open partial
+shade is a worse plant.
+
+**Chips that would empty the list are dimmed** rather than hidden, given the
+other filters already set. That does two jobs. It admits honestly that *bog* and
+*pond* match nothing, because there are no marginals or aquatics in this palette
+yet. And it surfaces real horticulture: select dappled shade and chalk together
+and the **Trees** chip dims, because every dappled-tolerant tree here — acer,
+magnolia, amelanchier — is a lime-hater.
+
+Two consistency rules are enforced by tests rather than by care, since the soil
+axes can contradict each other silently: anything offered for chalk must accept
+alkaline soil, and anything that will take waterlogging must also take clay.
 
 ## Editing on the plan
 

@@ -131,6 +131,20 @@ button.on {
   color: #fff;
 }
 
+/*
+ * A selected button darkens on hover rather than inverting.
+ *
+ * Without this the generic hover rule above wins on specificity and paints the
+ * label in the accent colour on an accent background — every selected chip and
+ * tab in the app goes blank the moment the cursor crosses it, which is
+ * invisible in a screenshot taken with the pointer elsewhere.
+ */
+button.on:hover:not(:disabled) {
+  background: #2f6c99;
+  border-color: #2f6c99;
+  color: #fff;
+}
+
 input[type='number'],
 input[type='text'],
 select {
@@ -202,15 +216,69 @@ select {
   border-radius: 999px;
 }
 
-.filter-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
+/* ------------------------------------------------------------------ filters */
+
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
 }
 
-.filter-row select {
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+/* Six axes of chips read as one undifferentiated soup without these, not least
+   because "Any" appears in four of the rows. */
+.filter-caption {
+  font-size: 10px;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+}
+
+/* A chip that would empty the list is dimmed rather than hidden: with bog and
+   pond in the drainage row and no marginals in the palette yet, a tab that
+   silently returns nothing reads as a bug rather than as an honest gap. */
+.chip.empty {
+  opacity: 0.4;
+}
+
+.disclosure {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 5px 9px;
   font-size: 12px;
-  padding: 4px 6px;
+  color: var(--ink-soft);
+}
+
+.disclosure.open {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.disclosure-meta {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-variant-numeric: tabular-nums;
+}
+
+.disclosure-meta b {
+  min-width: 17px;
+  height: 17px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 10.5px;
+  line-height: 17px;
+  text-align: center;
 }
 
 .hint {

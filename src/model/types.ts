@@ -18,7 +18,54 @@ export type Habit =
  */
 export type Foliage = 'deciduous' | 'evergreen' | 'herbaceous';
 
-export type SunPref = 'full' | 'partial' | 'shade';
+/**
+ * Aspect a plant will take.
+ *
+ * `dappled` is not a midpoint between sun and shade — it is the moving, broken
+ * light under a deciduous canopy, and it is what several of these plants
+ * actually want rather than merely tolerate. A hellebore or a Japanese maple in
+ * open partial shade is a different and worse plant than the same one under a
+ * birch, so the distinction earns its place in the data.
+ */
+export type SunPref = 'full' | 'dappled' | 'partial' | 'shade';
+/**
+ * Soil pH a plant will grow in.
+ *
+ * Most garden plants take all three and the field is unremarkable for them.
+ * It exists for the ones where it decides the outcome: a magnolia or a Japanese
+ * maple on shallow chalk yellows and sulks however well it is planted, and
+ * lavender on a wet acid clay simply rots. Those are failures no amount of good
+ * design recovers from, which is why this is data rather than a note.
+ */
+export type SoilPh = 'acidic' | 'neutral' | 'alkaline';
+
+/**
+ * How wet the ground can be.
+ *
+ * Ordered driest to wettest. The first three are soil conditions; `bog` and
+ * `pond` are really planting situations at and in water, and no plant in the
+ * current palette will take either — they are here because the axis is only
+ * meaningful with its wet end present, and because marginals are the obvious
+ * thing to add next.
+ *
+ * The distinction that does the work now is between plants that merely prefer
+ * drainage and plants that require it. Lavender, salvia and echinacea rot in
+ * ground that stays wet in winter, and a clipped yew in a wet hollow dies where
+ * a dogwood two metres away thrives.
+ */
+export type DrainagePref = 'free' | 'retentive' | 'waterlogged' | 'bog' | 'pond';
+
+/**
+ * Texture of the ground, which is a separate question from its pH and its
+ * wetness even though the three correlate in practice — chalk is usually
+ * alkaline and free-draining, clay usually heavy and slow.
+ *
+ * Kept separate because the exceptions are exactly the cases a designer is
+ * paid to get right: a rose is superb on clay and poor on dry sand, and a
+ * lavender is the other way round, at the same pH.
+ */
+export type SoilType = 'clay' | 'loam' | 'sand' | 'chalk';
+
 export type SizeClass = 'small' | 'medium' | 'large';
 
 /**
@@ -101,6 +148,9 @@ export interface Species {
   };
 
   sun: SunPref[];
+  soilPh: SoilPh[];
+  soilType: SoilType[];
+  drainage: DrainagePref[];
   hardiness: string;
   sizeClass: SizeClass;
   /** Human-readable flower colour, used by the library filters. */

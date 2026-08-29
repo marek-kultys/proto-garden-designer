@@ -194,6 +194,31 @@ await page.screenshot({ path: `${outDir}/26-eye-upstairs-window.png` });
 
 check(await page.evaluate(() => window.gardenStore.getState().setEyeHeight(99) || window.gardenStore.getState().observer.eyeHeight === 3), 'eye height is clamped to something human');
 
+// A selected control must stay readable under the cursor. The generic hover
+// rule once outranked the selected state and painted accent-on-accent, which
+// blanked every active chip and tab the moment the pointer crossed it — and was
+// invisible in any screenshot taken with the pointer elsewhere.
+await page.evaluate(() => {
+  const s = window.gardenStore.getState();
+  s.setStageView('elevation');
+});
+await page.waitForTimeout(150);
+const selectedControls = await page.locator('.chip.on, .stage-tabs button.on').all();
+let unreadable = 0;
+for (const control of selectedControls) {
+  await control.hover();
+  const same = await control.evaluate((el) => {
+    const cs = getComputedStyle(el);
+    return cs.color === cs.backgroundColor;
+  });
+  if (same) unreadable += 1;
+}
+check(
+  unreadable === 0,
+  'selected controls stay readable while hovered',
+  `${selectedControls.length} checked`,
+);
+
 check(errors.length === 0, 'no console errors', errors.slice(0, 2).join(' | '));
 await browser.close();
 if (failures.length) { console.error(`\n${failures.length} check(s) failed`); process.exit(1); }
