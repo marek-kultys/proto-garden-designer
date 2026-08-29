@@ -7,6 +7,10 @@ year**, and **age of the garden** out to twenty years — and watch the design
 respond. Shadows sweep round, light warms and cools, leaves come and go, autumn
 colour arrives, and the planting grows up.
 
+Three ways of looking at it: the plan you arrange on, a measured **elevation**
+through a slice of it, and a **360° view** from an eye point inside the garden
+that you can turn and tilt.
+
 This is built to test whether the interaction idea has depth, not to be a
 comprehensive plant database. Thirty plants, each researched properly and
 simulated seriously, rather than a hundred stubs.
@@ -16,7 +20,7 @@ simulated seriously, rather than a hundred stubs.
 ```bash
 npm install
 npm run dev        # http://localhost:5173
-npm test           # 70 model tests
+npm test           # 92 model tests
 npm run build      # normal production build into dist/
 ```
 
@@ -34,6 +38,7 @@ To see it working across the slider range, and to check the phone layout:
 npx vite preview --port 4173
 node scripts/screenshots.mjs http://localhost:4173 screenshots
 node scripts/check-mobile.mjs http://localhost:4173 screenshots
+node scripts/check-panorama.mjs http://localhost:4173 screenshots
 ```
 
 ## What is actually simulated
@@ -78,6 +83,34 @@ leaf fall comes a fortnight early.
 fifteen-minute steps and projects every canopy onto the ground, accumulating how
 much light each quarter-metre of plot receives. Bands are labelled in the
 vocabulary designers use — full sun, partial shade, shade.
+
+## The 360° view
+
+`src/model/panorama.ts` and `src/render/drawPanorama.ts`. Drop an eye anywhere
+on the plan, then drag the picture to turn and tilt. Plan and elevation are both
+drawings; this is the first view that answers what a client actually asks — what
+will it look like from the terrace — and it is a genuinely different projection,
+where distance matters and a shrub two metres away can hide a tree twenty metres
+off.
+
+**Cylindrical, not a flat perspective plane.** A pinhole projection multiplies by
+`tan(angle)`, which runs away at the edges and makes a wide view unusable.
+Mapping angle linearly to pixels keeps a wide field undistorted and lets the
+maths carry on smoothly through a whole turn. Everything — horizontal position,
+apparent size, the height of the horizon — comes off one number, the pixels per
+degree of arc.
+
+Two consequences worth knowing, because both look like bugs until you see why:
+
+- **The field opens out on a short panel.** Horizontal and vertical share that
+  one scale, so a 90° field in a 300 px strip would magnify everything
+  vertically until a shrub three metres away filled the frame. Rather than
+  distort, the view shows *wider* than asked — the readout says how wide, and
+  the cone on the plan is drawn from the field actually rendered, not the one
+  requested. Making the panel taller zooms in.
+- **You have to look up.** Standing seven metres from a twelve-metre birch, its
+  crown is 56° above eye level, and no honest wide view fits that on screen at
+  once. Hence the tilt: drag up and down, or use the chevrons.
 
 ## Two things in the drawing that are less obvious than they look
 
@@ -186,5 +219,8 @@ s.toggle('showOverlay');
 
 The moments that have landed hardest so far: the same design at year 0 versus
 year 20; mid-October at twenty years, when the birch goes yellow and the maple
-scarlet; and January, when half the planting simply is not there — but the
-dogwood stems are flaming orange and the laurustinus is in full flower.
+scarlet; January, when half the planting simply is not there — but the dogwood
+stems are flaming orange and the laurustinus is in full flower; and standing in
+the 360° view at the near end of the plot on a January afternoon, which is the
+one that makes people stop talking about the drawing and start talking about the
+garden.

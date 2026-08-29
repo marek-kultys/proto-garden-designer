@@ -27,7 +27,8 @@ export interface PlanApi {
 type DragMode =
   | { kind: 'none' }
   | { kind: 'plant'; id: string; grabX: number; grabY: number }
-  | { kind: 'sight'; end: 'a' | 'b' };
+  | { kind: 'sight'; end: 'a' | 'b' }
+  | { kind: 'observer' };
 
 export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -127,11 +128,16 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
         light,
         selectedId: state.selectedId,
         sightLine: state.sightLine,
+        observer: state.observer,
       },
       {
         showShadows: state.showShadows,
         showGrid: state.showGrid,
-        showSightLine: true,
+        // The two viewpoints compete for attention, so each is shown only while
+        // the drawing it drives is the one on screen.
+        showSightLine: state.stageView === 'elevation',
+        showObserver: state.stageView === 'panorama',
+        renderedFov: state.renderedFov,
         shadeGrid,
         draftPolygon: state.tool === 'draw-plot' ? state.draft : null,
         draftCursor: state.draftCursor,
@@ -151,6 +157,12 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
       return best?.id ?? null;
     },
     [state.plants, state.time.year, viewport.scale],
+  );
+
+  const hitObserver = useCallback(
+    (p: Vec2): boolean =>
+      Math.hypot(state.observer.x - p.x, state.observer.y - p.y) < 16 / viewport.scale,
+    [state.observer, viewport.scale],
   );
 
   const hitSightHandle = useCallback(
@@ -176,11 +188,19 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
       return;
     }
 
-    const handle = hitSightHandle(p);
-    if (handle) {
-      drag.current = { kind: 'sight', end: handle };
+    if (state.stageView === 'panorama' && hitObserver(p)) {
+      drag.current = { kind: 'observer' };
       canvasRef.current?.setPointerCapture(e.pointerId);
       return;
+    }
+
+    if (state.stageView === 'elevation') {
+      const handle = hitSightHandle(p);
+      if (handle) {
+        drag.current = { kind: 'sight', end: handle };
+        canvasRef.current?.setPointerCapture(e.pointerId);
+        return;
+      }
     }
 
     const id = hitPlant(p);
@@ -207,6 +227,10 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
     }
     if (mode.kind === 'sight') {
       state.setSightEnd(mode.end, p);
+      return;
+    }
+    if (mode.kind === 'observer') {
+      state.moveObserver(p);
       return;
     }
 

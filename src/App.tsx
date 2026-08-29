@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { LibraryPanel } from './ui/LibraryPanel';
 import { PlanCanvas, type PlanApi } from './ui/PlanCanvas';
-import { ElevationStrip } from './ui/ElevationStrip';
+import { StageBottom } from './ui/StageBottom';
 import { SitePanel } from './ui/SitePanel';
 import { TimeBar } from './ui/TimeBar';
 import { useStore } from './state/store';
@@ -186,7 +186,7 @@ export default function App() {
 
       <main className="stage">
         <PlanCanvas ref={planRef} />
-        <ElevationStrip />
+        <StageBottom />
       </main>
 
       <aside className="site-panel">

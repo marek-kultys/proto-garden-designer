@@ -1,8 +1,12 @@
 import { create } from 'zustand';
 import { rectanglePlot } from '../model/geometry';
+import { clampPitch, normaliseBearing, type Observer } from '../model/panorama';
 import type { PlantInstance, Plot, Site, TimeState, Vec2 } from '../model/types';
 
 export type Tool = 'select' | 'draw-plot';
+
+/** Which drawing occupies the strip under the plan. */
+export type StageView = 'elevation' | 'panorama';
 
 export interface LocationPreset {
   label: string;
@@ -34,6 +38,14 @@ export interface AppState {
   draftCursor: Vec2 | null;
   selectedId: string | null;
   sightLine: { a: Vec2; b: Vec2 };
+  observer: Observer;
+  stageView: StageView;
+  /**
+   * The horizontal field the 360° view is actually rendering. Derived from the
+   * panel size rather than chosen, and published here so the view cone drawn on
+   * the plan matches what the picture below it shows.
+   */
+  renderedFov: number;
 
   showShadows: boolean;
   showGrid: boolean;
@@ -59,6 +71,13 @@ export interface AppState {
   resetPlot: (width: number, height: number) => void;
 
   setSightEnd: (end: 'a' | 'b', p: Vec2) => void;
+  moveObserver: (p: Vec2) => void;
+  turnObserver: (byDegrees: number) => void;
+  setHeading: (heading: number) => void;
+  setFov: (fov: number) => void;
+  setPitch: (pitch: number) => void;
+  setStageView: (view: StageView) => void;
+  setRenderedFov: (fov: number) => void;
   toggle: (key: 'showShadows' | 'showGrid' | 'showOverlay' | 'playing') => void;
 }
 
@@ -88,6 +107,11 @@ export const useStore = create<AppState>((set) => ({
   draftCursor: null,
   selectedId: null,
   sightLine: { a: { x: 0.5, y: 5 }, b: { x: 13.5, y: 5 } },
+  // Standing at the near edge looking up the garden, which is where anyone
+  // stands when they walk out of the house.
+  observer: { x: 7, y: 9.2, heading: 0, fov: 90, pitch: 12 },
+  stageView: 'elevation',
+  renderedFov: 90,
 
   showShadows: true,
   showGrid: true,
@@ -153,6 +177,11 @@ export const useStore = create<AppState>((set) => ({
           a: { x: Math.min(...xs), y: midY },
           b: { x: Math.max(...xs), y: midY },
         },
+        observer: {
+          ...s.observer,
+          x: (Math.min(...xs) + Math.max(...xs)) / 2,
+          y: Math.max(...ys) - 0.8,
+        },
       };
     }),
 
@@ -164,9 +193,24 @@ export const useStore = create<AppState>((set) => ({
       tool: 'select',
       draft: [],
       sightLine: { a: { x: 0.5, y: height / 2 }, b: { x: width - 0.5, y: height / 2 } },
+      observer: { x: width / 2, y: height - 0.8, heading: 0, fov: 90, pitch: 12 },
     }),
 
   setSightEnd: (end, p) => set((s) => ({ sightLine: { ...s.sightLine, [end]: p } })),
+
+  moveObserver: (p) => set((s) => ({ observer: { ...s.observer, x: p.x, y: p.y } })),
+  turnObserver: (byDegrees) =>
+    set((s) => ({
+      observer: { ...s.observer, heading: normaliseBearing(s.observer.heading + byDegrees) },
+    })),
+  setHeading: (heading) =>
+    set((s) => ({ observer: { ...s.observer, heading: normaliseBearing(heading) } })),
+  setFov: (fov) =>
+    set((s) => ({ observer: { ...s.observer, fov: Math.max(30, Math.min(160, fov)) } })),
+  setPitch: (pitch) => set((s) => ({ observer: { ...s.observer, pitch: clampPitch(pitch) } })),
+  setStageView: (stageView) => set({ stageView }),
+  setRenderedFov: (renderedFov) =>
+    set((s) => (Math.abs(s.renderedFov - renderedFov) < 0.5 ? {} : { renderedFov })),
 
   toggle: (key) => set((s) => ({ [key]: !s[key] }) as Partial<AppState>),
 }));

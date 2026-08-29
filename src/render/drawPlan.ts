@@ -4,12 +4,14 @@ import { sizeAt } from '../model/growth';
 import { bearingToCanvas, shadowLengthFactor } from '../model/sun';
 import { canopyDensity, type ShadeGrid } from '../model/shade';
 import { polygonBounds } from '../model/geometry';
+import type { Observer } from '../model/panorama';
 import type { PlantInstance, Plot, Site, TimeState, Vec2 } from '../model/types';
 import { inkColour, shade, type Lighting } from './palette';
 import { blobPoints, curvePath, roughCurve, roughLine, roughPolygon, subSeed } from './sketch';
 import { getForm } from './form';
 import { canopyOutline, drawPlantPlan } from './plant';
 import { drawShadeOverlay } from './overlay';
+import { drawObserverOnPlan } from './drawPanorama';
 import { niceScaleStep, toScreen, type Viewport } from './viewport';
 import { SIGHT_BAND } from './constants';
 
@@ -22,12 +24,17 @@ export interface Scene {
   light: Lighting;
   selectedId: string | null;
   sightLine: { a: Vec2; b: Vec2 };
+  observer: Observer;
 }
 
 export interface PlanOptions {
   showShadows: boolean;
   showGrid: boolean;
   showSightLine: boolean;
+  /** Draw the eye and its view cone — only when the 360° view is on screen. */
+  showObserver: boolean;
+  /** The field the panorama is actually rendering, so the cone tells the truth. */
+  renderedFov: number;
   shadeGrid: ShadeGrid | null;
   /** Polygon being drawn right now, in plot metres. */
   draftPolygon?: Vec2[] | null;
@@ -120,6 +127,16 @@ export function drawPlan(
   }
 
   if (opts.showSightLine && hasPlot) drawSightLine(ctx, viewport, scene.sightLine, light);
+  if (opts.showObserver) {
+    drawObserverOnPlan(
+      ctx,
+      toScreen(viewport, scene.observer),
+      scene.observer,
+      site,
+      viewport.scale,
+      opts.renderedFov,
+    );
+  }
 
   drawSunMarker(ctx, width, height, viewport, scene);
   drawNorthArrow(ctx, width, site.northAngle, light);
