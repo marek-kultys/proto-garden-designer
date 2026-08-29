@@ -1003,6 +1003,21 @@ select {
   }
 }
 
+/* Undo has to be reachable on every layout, so unlike the plot tools it is not
+   folded away into a sheet on a phone. */
+.history-group {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.history-group button {
+  width: 34px;
+  padding: 6px 0;
+  font-size: 15px;
+  line-height: 1;
+}
+
 /* The sheet tabs exist only on the phone layout, where the side panels become
    slide-up sheets and need something to open them. */
 .sheet-tabs {
@@ -1033,8 +1048,18 @@ select {
     overflow: hidden;
   }
 
+  /* Every pixel the header takes comes off the canvas, so the title shrinks
+     and truncates rather than wrapping to a second line. */
+  .brand {
+    min-width: 0;
+    overflow: hidden;
+  }
+
   .brand h1 {
-    font-size: 14px;
+    font-size: 13px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
   }
 
   .brand span,
@@ -1050,6 +1075,16 @@ select {
   .sheet-tabs {
     display: flex;
     gap: 6px;
+  }
+
+  .history-group {
+    margin-left: 0;
+    margin-right: 4px;
+  }
+
+  .history-group button {
+    width: 32px;
+    padding: 7px 0;
   }
 
   .sheet-tabs button {

@@ -34,6 +34,72 @@ export const LOCATION_PRESETS: LocationPreset[] = [
 
 const DEFAULT_PLOT: Plot = rectanglePlot(14, 10);
 
+/**
+ * Undo.
+ *
+ * What it covers is the design — the planting and the plot outline — and not
+ * what you are looking at. Scrubbing to April, turning to face west or moving
+ * the eye are not edits and would only fill the history with noise; every one of
+ * them is also trivially reversible by hand, which is exactly what a destroyed
+ * planting is not.
+ */
+interface Snapshot {
+  plants: PlantInstance[];
+  plot: Plot;
+  selectedId: string | null;
+}
+
+interface HistoryEntry {
+  snap: Snapshot;
+  label: string;
+}
+
+const HISTORY_LIMIT = 80;
+
+/**
+ * How long two edits of the same kind stay mergeable.
+ *
+ * Dragging a plant fires an update on every pointer move, and one undo step per
+ * frame would be useless. Rather than have the pointer handlers announce when a
+ * gesture starts and ends — which is easy to get wrong and easy to forget in a
+ * new handler — consecutive edits carrying the same key inside this window fold
+ * into the one entry, so a drag undoes as a single move.
+ */
+const COALESCE_MS = 600;
+
+function snapshot(s: AppState): Snapshot {
+  return { plants: s.plants, plot: s.plot, selectedId: s.selectedId };
+}
+
+function restore(snap: Snapshot) {
+  return {
+    plants: snap.plants,
+    plot: snap.plot,
+    // The selection may name a plant that no longer exists on this side of the
+    // edit, which would leave a highlight round nothing.
+    selectedId: snap.plants.some((p) => p.id === snap.selectedId) ? snap.selectedId : null,
+  };
+}
+
+function pushHistory(s: AppState, label: string, coalesceKey?: string) {
+  const now = Date.now();
+  const merge =
+    coalesceKey !== undefined &&
+    coalesceKey === s.lastPushKey &&
+    now - s.lastPushAt < COALESCE_MS &&
+    s.past.length > 0;
+
+  return {
+    // When merging, the entry already on the stack holds the state from before
+    // the gesture began, which is precisely what undo should return to.
+    past: merge ? s.past : [...s.past, { snap: snapshot(s), label }].slice(-HISTORY_LIMIT),
+    // Any new edit abandons the branch you had redone away from.
+    future: [] as HistoryEntry[],
+    lastPushKey: coalesceKey ?? null,
+    lastPushAt: now,
+  };
+}
+
 export interface AppState {
   plot: Plot;
   plants: PlantInstance[];
@@ -59,6 +125,11 @@ export interface AppState {
   showGrid: boolean;
   showOverlay: boolean;
   playing: boolean;
+
+  past: HistoryEntry[];
+  future: HistoryEntry[];
+  lastPushKey: string | null;
+  lastPushAt: number;
 
   addPlant: (speciesId: string, at: Vec2) => void;
   movePlant: (id: string, at: Vec2) => void;
@@ -89,6 +160,8 @@ export interface AppState {
   setEyeHeight: (m: number) => void;
   setGroundHeight: (m: number) => void;
   setStageView: (view: StageView) => void;
+  undo: () => void;
+  redo: () => void;
   setRenderedFov: (fov: number) => void;
   toggle: (key: 'showShadows' | 'showGrid' | 'showOverlay' | 'playing') => void;
 }
@@ -138,8 +211,14 @@ export const useStore = create<AppState>((set) => ({
   showOverlay: false,
   playing: false,
 
+  past: [],
+  future: [],
+  lastPushKey: null,
+  lastPushAt: 0,
+
   addPlant: (speciesId, at) =>
     set((s) => {
+      const history = pushHistory(s, 'Add plant');
       const plant: PlantInstance = {
         id: newId(),
         speciesId,
@@ -147,16 +226,20 @@ export const useStore = create<AppState>((set) => ({
         y: at.y,
         seed: Math.floor(Math.random() * 1e9),
       };
-      return { plants: [...s.plants, plant], selectedId: plant.id };
+      return { ...history, plants: [...s.plants, plant], selectedId: plant.id };
     }),
 
   movePlant: (id, at) =>
     set((s) => ({
+      // Keyed on the plant, so one drag is one undo step but moving two plants
+      // in turn stays two.
+      ...pushHistory(s, 'Move plant', `move:${id}`),
       plants: s.plants.map((p) => (p.id === id ? { ...p, x: at.x, y: at.y } : p)),
     })),
 
   removePlant: (id) =>
     set((s) => ({
+      ...pushHistory(s, 'Remove plant'),
       plants: s.plants.filter((p) => p.id !== id),
       selectedId: s.selectedId === id ? null : s.selectedId,
     })),
@@ -165,6 +248,7 @@ export const useStore = create<AppState>((set) => ({
     set((s) => {
       const source = s.plants.find((p) => p.id === id);
       if (!source) return {};
+      const history = pushHistory(s, 'Add another');
       const spread = getSpecies(source.speciesId).matureSpread;
       // Offset by a share of the mature spread so the copy lands beside its
       // parent rather than exactly on top of it, where it would be invisible
@@ -179,10 +263,12 @@ export const useStore = create<AppState>((set) => ({
         // same individual. Two hostas in a border are never identical.
         seed: Math.floor(Math.random() * 1e9),
       };
-      return { plants: [...s.plants, copy], selectedId: copy.id };
+      return { ...history, plants: [...s.plants, copy], selectedId: copy.id };
     }),
 
-  clearPlants: () => set({ plants: [], selectedId: null }),
+  // The one genuinely destructive action here, and the reason undo exists.
+  clearPlants: () =>
+    set((s) => ({ ...pushHistory(s, 'Clear planting'), plants: [], selectedId: null })),
   select: (id) => set({ selectedId: id }),
 
   selectNextOfSpecies: (speciesId) =>
@@ -210,6 +296,7 @@ export const useStore = create<AppState>((set) => ({
       const ys = s.draft.map((p) => p.y);
       const midY = (Math.min(...ys) + Math.max(...ys)) / 2;
       return {
+        ...pushHistory(s, 'Draw plot'),
         plot: s.draft,
         draft: [],
         draftCursor: null,
@@ -229,7 +316,8 @@ export const useStore = create<AppState>((set) => ({
   cancelDraft: () => set({ draft: [], draftCursor: null, tool: 'select' }),
 
   resetPlot: (width, height) =>
-    set({
+    set((s) => ({
+      ...pushHistory(s, 'Set plot'),
       plot: rectanglePlot(width, height),
       tool: 'select',
       draft: [],
@@ -241,7 +329,7 @@ export const useStore = create<AppState>((set) => ({
         heading: 0,
         pitch: 12,
       },
-    }),
+    })),
 
   setSightEnd: (end, p) => set((s) => ({ sightLine: { ...s.sightLine, [end]: p } })),
 
@@ -260,6 +348,30 @@ export const useStore = create<AppState>((set) => ({
   setGroundHeight: (m) =>
     set((s) => ({ observer: { ...s.observer, groundHeight: clampGroundHeight(m) } })),
   setStageView: (stageView) => set({ stageView }),
+
+  undo: () =>
+    set((s) => {
+      const entry = s.past[s.past.length - 1];
+      if (!entry) return {};
+      return {
+        ...restore(entry.snap),
+        past: s.past.slice(0, -1),
+        future: [{ snap: snapshot(s), label: entry.label }, ...s.future].slice(0, HISTORY_LIMIT),
+        lastPushKey: null,
+      };
+    }),
+
+  redo: () =>
+    set((s) => {
+      const entry = s.future[0];
+      if (!entry) return {};
+      return {
+        ...restore(entry.snap),
+        past: [...s.past, { snap: snapshot(s), label: entry.label }].slice(-HISTORY_LIMIT),
+        future: s.future.slice(1),
+        lastPushKey: null,
+      };
+    }),
   setRenderedFov: (renderedFov) =>
     set((s) => (Math.abs(s.renderedFov - renderedFov) < 0.5 ? {} : { renderedFov })),
 

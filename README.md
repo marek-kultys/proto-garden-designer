@@ -20,7 +20,7 @@ simulated seriously, rather than a hundred stubs.
 ```bash
 npm install
 npm run dev        # http://localhost:5173
-npm test           # 96 model tests
+npm test           # 111 tests
 npm run build      # normal production build into dist/
 ```
 
@@ -135,6 +135,21 @@ list of thirty.
 The copy gets a fresh seed, so it is a second plant of the same kind rather than
 a clone of the same individual — two hostas in a border are never identical, and
 the skeleton cache in `form.ts` is keyed on that seed.
+
+**Undo** is ⌘/Ctrl-Z, redo is ⇧⌘Z or Ctrl-Y, and both have buttons in the header
+that name what they will undo. Two decisions in `src/state/store.ts` are worth
+knowing:
+
+- **It covers the design, not the view.** Planting and the plot outline are
+  undoable; the time sliders, the 360° camera and the display toggles are not.
+  They are not edits, they are trivially reversible by hand, and including them
+  would bury a deleted border under a scrub of the season slider.
+- **A drag is one step.** Moving a plant fires an update on every pointer move,
+  and one undo step per frame would be useless. Rather than have the pointer
+  handlers announce when a gesture begins and ends — easy to get wrong, easy to
+  forget in a new handler — consecutive edits carrying the same key within
+  600 ms fold into one entry. Two drags of different plants stay two steps, and
+  so do two drags of the same plant with a pause between them.
 
 ## Two things in the drawing that are less obvious than they look
 

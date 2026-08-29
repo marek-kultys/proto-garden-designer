@@ -45,6 +45,10 @@ export default function App() {
   const setTool = useStore((s) => s.setTool);
   const clearPlants = useStore((s) => s.clearPlants);
   const resetPlot = useStore((s) => s.resetPlot);
+  const undo = useStore((s) => s.undo);
+  const redo = useStore((s) => s.redo);
+  const past = useStore((s) => s.past);
+  const future = useStore((s) => s.future);
 
   const [rect, setRect] = useState({ w: 14, h: 10 });
 
@@ -89,6 +93,25 @@ export default function App() {
       window.removeEventListener('pointerup', onUp);
     };
   }, [drag, addPlant, plot]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
+      if (!(e.metaKey || e.ctrlKey)) return;
+
+      const key = e.key.toLowerCase();
+      if (key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        undo();
+      } else if ((key === 'z' && e.shiftKey) || key === 'y') {
+        e.preventDefault();
+        redo();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [undo, redo]);
 
   // Escape closes an open sheet before it does anything else.
   useEffect(() => {
@@ -155,6 +178,25 @@ export default function App() {
         </div>
 
         <div className="tools">{plotTools}</div>
+
+        <div className="history-group">
+          <button
+            onClick={undo}
+            disabled={past.length === 0}
+            title={past.length ? `Undo ${past[past.length - 1].label.toLowerCase()} (⌘Z)` : 'Nothing to undo'}
+            aria-label="Undo"
+          >
+            ↶
+          </button>
+          <button
+            onClick={redo}
+            disabled={future.length === 0}
+            title={future.length ? `Redo ${future[0].label.toLowerCase()} (⇧⌘Z)` : 'Nothing to redo'}
+            aria-label="Redo"
+          >
+            ↷
+          </button>
+        </div>
 
         <div className="sheet-tabs">
           <button

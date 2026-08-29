@@ -96,6 +96,65 @@ await page.mouse.click(toClient.r.left + 20, toClient.r.top + 20, { button: 'rig
 await page.waitForTimeout(150);
 check(!(await page.locator('.plant-menu').isVisible()), 'right-clicking bare ground opens nothing');
 
+// Undo, driven through the real buttons and a real pointer drag.
+await page.evaluate(() => {
+  const s = window.gardenStore.getState();
+  s.clearPlants();
+  s.addPlant('hosta-halcyon', { x: 5, y: 5 });
+  window.gardenStore.getState().select(null);
+});
+await page.waitForTimeout(200);
+
+const undoBtn = page.getByRole('button', { name: 'Undo' });
+const redoBtn = page.getByRole('button', { name: 'Redo' });
+check(await undoBtn.isEnabled(), 'undo is offered once there is something to undo');
+check(await redoBtn.isDisabled(), 'redo is not offered until something is undone');
+
+// Drag the plant across the plan with the mouse, then undo it in one step.
+await page.mouse.click(hit.cx, hit.cy);
+const draggedTo = { x: hit.cx + 150, y: hit.cy + 60 };
+await page.mouse.move(hit.cx, hit.cy);
+await page.mouse.down();
+for (let i = 1; i <= 20; i++) {
+  await page.mouse.move(hit.cx + (150 * i) / 20, hit.cy + (60 * i) / 20);
+}
+await page.mouse.up();
+await page.waitForTimeout(200);
+void draggedTo;
+
+const moved = await page.evaluate(() => window.gardenStore.getState().plants[0].x);
+const depth = await page.evaluate(() => window.gardenStore.getState().past.length);
+await undoBtn.click();
+await page.waitForTimeout(200);
+const back = await page.evaluate(() => window.gardenStore.getState().plants[0]?.x);
+check(Math.abs(back - moved) > 0.2, 'one undo takes back the whole drag', `${moved.toFixed(2)} → ${back?.toFixed(2)}`);
+check(
+  await page.evaluate((d) => window.gardenStore.getState().past.length === d - 1, depth),
+  'a drag left exactly one entry on the stack',
+);
+
+// Clear planting, then get it all back.
+await page.evaluate(() => {
+  const s = window.gardenStore.getState();
+  s.addPlant('lavandula-hidcote', { x: 3, y: 7 });
+  s.addPlant('taxus-baccata', { x: 11, y: 4 });
+});
+const beforeClear = await page.evaluate(() => window.gardenStore.getState().plants.length);
+await page.getByRole('button', { name: 'Clear planting' }).click();
+await page.waitForTimeout(200);
+check(await page.evaluate(() => window.gardenStore.getState().plants.length === 0), 'Clear planting empties the plan');
+await page.keyboard.press('Control+z');
+await page.waitForTimeout(200);
+const restored = await page.evaluate(() => window.gardenStore.getState().plants.length);
+check(restored === beforeClear, 'ctrl-Z brings the whole planting back', `${restored} of ${beforeClear}`);
+await page.screenshot({ path: `${outDir}/27-undo.png` });
+
+await page.keyboard.press('Control+Shift+z');
+await page.waitForTimeout(200);
+check(await page.evaluate(() => window.gardenStore.getState().plants.length === 0), 'redo clears it again');
+await page.keyboard.press('Control+z');
+await page.waitForTimeout(200);
+
 // Eye height changes what you can see over.
 await page.evaluate(() => {
   const s = window.gardenStore.getState();
