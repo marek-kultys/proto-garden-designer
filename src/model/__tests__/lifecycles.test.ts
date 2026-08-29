@@ -142,9 +142,17 @@ describe('evergreens with standing structure', () => {
 });
 
 describe('the palette as a whole', () => {
-  it('has thirty plants with unique ids', () => {
-    expect(SPECIES).toHaveLength(30);
-    expect(new Set(SPECIES.map((s) => s.id)).size).toBe(30);
+  it('gives every plant an id of its own', () => {
+    // This is the assertion that catches a real bug rather than a stale number.
+    // SPECIES_BY_ID is built with Object.fromEntries, so a duplicated id does
+    // not throw — the later entry silently replaces the earlier one and a plant
+    // disappears from the library with nothing to show for it.
+    const seen = new Map<string, string>();
+    for (const s of SPECIES) {
+      expect(seen.has(s.id), `${s.common} reuses the id of ${seen.get(s.id)}`).toBe(false);
+      seen.set(s.id, s.common);
+    }
+    expect(SPECIES.length).toBeGreaterThan(100);
   });
 
   it('names every plant in English and in Latin, with a source', () => {

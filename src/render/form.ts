@@ -227,6 +227,86 @@ export function getForm(species: Species, seed: number): PlantForm {
       form.planClumps = makeClumps(rng, 7, 0.4, 0.4, 0, [0.07, 0.12]);
       break;
     }
+    case 'spire': {
+      // A low rosette of leaves with a few tall dense flower spikes standing
+      // clear of it — the whole point of a delphinium or a foxglove is that the
+      // flower is well above the foliage, so the two are built separately.
+      form.outline = wobbleProfile(rng, 11, 0.16);
+      form.trunkFraction = 0;
+      form.stems = Array.from({ length: 3 + Math.floor(rng() * 3) }, () => ({
+        ax: (rng() - 0.5) * 0.55,
+        h: 0.82 + rng() * 0.18,
+        lean: (rng() - 0.5) * 0.16,
+        bend: (rng() - 0.5) * 0.12,
+        seed: Math.floor(rng() * 1e9),
+      }));
+      form.planClumps = makeClumps(rng, 9, 0.36, 0.36, 0, [0.14, 0.24]);
+      form.elevClumps = makeClumps(rng, 8, 0.42, 0.14, 0.16, [0.16, 0.26]);
+      break;
+    }
+    case 'fern': {
+      // A shuttlecock: fronds all rising from one crown and arching outward, so
+      // the stems share a base rather than being scattered like a grass clump.
+      form.outline = wobbleProfile(rng, 12, 0.2);
+      form.trunkFraction = 0;
+      const fronds = 9 + Math.floor(rng() * 4);
+      form.stems = Array.from({ length: fronds }, (_, i) => {
+        const t = (i + 0.5) / fronds;
+        const side = i % 2 === 0 ? 1 : -1;
+        return {
+          ax: (rng() - 0.5) * 0.12,
+          h: 0.66 + rng() * 0.34,
+          // Fanned rather than random: fronds radiate from the crown.
+          lean: side * (0.2 + t * 0.75) + (rng() - 0.5) * 0.12,
+          bend: side * (0.3 + rng() * 0.3),
+          seed: Math.floor(rng() * 1e9),
+        };
+      });
+      form.planClumps = makeClumps(rng, 9, 0.4, 0.4, 0, [0.1, 0.18]);
+      break;
+    }
+    case 'treefern': {
+      // The same crown, lifted on a single fibrous trunk. Dicksonia puts on a
+      // few centimetres a year, so the trunk is most of what you see.
+      form.outline = wobbleProfile(rng, 11, 0.14);
+      form.trunkFraction = 0.55 + rng() * 0.1;
+      form.trunks = [{ ax: 0, lean: (rng() - 0.5) * 0.04 }];
+      const crown = 8 + Math.floor(rng() * 3);
+      form.stems = Array.from({ length: crown }, (_, i) => {
+        const t = (i + 0.5) / crown;
+        const side = i % 2 === 0 ? 1 : -1;
+        return {
+          ax: (rng() - 0.5) * 0.08,
+          h: 0.7 + rng() * 0.3,
+          lean: side * (0.25 + t * 0.85) + (rng() - 0.5) * 0.12,
+          bend: side * (0.35 + rng() * 0.3),
+          seed: Math.floor(rng() * 1e9),
+        };
+      });
+      form.planClumps = makeClumps(rng, 8, 0.42, 0.42, 0, [0.12, 0.2]);
+      break;
+    }
+    case 'climber': {
+      // A climber is a sheet of growth held up by something else, so its form is
+      // a vertical panel rather than a mass with a middle. `spread` means how
+      // wide a face it covers, not how far it stands out from the wall — which
+      // is why the plan footprint is a shallow band and the elevation is a
+      // rectangle of leaf rather than a canopy on a trunk.
+      form.outline = wobbleProfile(rng, 12, 0.12);
+      form.trunkFraction = 0.08;
+      form.trunks = [{ ax: (rng() - 0.5) * 0.4, lean: 0 }];
+      form.planClumps = makeClumps(rng, 12, 0.44, 0.18, 0, [0.12, 0.2]);
+      form.elevClumps = makeClumps(rng, 18, 0.44, 0.42, 0.5, [0.13, 0.22]);
+      // Stems run up the support and fan out near the top.
+      form.stems = Array.from({ length: 5 + Math.floor(rng() * 3) }, () => ({
+        ax: (rng() - 0.5) * 0.8,
+        h: 0.7 + rng() * 0.3,
+        lean: (rng() - 0.5) * 0.5,
+        bend: (rng() - 0.5) * 0.2,
+        seed: Math.floor(rng() * 1e9),
+      }));
+      break;
+    }
     case 'globe': {
       // Few stems, near-vertical, spaced apart: a clump of alliums is read as a
       // handful of distinct heads, not as a mass.
@@ -244,16 +324,19 @@ export function getForm(species: Species, seed: number): PlantForm {
     }
   }
 
+  const FLOWER_COUNT: Partial<Record<Species['habit'], number>> = {
+    globe: 8,
+    spire: 10,
+    airy: 14,
+    tussock: 18,
+    // A clematis or a jasmine in flower reads as a sheet of bloom, not as a
+    // countable handful.
+    climber: 26,
+    fern: 0,
+    treefern: 0,
+  };
   const flowerCount =
-    species.habit === 'globe'
-      ? 8
-      : species.habit === 'airy'
-        ? 14
-        : species.habit === 'tussock'
-          ? 18
-          : species.type === 'tree'
-            ? 22
-            : 14;
+    FLOWER_COUNT[species.habit] ?? (species.type === 'tree' ? 22 : 14);
   form.flowers = Array.from({ length: flowerCount }, () => {
     const a = rng() * Math.PI * 2;
     const d = Math.sqrt(rng());

@@ -20,9 +20,15 @@ that you can turn and tilt.
 
 ![The 360° view, an evening in June](docs/img/panorama-june-year20.png)
 
-Built to test whether the interaction idea has depth, not to be a comprehensive
-plant database — thirty plants, each researched against its RHS entry and
-simulated seriously, rather than a hundred stubs.
+Built to test whether the interaction idea has depth rather than to be a
+comprehensive plant database. A hundred and thirty-eight plants, each researched
+rather than invented, chosen to span the axes the simulation actually exercises
+— trees, shrubs, conifers, climbers, grasses, ferns, perennials, bulbs and
+annuals.
+
+The library is filtered by type and by growing conditions — aspect, soil type,
+soil pH and drainage — so a border with dry shade on chalk narrows a hundred and
+thirty-eight plants to the handful that will actually take it.
 
 📄 **[PRODUCT.md](PRODUCT.md)** — what it is, where the brief came from, what it
 does, what was deliberately left out, and the roadmap.
@@ -32,7 +38,7 @@ does, what was deliberately left out, and the roadmap.
 ```bash
 npm install
 npm run dev        # http://localhost:5173
-npm test           # 126 tests
+npm test           # 135 tests
 npm run build      # production build into dist/
 ```
 
@@ -118,6 +124,14 @@ have pointer handlers announce when a gesture begins and ends — easy to get wr
 easy to forget in a new handler — consecutive edits carrying the same key within
 600 ms fold into one entry.
 
+**Twelve plant shapes, not one.** `src/render/form.ts` builds a skeleton per
+habit and `src/render/plant.ts` draws it in both plan and elevation — a tree, a
+clipped column, a grass tussock, a fern shuttlecock, a tree fern on its trunk, a
+flower spire over basal leaves, a climber as a sheet of leaf on a trellis. A
+plant whose habit has no draw path does not fail loudly; it falls through to the
+generic tree and renders a clematis as a small shrub, which is why a test asserts
+that every habit is used and a browser check screenshots one of each.
+
 The 360° view is worth one more note: it is a **cylindrical** projection, mapping
 angle linearly to pixels, not a flat perspective plane. A pinhole projection
 multiplies by `tan(angle)`, which runs away at the edges and makes a wide view
@@ -129,14 +143,15 @@ plan comes from the field actually rendered.
 ## Verification
 
 ```bash
-npm test                                      # 126 tests across 9 files
+npm test                                      # 135 tests across 10 files
 ```
 
 The models are where silent errors hide, so the unit tests check them against
 published figures rather than against themselves: London solar noon altitude and
 sunrise/sunset times, growth monotonic and hitting mature size at year 20, hosta
 dormant in January, altitude delaying bud burst, and cross-checks that the soil
-axes cannot contradict each other.
+axes cannot contradict each other, that no two plants share an id, and that every
+drawable plant shape has at least one plant using it.
 
 The browser checks drive the real app through `window.gardenStore` and assert
 behaviour a screenshot alone would not catch:
@@ -148,6 +163,7 @@ node scripts/screenshots.mjs    http://localhost:4173 screenshots  # the slider 
 node scripts/check-mobile.mjs   http://localhost:4173 screenshots  # the document must not scroll at all
 node scripts/check-panorama.mjs http://localhost:4173 screenshots  # turning must change what is in front of you
 node scripts/check-editing.mjs  http://localhost:4173 screenshots  # duplicate-in-place, eye height, hover states
+node scripts/check-habits.mjs   http://localhost:4173 screenshots  # every plant shape actually draws
 node scripts/readme-images.mjs  http://localhost:4173 docs/img     # the images in this file
 ```
 

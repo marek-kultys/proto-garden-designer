@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { SPECIES, getSpecies } from '../plants';
-import type { DrainagePref, SoilPh, SoilType, SunPref } from '../types';
+import type { Habit, PlantType, SoilPh, SoilType, SunPref } from '../types';
 
 /**
  * Growing conditions are the part of the plant data a gardener can check at a
@@ -13,6 +13,31 @@ import type { DrainagePref, SoilPh, SoilType, SunPref } from '../types';
 const ALL_SUN: SunPref[] = ['full', 'dappled', 'partial', 'shade'];
 const ALL_PH: SoilPh[] = ['acidic', 'neutral', 'alkaline'];
 const ALL_TYPE: SoilType[] = ['clay', 'loam', 'sand', 'chalk'];
+const ALL_TYPES: PlantType[] = [
+  'tree',
+  'shrub',
+  'conifer',
+  'climber',
+  'grass',
+  'fern',
+  'perennial',
+  'bulb',
+  'annual',
+];
+const ALL_HABITS: Habit[] = [
+  'round',
+  'multistem',
+  'columnar',
+  'mound',
+  'tussock',
+  'clump',
+  'airy',
+  'globe',
+  'spire',
+  'fern',
+  'treefern',
+  'climber',
+];
 
 describe('every plant has an answer for every condition', () => {
   it('never leaves a plant with nowhere it will grow', () => {
@@ -50,14 +75,13 @@ describe('the library filters all lead somewhere', () => {
     }
   });
 
-  it('has nothing at all for bog or pond, which is why those chips dim', () => {
-    // Not an oversight: there are no marginals or aquatics in this palette. The
-    // UI dims a chip that would empty the list, so this stays visible rather
-    // than looking like a broken filter — and this test will start failing the
-    // day marginals are added, which is the right moment to revisit it.
-    for (const v of ['bog', 'pond'] as DrainagePref[]) {
-      expect(SPECIES.filter((s) => s.drainage.includes(v))).toHaveLength(0);
-    }
+  it('now answers bog, but still has nothing for a pond', () => {
+    // This test used to assert that bog and pond were both empty, and said the
+    // day marginals arrived would be the right moment to revisit it. Houttuynia
+    // will grow in standing water at a pond margin, so the bog end of the axis
+    // is no longer a dead chip. Pond still is: nothing here is a true aquatic.
+    expect(SPECIES.filter((s) => s.drainage.includes('bog')).length).toBeGreaterThan(0);
+    expect(SPECIES.filter((s) => s.drainage.includes('pond'))).toHaveLength(0);
     expect(SPECIES.filter((s) => s.drainage.includes('waterlogged')).length).toBeGreaterThan(3);
   });
 });
@@ -92,6 +116,12 @@ describe('lime and chalk', () => {
       'sorbus-aucuparia',
       'leptospermum-scoparium',
       'eucalyptus-gunnii',
+      // The witch hazel family is as lime-intolerant as the magnolias, and
+      // oak-leaved hydrangea colours badly on chalk.
+      'hamamelis-intermedia',
+      'corylopsis-sinensis',
+      'magnolia-black-tulip',
+      'hydrangea-quercifolia',
     ]) {
       const s = getSpecies(id);
       expect(s.soilPh, id).not.toContain('alkaline');
@@ -149,5 +179,57 @@ describe('wet ground', () => {
     const hosta = getSpecies('hosta-halcyon');
     expect(hosta.drainage).not.toContain('free');
     expect(hosta.soilType).not.toContain('sand');
+  });
+});
+
+/**
+ * The palette gained climbers, ferns and bulbs as first-class types, and four
+ * new habits to draw them with. Each of those carries an assumption the
+ * renderer makes and the data must keep, and none of them is visible in the
+ * type system.
+ */
+describe('the new plant types keep the promises the renderer relies on', () => {
+  it('draws every habit that a plant actually uses', () => {
+    // A habit with no plant is dead code; a plant with a habit the drawing code
+    // does not handle falls through to the generic tree and looks absurd.
+    // TypeScript catches the second; nothing catches the first.
+    const used = new Set(SPECIES.map((s) => s.habit));
+    for (const habit of ALL_HABITS) {
+      expect(used.has(habit), `no plant uses the '${habit}' habit`).toBe(true);
+    }
+  });
+
+  it('gives climbers a height greater than their spread', () => {
+    // `matureSpread` on a climber means the width of face it covers, not how
+    // far it stands off its support — which is what lets the plan view draw a
+    // shallow band instead of a five-metre disc in the middle of a border.
+    for (const s of SPECIES.filter((x) => x.type === 'climber')) {
+      expect(s.habit, s.common).toBe('climber');
+      expect(s.matureHeight, `${s.common} is wider than it is tall`).toBeGreaterThan(s.matureSpread);
+    }
+  });
+
+  it('gives ferns no flowering window at all', () => {
+    // Ferns do not flower. An accidental non-zero window would put blossom on
+    // a dryopteris, and `wrappedBell` returns 0 only when start equals end.
+    for (const s of SPECIES.filter((x) => x.type === 'fern')) {
+      expect(s.flowerStart, `${s.common} has a flowering window`).toBe(s.flowerEnd);
+      expect(['fern', 'treefern']).toContain(s.habit);
+    }
+  });
+
+  it('marks every bulb as one, so the age slider is described honestly', () => {
+    // `lifecycle` drives the readout that explains why an allium has vanished
+    // in August. A bulb in the library without it reads as simply dead.
+    for (const s of SPECIES.filter((x) => x.type === 'bulb')) {
+      expect(s.lifecycle, `${s.common} is filed as a bulb but not marked as one`).toBe('bulb');
+      expect(s.foliage, s.common).toBe('herbaceous');
+    }
+  });
+
+  it('offers at least a few plants in every type, so no tab is empty', () => {
+    for (const t of ALL_TYPES) {
+      expect(SPECIES.filter((s) => s.type === t).length, t).toBeGreaterThan(0);
+    }
   });
 });

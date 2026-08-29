@@ -17,7 +17,10 @@ export function canopyDensity(species: Species, phase: Phase): number {
   if (phase.dormant) return 0;
   switch (species.foliage) {
     case 'evergreen':
-      return species.type === 'conifer' ? 0.92 : 0.75;
+      if (species.type === 'conifer') return 0.92;
+      // A climber is a sheet of leaves on a support, denser than a shrub's
+      // canopy and with nothing to see through behind it.
+      return species.type === 'climber' ? 0.85 : 0.75;
     case 'herbaceous':
       return 0.35 * phase.leafCover;
     default: {

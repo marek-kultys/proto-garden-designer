@@ -102,8 +102,11 @@ const TYPES: { id: PlantType | 'all'; label: string }[] = [
   { id: 'tree', label: 'Trees' },
   { id: 'shrub', label: 'Shrubs' },
   { id: 'conifer', label: 'Conifers' },
+  { id: 'climber', label: 'Climbers' },
   { id: 'grass', label: 'Grasses' },
+  { id: 'fern', label: 'Ferns' },
   { id: 'perennial', label: 'Perennials' },
+  { id: 'bulb', label: 'Bulbs' },
   { id: 'annual', label: 'Annuals' },
 ];
 
@@ -169,7 +172,17 @@ const DRAINAGE_LABELS: Record<DrainagePref, string> = {
   pond: 'pond',
 };
 
-const TYPE_ORDER: PlantType[] = ['tree', 'shrub', 'conifer', 'grass', 'perennial', 'annual'];
+const TYPE_ORDER: PlantType[] = [
+  'tree',
+  'shrub',
+  'conifer',
+  'climber',
+  'grass',
+  'fern',
+  'perennial',
+  'bulb',
+  'annual',
+];
 
 function sizeLabel(m: number): string {
   return m < 1 ? `${Math.round(m * 100)} cm` : `${m} m`;

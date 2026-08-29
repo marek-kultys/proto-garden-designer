@@ -1,4 +1,13 @@
-export type PlantType = 'tree' | 'shrub' | 'conifer' | 'grass' | 'perennial' | 'annual';
+export type PlantType =
+  | 'tree'
+  | 'shrub'
+  | 'conifer'
+  | 'climber'
+  | 'grass'
+  | 'fern'
+  | 'perennial'
+  | 'bulb'
+  | 'annual';
 
 /** Silhouette family — picks which draw function renders the plant. */
 export type Habit =
@@ -9,7 +18,11 @@ export type Habit =
   | 'tussock' // arching clump with flower spikes (grasses)
   | 'clump' // low leafy mound (hosta, geranium)
   | 'airy' // sparse see-through stems (verbena)
-  | 'globe'; // bare stems each topped with a sphere (allium)
+  | 'globe' // bare stems each topped with a sphere (allium)
+  | 'spire' // basal leaves under a tall dense flower spike (delphinium, foxglove)
+  | 'fern' // a shuttlecock of arching fronds (dryopteris)
+  | 'treefern' // a fibrous trunk carrying a fern crown (dicksonia)
+  | 'climber'; // a sheet of growth on a support rather than a free-standing mass
 
 /**
  * deciduous  — woody, drops its leaves

@@ -13,6 +13,12 @@ import { flowerColour, foliageColour, inkColour, shade, type Lighting } from './
 import type { PlantForm } from './form';
 import type { Phase, PlantSize, Species, Vec2 } from '../model/types';
 
+/** Types with a woody stem worth marking in plan, so you see where it is planted. */
+const WOODY = new Set<Species['type']>(['tree', 'shrub', 'conifer', 'climber']);
+
+/** Habits drawn from above as leaves radiating from a single crown. */
+const ROSETTE_HABITS = new Set<Species['habit']>(['clump', 'spire', 'fern', 'treefern']);
+
 /**
  * Drawing a plant, in plan and in elevation.
  *
@@ -84,7 +90,11 @@ export function drawPlantPlan(
     drawPlanGlobes(dc, species, form, phase, radius, cx, cy, seasonT);
   } else if (species.habit === 'tussock' || species.habit === 'airy') {
     drawPlanRadiating(dc, species, form, phase, radius, cx, cy, seasonT);
-  } else if (species.habit === 'clump') {
+  } else if (species.habit === 'climber') {
+    drawPlanClimber(dc, species, form, phase, radius, cx, cy, seasonT);
+  } else if (ROSETTE_HABITS.has(species.habit)) {
+    // A fern crown and a delphinium's basal leaves both read from above as
+    // leaves radiating from one point, which is what the rosette draw does.
     drawPlanRosette(dc, species, form, phase, radius, cx, cy, seasonT);
   } else {
     const outline = canopyOutline(form, cx, cy, radius);
@@ -134,7 +144,7 @@ export function drawPlantPlan(
     }
 
     // The stem itself, so you can see exactly where the plant is planted.
-    if (species.type === 'tree' || species.type === 'shrub' || species.type === 'conifer') {
+    if (WOODY.has(species.type)) {
       ctx.fillStyle = shade(species.colors.bark, light, { value: 0.85 });
       for (const trunk of form.trunks) {
         const tr = Math.max(1.6, radius * 0.075);
@@ -429,6 +439,18 @@ export function drawPlantElevation(
       break;
     case 'columnar':
       drawElevColumn(dc, species, form, phase, w, h, baseX, baseY);
+      break;
+    case 'spire':
+      drawElevSpire(dc, species, form, phase, w, h, baseX, baseY, seasonT);
+      break;
+    case 'fern':
+      drawElevFern(dc, species, form, phase, w, h, baseX, baseY, 0);
+      break;
+    case 'treefern':
+      drawElevFern(dc, species, form, phase, w, h, baseX, baseY, form.trunkFraction);
+      break;
+    case 'climber':
+      drawElevClimber(dc, species, form, phase, w, h, baseX, baseY, seasonT);
       break;
     case 'mound':
       drawElevMound(dc, species, form, phase, w, h, baseX, baseY, seasonT, 0.75);
@@ -832,6 +854,311 @@ function drawElevGlobes(
     ctx.lineWidth = 0.8;
     ctx.stroke();
   });
+}
+
+/**
+ * A climber in plan: a shallow band rather than a circle.
+ *
+ * `matureSpread` for a climber means how wide a face it covers, not how far it
+ * stands out from its support, so drawing it as a disc like a shrub would put a
+ * five-metre blob in the border where there is really a metre of growth against
+ * a wall. The band is oriented by the instance rotation, which stands in for
+ * which way the support runs.
+ */
+function drawPlanClimber(
+  dc: DrawContext,
+  species: Species,
+  form: PlantForm,
+  phase: Phase,
+  radius: number,
+  cx: number,
+  cy: number,
+  seasonT: number,
+): void {
+  const { ctx, light } = dc;
+  const cover = phase.leafCover;
+  if (cover < 0.04 && phase.flower < 0.04) return;
+
+  const halfW = radius;
+  const depth = Math.max(2, radius * 0.4);
+
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(form.rotation);
+
+  ctx.fillStyle = leafFill(species, phase, light, -0.3, 0.55 + 0.35 * cover);
+  ctx.beginPath();
+  ctx.ellipse(0, 0, halfW, depth, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  for (const clump of form.planClumps) {
+    const cr = clump.r * radius * 1.5 * (0.55 + 0.45 * cover);
+    const pts = blobPoints(clump.ax * halfW * 2, clump.ay * depth * 3, cr, cr * 0.7, clump.wobble, 0);
+    ctx.fillStyle = leafFill(species, phase, light, clump.tone, 0.5);
+    ctx.fill(curvePath(pts, true));
+  }
+
+  ctx.strokeStyle = inkColour(light, 0.4);
+  ctx.lineWidth = 1;
+  roughCurve(
+    ctx,
+    blobPoints(0, 0, halfW, depth, form.outline, 0),
+    true,
+    subSeed(form.seed, 7),
+    { roughness: 0.6, passes: 1 },
+  );
+  ctx.restore();
+
+  if (phase.flower > 0.05) {
+    drawPlanFlowers(dc, species, form, phase, radius, cx, cy, seasonT);
+  }
+}
+
+/**
+ * A spire: a low cushion of basal leaves with tall flower spikes standing clear
+ * of it. Keeping the two separate is the point — a delphinium at 1.8 m is 40 cm
+ * of leaf and well over a metre of flower, and drawing it as one mass loses the
+ * thing that makes it worth planting.
+ */
+function drawElevSpire(
+  dc: DrawContext,
+  species: Species,
+  form: PlantForm,
+  phase: Phase,
+  w: number,
+  h: number,
+  baseX: number,
+  baseY: number,
+  seasonT: number,
+): void {
+  const { ctx, light } = dc;
+  if (phase.leafCover < 0.04 && phase.flower < 0.04) return;
+
+  // Basal foliage: a squat mound in the bottom fifth or so.
+  const leafH = h * 0.24 * phase.leafCover;
+  if (leafH > 0.6) {
+    form.elevClumps.forEach((clump, i) => {
+      const cr = clump.r * w * 0.9;
+      const lx = baseX + clump.ax * w * 0.85;
+      const ly = baseY - leafH * (0.35 + clump.ay * 0.8);
+      const pts = blobPoints(lx, ly, cr, cr * 0.62, clump.wobble, 0);
+      ctx.fillStyle = leafFill(species, phase, light, clump.tone, 0.9);
+      ctx.fill(curvePath(pts, true));
+      ctx.strokeStyle = inkColour(light, 0.3);
+      ctx.lineWidth = 0.7;
+      roughCurve(ctx, pts, true, subSeed(form.seed, i), { roughness: 0.5, passes: 1 });
+    });
+  }
+
+  const spike = Math.max(phase.flower, phase.seedhead);
+  if (spike < 0.05) return;
+
+  const dry = phase.seedhead > phase.flower;
+  const stemColour = dry
+    ? shade(species.colors.leafAutumn, light, { value: 0.85 })
+    : leafFill(species, phase, light, 0.15, 0.95);
+  const headColour = dry
+    ? shade(species.colors.leafAutumn, light, { value: 0.95 })
+    : flowerFill(species, light, seasonT);
+
+  form.stems.forEach((stem, i) => {
+    const top = h * stem.h * spike;
+    const x0 = baseX + stem.ax * w * 0.4;
+    const topX = x0 + stem.lean * w * 0.25;
+    const topY = baseY - top;
+    ctx.strokeStyle = stemColour;
+    ctx.lineWidth = Math.max(0.8, w * 0.03);
+    roughLine(ctx, x0, baseY - leafH * 0.4, topX, topY, subSeed(form.seed, i + 40), {
+      roughness: 0.4,
+      passes: 1,
+    });
+
+    // The flower column: florets up the top two-thirds of the stem.
+    const colH = top * 0.62;
+    const colW = Math.max(1.6, w * 0.13);
+    const florets = 7;
+    for (let f = 0; f < florets; f++) {
+      const t = f / (florets - 1);
+      const fy = topY + colH * t;
+      const fx = topX - stem.lean * w * 0.25 * t;
+      // Tapered: fat at the bottom of the spike, pinched at the tip.
+      const r = colW * (0.45 + 0.55 * t) * spike;
+      ctx.fillStyle = headColour;
+      ctx.beginPath();
+      ctx.ellipse(fx, fy, r, r * 0.78, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  });
+}
+
+/**
+ * A fern crown, optionally lifted on a trunk.
+ *
+ * `trunkFraction` of 0 gives a shuttlecock sitting on the ground (dryopteris);
+ * anything above that gives a tree fern, where the fibrous trunk is most of the
+ * plant and the crown sits on top of it.
+ */
+function drawElevFern(
+  dc: DrawContext,
+  species: Species,
+  form: PlantForm,
+  phase: Phase,
+  w: number,
+  h: number,
+  baseX: number,
+  baseY: number,
+  trunkFraction: number,
+): void {
+  const { ctx, light } = dc;
+  if (phase.leafCover < 0.04) return;
+
+  const crownY = baseY - h * trunkFraction;
+
+  if (trunkFraction > 0.01) {
+    // A tree fern trunk is a mat of old frond bases, not bark — drawn as a
+    // straight column with cross-hatching rather than a taper.
+    const tw = Math.max(2, w * 0.22);
+    const bark = shade(species.colors.bark, light, { value: 0.85 });
+    ctx.fillStyle = bark;
+    ctx.fillRect(baseX - tw / 2, crownY, tw, baseY - crownY);
+    ctx.strokeStyle = inkColour(light, 0.35);
+    ctx.lineWidth = 0.7;
+    const rings = Math.max(3, Math.round((baseY - crownY) / Math.max(3, tw * 0.55)));
+    for (let i = 1; i < rings; i++) {
+      const y = crownY + ((baseY - crownY) * i) / rings;
+      roughLine(ctx, baseX - tw / 2, y, baseX + tw / 2, y + tw * 0.12, subSeed(form.seed, i + 80), {
+        roughness: 0.7,
+        passes: 1,
+      });
+    }
+  }
+
+  const frondLen = (h * (1 - trunkFraction)) / 0.85;
+  const green = leafFill(species, phase, light, 0, 0.95);
+  const ink = inkColour(light, 0.32);
+
+  form.stems.forEach((stem, i) => {
+    const len = frondLen * stem.h * (0.5 + 0.5 * phase.leafCover);
+    // Fronds rise from the crown and arch over: the tip ends up out to the side
+    // and below where it peaked, which is what makes a fern read as a fern.
+    const tipX = baseX + stem.lean * w * 0.52;
+    const tipY = crownY - len * 0.55;
+    const midX = baseX + stem.lean * w * 0.22;
+    const midY = crownY - len * 0.92;
+
+    ctx.strokeStyle = green;
+    ctx.lineWidth = Math.max(0.8, w * 0.035);
+    ctx.beginPath();
+    ctx.moveTo(baseX, crownY);
+    ctx.quadraticCurveTo(midX, midY, tipX, tipY);
+    ctx.stroke();
+
+    // Pinnae: short ticks either side of the midrib.
+    const pinnae = 6;
+    ctx.strokeStyle = ink;
+    ctx.lineWidth = Math.max(0.5, w * 0.016);
+    for (let k = 1; k <= pinnae; k++) {
+      const t = k / (pinnae + 1);
+      const px = (1 - t) * (1 - t) * baseX + 2 * (1 - t) * t * midX + t * t * tipX;
+      const py = (1 - t) * (1 - t) * crownY + 2 * (1 - t) * t * midY + t * t * tipY;
+      const pl = len * 0.16 * Math.sin(Math.PI * t);
+      roughLine(ctx, px, py, px + Math.sign(stem.lean || 1) * pl * 0.4, py + pl, subSeed(form.seed, i * 10 + k), {
+        roughness: 0.6,
+        passes: 1,
+      });
+    }
+  });
+}
+
+/**
+ * A climber in elevation: a sheet of leaf covering its support, rather than a
+ * canopy balanced on a trunk. The mass fills the full height and width, because
+ * that is what a climber does — it is as tall as whatever it is growing up.
+ */
+function drawElevClimber(
+  dc: DrawContext,
+  species: Species,
+  form: PlantForm,
+  phase: Phase,
+  w: number,
+  h: number,
+  baseX: number,
+  baseY: number,
+  seasonT: number,
+): void {
+  const { ctx, light } = dc;
+  const cover = phase.leafCover;
+
+  // A hint of the support, drawn first and faintly. Without it a climber reads
+  // as a small multi-stemmed tree, because a mass of leaf on stems is exactly
+  // what a small tree looks like — and the one thing that distinguishes a
+  // climber is that it is holding on to something.
+  ctx.strokeStyle = inkColour(light, 0.16);
+  ctx.lineWidth = Math.max(0.6, w * 0.012);
+  const postX = [baseX - w * 0.42, baseX + w * 0.42];
+  for (const px of postX) {
+    ctx.beginPath();
+    ctx.moveTo(px, baseY);
+    ctx.lineTo(px, baseY - h);
+    ctx.stroke();
+  }
+  const wires = 4;
+  for (let i = 1; i <= wires; i++) {
+    const y = baseY - (h * i) / (wires + 0.5);
+    ctx.beginPath();
+    ctx.moveTo(postX[0], y);
+    ctx.lineTo(postX[1], y);
+    ctx.stroke();
+  }
+
+  // Stems are visible year-round; on a bare deciduous climber they are all
+  // there is to see, which is the whole winter character of a vine.
+  const stemColour = shade(species.colors.bark, light, { value: 0.8 });
+  ctx.strokeStyle = stemColour;
+  ctx.lineWidth = Math.max(0.8, w * 0.028);
+  form.stems.forEach((stem, i) => {
+    const topY = baseY - h * stem.h;
+    roughLine(
+      ctx,
+      baseX + stem.ax * w * 0.15,
+      baseY,
+      baseX + stem.ax * w * 0.5 + stem.lean * w * 0.3,
+      topY,
+      subSeed(form.seed, i + 20),
+      { roughness: 0.9, passes: 1 },
+    );
+  });
+
+  if (cover > 0.04) {
+    for (const clump of form.elevClumps) {
+      const cr = clump.r * w * 1.35 * (0.55 + 0.45 * cover);
+      const lx = baseX + clump.ax * w * 1.05;
+      const ly = baseY - h * (0.06 + clump.ay * 0.94);
+      const pts = blobPoints(lx, ly, cr, cr * 0.8, clump.wobble, 0);
+      ctx.fillStyle = leafFill(species, phase, light, clump.tone, 0.72);
+      ctx.fill(curvePath(pts, true));
+    }
+    ctx.strokeStyle = inkColour(light, 0.3);
+    ctx.lineWidth = 0.7;
+    form.elevClumps.slice(0, 8).forEach((clump, i) => {
+      const cr = clump.r * w * 1.35 * (0.55 + 0.45 * cover);
+      const lx = baseX + clump.ax * w * 1.05;
+      const ly = baseY - h * (0.06 + clump.ay * 0.94);
+      roughCurve(ctx, blobPoints(lx, ly, cr, cr * 0.8, clump.wobble, 0), true, subSeed(form.seed, i), {
+        roughness: 0.5,
+        passes: 1,
+      });
+    });
+  }
+
+  if (phase.flower > 0.05) {
+    // Spread over the whole face rather than clustered at the top: a clematis
+    // flowers all the way up its support.
+    drawElevFlowers(dc, species, form, phase, w, h, baseX, baseY, seasonT, 0.55, 1);
+  }
+  if (phase.fruit > 0.05) {
+    drawElevFruit(dc, species, form, phase, w, h, baseX, baseY, 0.55);
+  }
 }
 
 function drawDormantSoil(

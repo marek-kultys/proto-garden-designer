@@ -56,9 +56,10 @@ A few open questions were settled before building:
 | Where in the world? | UK / north-west Europe, London by default, metric throughout |
 | Which optional extras? | The sun/shade overlay only — soil alerts, save/load and a plant info panel were cut |
 
-Everything after that came from using it: thirty plants instead of ten, a phone
-layout, a 360° view from inside the garden, adjustable eye height, duplicating a
-plant in place, undo, and filtering the library by growing conditions.
+Everything after that came from using it: ten plants became thirty and then a
+hundred and thirty-eight, plus a phone layout, a 360° view from inside the
+garden, adjustable eye height, duplicating a plant in place, undo, and filtering
+the library by growing conditions.
 
 ## Who it is for
 
@@ -85,9 +86,12 @@ are looking at the same thing and can disagree about something real.
 
 ## Principles
 
-**Depth over breadth.** Thirty plants, each researched against its RHS entry and
-simulated seriously, rather than a hundred stubs. Every entry in the palette
-carries its source URL.
+**Depth over breadth first.** The palette began at ten plants deeply simulated
+rather than a hundred stubs, and grew to a hundred and thirty-eight as testing
+demanded specific plants. The rule has not changed: every entry is researched
+rather than invented, and carries a source link. What breadth buys is that a
+designer can look for the plant they actually had in mind; what depth buys is
+that it behaves correctly when they find it.
 
 **Real models, not plausible fakes.** The sun is the NOAA solar position
 algorithm, not a sine wave — because a gardener will spot a fake sun immediately,
@@ -122,10 +126,10 @@ terrace or an upstairs window.
 
 ### The plant library
 
-Thirty plants, searchable by common name, Latin name, genus or family, each card
-showing both names, mature dimensions, foliage type and a sketch thumbnail. Drag
-onto the plan to place; on a phone, tap to drop one in the middle and then drag
-it into position.
+A hundred and thirty-eight plants, searchable by common name, Latin name, genus
+or family, each card showing both names, mature dimensions, foliage type and a
+sketch thumbnail. Drag onto the plan to place; on a phone, tap to drop one in the
+middle and then drag it into position.
 
 A **planted count** on each card shows how many of that plant are already on the
 plan, and clicking it steps the selection through them.
@@ -135,7 +139,7 @@ fold behind a **Growing conditions** disclosure:
 
 | Axis | Values |
 |---|---|
-| Type | trees · shrubs · conifers · grasses · perennials · annuals |
+| Type | trees · shrubs · conifers · climbers · grasses · ferns · perennials · bulbs · annuals |
 | Aspect | full sun · dappled shade · semi shade · shade |
 | Soil type | clay · loam · sand · chalk |
 | Soil pH | acidic · neutral · alkaline |
@@ -143,10 +147,11 @@ fold behind a **Growing conditions** disclosure:
 | Foliage | deciduous · evergreen · dies back |
 
 Chips that would empty the list are **dimmed rather than hidden**, given the
-filters already set. That admits honestly where the palette is thin — *bog* and
-*pond* match nothing, because there are no marginals or aquatics yet — and it
+filters already set. That admits honestly where the palette is thin — *pond*
+still matches nothing, because there is no true aquatic here yet — and it
 surfaces real horticulture: choose dappled shade and chalk together and the
-*Trees* chip dims, because every dappled-tolerant tree here is a lime-hater.
+*Trees* chip thins right out, because most of the dappled-tolerant trees here are
+lime-haters.
 
 Dappled shade is treated as a category in its own right, not a midpoint between
 sun and shade. It is the moving, broken light under a deciduous canopy, and it is
@@ -235,18 +240,21 @@ onto the ground, accumulating light per cell over the whole daylight window.
 
 ## The plant palette
 
-Thirty plants, chosen to span the axes the simulation exercises — vigorous to
-slow, evergreen to fully dormant, sun to deep shade, tree to groundcover.
+A hundred and thirty-eight plants, chosen to span the axes the simulation
+exercises — vigorous to slow, evergreen to fully dormant, sun to deep shade, tree
+to groundcover, and now bulb, fern and climber as well.
 
-**Trees** — West Himalayan birch, snowy mespilus, Japanese maple 'Ōsakazuki',
-cider gum, saucer magnolia, crab apple 'Evereste', Tibetan cherry, rowan.
-**Shrubs** — panicle hydrangea 'Limelight', English lavender, mānuka, dogwood
-'Midwinter Fire', laurustinus, shrub rose 'Gertrude Jekyll', Mexican orange
-blossom 'Sundance'. **Conifers** — clipped yew, dwarf mountain pine.
-**Grasses** — feather reed grass 'Karl Foerster', giant oat grass, maiden grass.
-**Perennials** — hosta 'Halcyon', purple top, cranesbill Rozanne, salvia
-'Caradonna', coneflower, lady's mantle, black-eyed Susan, Lenten rose,
-ornamental onion. **Annuals** — cosmos.
+| Type | Count | Examples |
+|---|---|---|
+| Trees | 19 | birch, snowy mespilus, Japanese maple, magnolia, crab apple, wild cherry, beech, hornbeam |
+| Shrubs | 38 | hydrangeas, lavender, roses, witch hazel, daphne, cistus, sarcococca, mahonia, box |
+| Conifers | 2 | clipped yew, dwarf mountain pine |
+| Climbers | 7 | clematis (montana, armandii, viticella), crimson glory vine, star jasmine, winter jasmine |
+| Grasses | 12 | miscanthus, molinia, calamagrostis, stipa, deschampsia |
+| Ferns | 2 | male fern, soft tree fern |
+| Perennials | 46 | hellebore, hosta, euphorbia, geranium, aster, amsonia, peony, dahlia, delphinium |
+| Bulbs | 9 | snowdrop, cyclamen, narcissus, allium, tree lily |
+| Annuals | 3 | cosmos, love-in-a-mist, marigold |
 
 Several exist to exercise a specific behaviour, and it is worth knowing which,
 because each is a case where a naive implementation silently does nothing rather
@@ -262,6 +270,24 @@ than failing loudly:
 | Cosmos | an annual — the same size in year 20 as in year 1 |
 | Giant oat grass | evergreen foliage *and* standing winter seedheads at once |
 | Cider gum | the fastest grower here, and evergreen, so it shades in winter too |
+| Winter jasmine | yellow flower on bare stems in January, on a support rather than a trunk |
+| Soft tree fern | almost all trunk, at two or three centimetres of growth a year |
+| Houttuynia | the only plant here that will grow at a pond margin |
+| Foxglove | a biennial, which the age slider cannot honestly represent at all |
+
+### The shapes they are drawn with
+
+Twelve plant forms, because a plant drawn in the wrong shape is worse than not
+drawn: a rounded crown, a multi-stem, a clipped column, a dense mound, a grass
+tussock, a leafy clump, see-through airy stems, an allium globe, a flower spire
+over basal leaves, a fern shuttlecock, a tree fern on its trunk, and a climber
+drawn as a sheet of leaf on a trellis rather than a mass on a trunk.
+
+The climber is the one worth explaining. Its recorded spread is *how wide a face
+it covers*, not how far it stands off its support — so it is drawn in plan as a
+shallow band rather than a disc, and in elevation against a faint trellis. Without
+that trellis a clematis reads as a small multi-stemmed tree, which is exactly what
+a mass of leaf on stems looks like.
 
 ---
 
@@ -271,7 +297,10 @@ than failing loudly:
 drainage and a hardiness rating, and the library filters on all of them — so you
 can find plants for a chalky, dry, shady corner. What does *not* exist is the
 other direction: nothing warns you when a plant already on the plan is in the
-wrong place. That is the obvious next step, and the data is ready for it.
+wrong place. That is the obvious next step, and the data is ready for it. The
+palette now contains genuinely borderline subjects for it to have something to
+say about — mānuka and pink jasmine at H2–H3, a tree fern that needs wrapping,
+and a dahlia whose tubers will not survive a frost in the ground.
 
 **Save and load.** Closing the tab loses the design. Worth having before any
 unsupervised testing; see the roadmap below.
@@ -294,13 +323,24 @@ per-plant page. Cut to keep the focus on the simulation.
   growing-season convention; six hours of an eight-hour December day is 72% of all
   available light, so the thresholds are capped at a share of daylight and the
   legend says so when that applies.
+- **A climber has no wall to climb.** The plot is a polygon with plants in it;
+  there are no fences, walls, pergolas or house. A climber is drawn against an
+  implied trellis wherever it is placed, which is honest about the plant and
+  silent about whether there is anything there to support it.
+- **Winter-growing plants are approximated.** Phenology anchors run within one
+  calendar year, so a cyclamen whose leaves appear in November and die back in
+  May is shown with foliage from January instead. It is right for eight months of
+  the twelve and wrong for the other four, and the plant's notes say so.
+- **A biennial is modelled as a perennial.** Foxglove flowers in its second year
+  and dies; the age slider carries it on indefinitely. A self-seeding colony does
+  persist, so the picture is defensible, but the individual plant is not.
 - **Light, not lighting.** Plants are lit as flat tinted shapes. There is no
   self-shading, no shadow cast by one plant onto another's foliage in elevation,
   and no cloud, rain, wind or frost — "weather" here means the sun and the season,
   not the forecast.
-- **Bog and pond match nothing.** The drainage axis carries its wet end because
-  the axis is only meaningful with it, but there are no marginals or aquatics in
-  the palette yet.
+- **Pond still matches nothing.** Houttuynia now answers the bog end of the
+  drainage axis, but there is no true aquatic in the palette, so the wettest chip
+  remains dimmed.
 - **UK and north-west Europe.** The solar maths is global, but the plant palette,
   the phenology baselines and the summer-time rule are not.
 
@@ -317,9 +357,11 @@ The prototype exists to answer questions about the idea, not about the code:
    *what will this look like*. Early signs are that the 360° view is the one that
    makes people stop talking about the drawing and start talking about the garden
    — but that needs testing, not assuming.
-3. **Is thirty plants enough to judge the idea?** The bet of this prototype is
-   that depth beats breadth. If every session stalls on a missing plant, that bet
-   was wrong.
+3. **Is a hundred and thirty-eight plants the right size?** The palette started
+   at ten on a depth-over-breadth argument and grew four-fold because testing
+   kept asking for specific plants. The open question is now the opposite one:
+   whether a list this long is harder to work with than a curated short one, and
+   whether the filters carry the weight the scrolling no longer does.
 4. **Is the sun/shade map read as analysis or as decoration?**
 5. **Would this be shown to a client, or is it a designer's private tool?**
 6. **What is the first thing they try to do that it cannot do?**
