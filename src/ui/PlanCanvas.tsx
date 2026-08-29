@@ -35,7 +35,11 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 800, height: 480 });
   const [hoverInfo, setHoverInfo] = useState<string | null>(null);
+  const [menu, setMenu] = useState<{ x: number; y: number; id: string } | null>(null);
   const drag = useRef<DragMode>({ kind: 'none' });
+  // Long press stands in for right-click on a touchscreen, where there is no
+  // second button to press.
+  const press = useRef<{ timer: number; x: number; y: number } | null>(null);
 
   const state = useStore();
   const { light, calendarYear } = useSun();
@@ -175,13 +179,29 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
     [state.sightLine, viewport.scale],
   );
 
-  const localPoint = (e: React.PointerEvent | PointerEvent): Vec2 => {
+  const openMenu = useCallback((clientX: number, clientY: number, id: string) => {
+    const rect = wrapRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    setMenu({ x: clientX - rect.left, y: clientY - rect.top, id });
+  }, []);
+
+  const cancelPress = useCallback(() => {
+    if (press.current) {
+      window.clearTimeout(press.current.timer);
+      press.current = null;
+    }
+  }, []);
+
+  // Takes anything with page coordinates — pointer, mouse and context-menu
+  // events all arrive here.
+  const localPoint = (e: { clientX: number; clientY: number }): Vec2 => {
     const rect = canvasRef.current!.getBoundingClientRect();
     return toPlot(viewport, e.clientX - rect.left, e.clientY - rect.top);
   };
 
   const onPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const p = localPoint(e);
+    setMenu(null);
 
     if (state.tool === 'draw-plot') {
       state.pushDraftPoint(p);
@@ -209,11 +229,25 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
       const plant = state.plants.find((x) => x.id === id)!;
       drag.current = { kind: 'plant', id, grabX: p.x - plant.x, grabY: p.y - plant.y };
       canvasRef.current?.setPointerCapture(e.pointerId);
+
+      if (e.pointerType !== 'mouse') {
+        const { clientX, clientY } = e;
+        press.current = {
+          x: clientX,
+          y: clientY,
+          timer: window.setTimeout(() => openMenu(clientX, clientY, id), 480),
+        };
+      }
     }
   };
 
   const onPointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const p = localPoint(e);
+
+    // Any real movement means this is a drag, not a press-and-hold.
+    if (press.current && Math.hypot(e.clientX - press.current.x, e.clientY - press.current.y) > 8) {
+      cancelPress();
+    }
 
     if (state.tool === 'draw-plot') {
       state.setDraftCursor(p);
@@ -254,6 +288,7 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
   };
 
   const endDrag = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    cancelPress();
     if (drag.current.kind !== 'none') {
       canvasRef.current?.releasePointerCapture(e.pointerId);
       drag.current = { kind: 'none' };
@@ -271,8 +306,12 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
       if (target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
 
       if (e.key === 'Escape') {
-        if (state.tool === 'draw-plot') state.cancelDraft();
+        if (menu) setMenu(null);
+        else if (state.tool === 'draw-plot') state.cancelDraft();
         else state.select(null);
+      } else if ((e.key === 'd' || e.key === 'D') && (e.metaKey || e.ctrlKey) && state.selectedId) {
+        e.preventDefault();
+        state.duplicatePlant(state.selectedId);
       } else if (e.key === 'Enter' && state.tool === 'draw-plot') {
         state.commitDraft();
       } else if ((e.key === 'Backspace' || e.key === 'Delete') && state.selectedId) {
@@ -282,7 +321,7 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [state]);
+  }, [state, menu]);
 
   const selected = state.plants.find((p) => p.id === state.selectedId);
 
@@ -298,7 +337,19 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
         onPointerCancel={endDrag}
         onPointerLeave={() => setHoverInfo(null)}
         onDoubleClick={onDoubleClick}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          const id = hitPlant(localPoint(e));
+          if (!id) {
+            setMenu(null);
+            return;
+          }
+          state.select(id);
+          openMenu(e.clientX, e.clientY, id);
+        }}
       />
+
+      {menu && <PlantMenu menu={menu} onClose={() => setMenu(null)} />}
 
       {state.tool === 'draw-plot' && (
         <div className="canvas-hint">
@@ -353,3 +404,62 @@ function ShadeLegend({ grid }: { grid: ShadeGrid }) {
 }
 
 export { toScreen };
+
+/**
+ * Right-click menu on a planted plant.
+ *
+ * Duplicating is the one thing a designer does constantly — planting is done in
+ * threes and fives, not ones — and until now it meant going back to the library
+ * and dragging the same species out again, losing your place in a list of
+ * thirty. The copy lands beside the original with a fresh seed, so it reads as
+ * a second plant of the same kind rather than a clone of the same individual.
+ */
+function PlantMenu({
+  menu,
+  onClose,
+}: {
+  menu: { x: number; y: number; id: string };
+  onClose: () => void;
+}) {
+  const plants = useStore((s) => s.plants);
+  const duplicatePlant = useStore((s) => s.duplicatePlant);
+  const removePlant = useStore((s) => s.removePlant);
+
+  const plant = plants.find((p) => p.id === menu.id);
+  if (!plant) return null;
+  const species = getSpecies(plant.speciesId);
+  const tally = plants.filter((p) => p.speciesId === plant.speciesId).length;
+
+  return (
+    <>
+      <button className="menu-shield" onClick={onClose} aria-label="Close menu" />
+      <div className="plant-menu" style={{ left: menu.x, top: menu.y }} role="menu">
+        <div className="plant-menu-head">
+          {species.common}
+          <span>
+            {tally} on plan
+          </span>
+        </div>
+        <button
+          role="menuitem"
+          onClick={() => {
+            duplicatePlant(menu.id);
+            onClose();
+          }}
+        >
+          Add another <kbd>⌘D</kbd>
+        </button>
+        <button
+          role="menuitem"
+          className="danger"
+          onClick={() => {
+            removePlant(menu.id);
+            onClose();
+          }}
+        >
+          Remove <kbd>⌫</kbd>
+        </button>
+      </div>
+    </>
+  );
+}

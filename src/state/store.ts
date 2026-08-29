@@ -1,6 +1,14 @@
 import { create } from 'zustand';
 import { rectanglePlot } from '../model/geometry';
-import { clampPitch, normaliseBearing, type Observer } from '../model/panorama';
+import { getSpecies } from '../model/plants';
+import {
+  DEFAULT_EYE_HEIGHT,
+  clampEyeHeight,
+  clampGroundHeight,
+  clampPitch,
+  normaliseBearing,
+  type Observer,
+} from '../model/panorama';
 import type { PlantInstance, Plot, Site, TimeState, Vec2 } from '../model/types';
 
 export type Tool = 'select' | 'draw-plot';
@@ -55,6 +63,8 @@ export interface AppState {
   addPlant: (speciesId: string, at: Vec2) => void;
   movePlant: (id: string, at: Vec2) => void;
   removePlant: (id: string) => void;
+  /** Plant another of the same kind, just off the original. */
+  duplicatePlant: (id: string) => void;
   clearPlants: () => void;
   select: (id: string | null) => void;
   /** Step the selection through the instances of one species, for the count badge. */
@@ -76,6 +86,8 @@ export interface AppState {
   setHeading: (heading: number) => void;
   setFov: (fov: number) => void;
   setPitch: (pitch: number) => void;
+  setEyeHeight: (m: number) => void;
+  setGroundHeight: (m: number) => void;
   setStageView: (view: StageView) => void;
   setRenderedFov: (fov: number) => void;
   toggle: (key: 'showShadows' | 'showGrid' | 'showOverlay' | 'playing') => void;
@@ -109,7 +121,15 @@ export const useStore = create<AppState>((set) => ({
   sightLine: { a: { x: 0.5, y: 5 }, b: { x: 13.5, y: 5 } },
   // Standing at the near edge looking up the garden, which is where anyone
   // stands when they walk out of the house.
-  observer: { x: 7, y: 9.2, heading: 0, fov: 90, pitch: 12 },
+  observer: {
+    x: 7,
+    y: 9.2,
+    heading: 0,
+    fov: 90,
+    pitch: 12,
+    eyeHeight: DEFAULT_EYE_HEIGHT,
+    groundHeight: 0,
+  },
   stageView: 'elevation',
   renderedFov: 90,
 
@@ -140,6 +160,27 @@ export const useStore = create<AppState>((set) => ({
       plants: s.plants.filter((p) => p.id !== id),
       selectedId: s.selectedId === id ? null : s.selectedId,
     })),
+
+  duplicatePlant: (id) =>
+    set((s) => {
+      const source = s.plants.find((p) => p.id === id);
+      if (!source) return {};
+      const spread = getSpecies(source.speciesId).matureSpread;
+      // Offset by a share of the mature spread so the copy lands beside its
+      // parent rather than exactly on top of it, where it would be invisible
+      // and impossible to grab.
+      const step = Math.max(0.4, Math.min(2.5, spread * 0.55));
+      const copy: PlantInstance = {
+        id: newId(),
+        speciesId: source.speciesId,
+        x: source.x + step,
+        y: source.y + step * 0.35,
+        // A fresh seed: a second plant of the same kind, not a clone of the
+        // same individual. Two hostas in a border are never identical.
+        seed: Math.floor(Math.random() * 1e9),
+      };
+      return { plants: [...s.plants, copy], selectedId: copy.id };
+    }),
 
   clearPlants: () => set({ plants: [], selectedId: null }),
   select: (id) => set({ selectedId: id }),
@@ -193,7 +234,13 @@ export const useStore = create<AppState>((set) => ({
       tool: 'select',
       draft: [],
       sightLine: { a: { x: 0.5, y: height / 2 }, b: { x: width - 0.5, y: height / 2 } },
-      observer: { x: width / 2, y: height - 0.8, heading: 0, fov: 90, pitch: 12 },
+      observer: {
+        ...useStore.getState().observer,
+        x: width / 2,
+        y: height - 0.8,
+        heading: 0,
+        pitch: 12,
+      },
     }),
 
   setSightEnd: (end, p) => set((s) => ({ sightLine: { ...s.sightLine, [end]: p } })),
@@ -208,6 +255,10 @@ export const useStore = create<AppState>((set) => ({
   setFov: (fov) =>
     set((s) => ({ observer: { ...s.observer, fov: Math.max(30, Math.min(160, fov)) } })),
   setPitch: (pitch) => set((s) => ({ observer: { ...s.observer, pitch: clampPitch(pitch) } })),
+  setEyeHeight: (m) =>
+    set((s) => ({ observer: { ...s.observer, eyeHeight: clampEyeHeight(m) } })),
+  setGroundHeight: (m) =>
+    set((s) => ({ observer: { ...s.observer, groundHeight: clampGroundHeight(m) } })),
   setStageView: (stageView) => set({ stageView }),
   setRenderedFov: (renderedFov) =>
     set((s) => (Math.abs(s.renderedFov - renderedFov) < 0.5 ? {} : { renderedFov })),

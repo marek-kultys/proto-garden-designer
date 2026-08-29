@@ -428,6 +428,83 @@ select {
   background: rgba(255, 255, 255, 0.78);
 }
 
+/* ------------------------------------------------------------- plant menu */
+
+.menu-shield {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  cursor: default;
+}
+
+.plant-menu {
+  position: absolute;
+  z-index: 21;
+  min-width: 176px;
+  padding: 4px;
+  background: var(--panel);
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+}
+
+.plant-menu-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 5px 9px 6px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 3px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.plant-menu-head span {
+  font-weight: 400;
+  font-size: 11px;
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.plant-menu button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 6px 9px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  font-size: 13px;
+  text-align: left;
+}
+
+.plant-menu button:hover:not(:disabled) {
+  background: var(--accent);
+  color: #fff;
+}
+
+.plant-menu button.danger:hover:not(:disabled) {
+  background: #b8443a;
+  color: #fff;
+}
+
+.plant-menu kbd {
+  font: inherit;
+  font-size: 11px;
+  color: var(--ink-faint);
+}
+
+.plant-menu button:hover kbd {
+  color: rgba(255, 255, 255, 0.8);
+}
+
 /* --------------------------------------------------------------- 360° view */
 
 .stage-tabs {
@@ -482,6 +559,15 @@ select {
   background: transparent;
   font-size: 17px;
   line-height: 1;
+}
+
+.linkish {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  text-decoration: underline;
 }
 
 .pano-fov {

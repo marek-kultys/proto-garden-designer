@@ -1,14 +1,19 @@
 import { describe, expect, it } from 'vitest';
 import {
-  EYE_HEIGHT,
+  DEFAULT_EYE_HEIGHT,
+  EYE_PRESETS,
+  GROUND_PRESETS,
   MAX_PITCH_DOWN,
   MAX_PITCH_UP,
   MIN_VERTICAL_FOV,
   angleDelta,
   angularHalfWidth,
   bearingOf,
+  clampEyeHeight,
+  clampGroundHeight,
   clampPitch,
   compassMarks,
+  eyeElevation,
   effectiveFov,
   isInView,
   pixelsPerDegree,
@@ -29,7 +34,15 @@ const LONDON: Site = {
 };
 
 /** Standing in the middle of a 14 × 10 plot, facing north. */
-const VIEWER: Observer = { x: 7, y: 5, heading: 0, fov: 90, pitch: 0 };
+const VIEWER: Observer = {
+  x: 7,
+  y: 5,
+  heading: 0,
+  fov: 90,
+  pitch: 0,
+  eyeHeight: DEFAULT_EYE_HEIGHT,
+  groundHeight: 0,
+};
 
 describe('bearings in plot space', () => {
   it('reads the compass off a direction with north up the page', () => {
@@ -140,9 +153,42 @@ describe('the horizon strip', () => {
 });
 
 describe('eye height', () => {
-  it('stands the viewer at a plausible human height', () => {
-    expect(EYE_HEIGHT).toBeGreaterThan(1.4);
-    expect(EYE_HEIGHT).toBeLessThan(1.8);
+  it('starts at the conventional architectural eye level', () => {
+    expect(DEFAULT_EYE_HEIGHT).toBe(1.6);
+  });
+
+  it('adds what you are standing on to how tall you are', () => {
+    // The geometry only ever sees one number: 1.6 m on a 45 cm terrace is the
+    // same view as being 2.05 m tall on the lawn.
+    expect(eyeElevation({ ...VIEWER, eyeHeight: 1.6, groundHeight: 0.45 })).toBeCloseTo(2.05, 6);
+    expect(eyeElevation({ ...VIEWER, eyeHeight: 1.12, groundHeight: 0 })).toBeCloseTo(1.12, 6);
+  });
+
+  it('refuses heights that are not a person', () => {
+    expect(clampEyeHeight(0)).toBe(0.3);
+    expect(clampEyeHeight(50)).toBe(3);
+    expect(clampEyeHeight(1.57)).toBe(1.57);
+    expect(clampGroundHeight(-4)).toBe(0);
+    expect(clampGroundHeight(1.1)).toBe(1.1);
+  });
+
+  it('offers presets that really do differ enough to matter', () => {
+    // A control that only spanned a few centimetres would not be worth having:
+    // the point is that a child and a tall adult disagree about a 1.5 m hedge.
+    const heights = EYE_PRESETS.map((p) => p.height);
+    expect(Math.max(...heights) - Math.min(...heights)).toBeGreaterThan(0.6);
+    for (const h of heights) expect(clampEyeHeight(h)).toBe(h);
+    for (const g of GROUND_PRESETS.map((p) => p.height)) expect(clampGroundHeight(g)).toBe(g);
+    expect(GROUND_PRESETS[0].height).toBe(0);
+  });
+
+  it('changes whether a hedge is something you see over', () => {
+    // The whole reason the control exists, stated as a test.
+    const hedge = 1.5;
+    const child = eyeElevation({ ...VIEWER, eyeHeight: 1.12 });
+    const tall = eyeElevation({ ...VIEWER, eyeHeight: 1.78 });
+    expect(child).toBeLessThan(hedge);
+    expect(tall).toBeGreaterThan(hedge);
   });
 });
 
@@ -185,7 +231,7 @@ describe('looking up and down', () => {
   it('lets you tilt far enough to see the top of a tree you are standing under', () => {
     // A 12 m birch seven metres away tops out 56° above eye level. With only
     // ~30° of sky in frame, the crown is cropped unless the view can tilt.
-    const needed = (Math.atan2(12 - EYE_HEIGHT, 7) * 180) / Math.PI;
+    const needed = (Math.atan2(12 - DEFAULT_EYE_HEIGHT, 7) * 180) / Math.PI;
     expect(needed).toBeGreaterThan(50);
     expect(MAX_PITCH_UP).toBeGreaterThanOrEqual(50);
   });

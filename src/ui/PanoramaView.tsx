@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { useStore } from '../state/store';
 import { drawPanorama } from '../render/drawPanorama';
-import { MAX_PITCH_DOWN, MAX_PITCH_UP, effectiveFov, pixelsPerDegree } from '../model/panorama';
+import {
+  MAX_PITCH_DOWN,
+  MAX_PITCH_UP,
+  effectiveFov,
+  eyeElevation,
+  pixelsPerDegree,
+} from '../model/panorama';
 import { compassLabel, useSun } from './useSun';
 
 export interface PanoramaViewProps {
@@ -94,7 +100,9 @@ export function PanoramaView({ width, height }: PanoramaViewProps) {
         <span className="pano-heading">
           {compassLabel(observer.heading)} · {Math.round(observer.heading)}°
         </span>
-        <span className="pano-fov">{Math.round(fov)}° wide</span>
+        <span className="pano-fov">
+          {Math.round(fov)}° wide · eyes {eyeElevation(observer).toFixed(2)} m
+        </span>
         <button
           onClick={() => setPitch(observer.pitch + 12)}
           disabled={observer.pitch >= MAX_PITCH_UP}

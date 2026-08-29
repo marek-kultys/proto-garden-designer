@@ -20,7 +20,7 @@ simulated seriously, rather than a hundred stubs.
 ```bash
 npm install
 npm run dev        # http://localhost:5173
-npm test           # 92 model tests
+npm test           # 96 model tests
 npm run build      # normal production build into dist/
 ```
 
@@ -39,6 +39,7 @@ npx vite preview --port 4173
 node scripts/screenshots.mjs http://localhost:4173 screenshots
 node scripts/check-mobile.mjs http://localhost:4173 screenshots
 node scripts/check-panorama.mjs http://localhost:4173 screenshots
+node scripts/check-editing.mjs http://localhost:4173 screenshots
 ```
 
 ## What is actually simulated
@@ -111,6 +112,29 @@ Two consequences worth knowing, because both look like bugs until you see why:
 - **You have to look up.** Standing seven metres from a twelve-metre birch, its
   crown is 56° above eye level, and no honest wide view fits that on screen at
   once. Hence the tilt: drag up and down, or use the chevrons.
+
+**Whose eyes.** Eye level starts at 1.6 m — the conventional architectural
+figure, a person of about 1.71 m, since eyes sit some 10–12 cm below the top of
+the head. That is close to the average adult man and well above the average
+adult woman, whose eyes are nearer 1.50 m, so it is a control rather than a
+constant. The gap is not cosmetic: twenty centimetres decides whether a 1.5 m
+hedge is something you see over or something you see, and two people standing in
+the same garden genuinely disagree about whether it is enclosed. Presets run
+from a seven-year-old to a tall adult, and a separate ground offset covers
+standing on a raised terrace or looking down from an upstairs window — the
+geometry only ever needs the sum of the two.
+
+## Editing on the plan
+
+Right-click a plant (long-press on a touchscreen) for **Add another**, which
+plants a second of the same kind just beside it, or ⌘/Ctrl-D on the selection.
+Planting is done in threes and fives rather than ones, and without this every
+repeat meant going back to the library and finding the same species again in a
+list of thirty.
+
+The copy gets a fresh seed, so it is a second plant of the same kind rather than
+a clone of the same individual — two hostas in a border are never identical, and
+the skeleton cache in `form.ts` is keyed on that seed.
 
 ## Two things in the drawing that are less obvious than they look
 

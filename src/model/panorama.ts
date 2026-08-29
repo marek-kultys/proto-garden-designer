@@ -17,8 +17,49 @@ import type { Site, Vec2 } from './types';
  * undistorted and lets the same maths carry on smoothly through a full turn.
  */
 
-/** Eye height of someone standing on the plot, in metres. */
-export const EYE_HEIGHT = 1.6;
+/**
+ * Eye height, in metres, of the person the view is drawn for.
+ *
+ * 1.6 m is the conventional architectural eye level — a person of about 1.71 m,
+ * since eyes sit some 10–12 cm below the top of the head. It is close to the
+ * average adult man and a good deal above the average adult woman, whose eyes
+ * are nearer 1.50 m.
+ *
+ * That gap is not cosmetic. Twenty centimetres decides whether a 1.5 m hedge or
+ * a stand of miscanthus is something you see over or something you see, so two
+ * people in the same garden genuinely disagree about whether it is enclosed.
+ * Hence a control rather than a constant; this is only the starting value.
+ */
+export const DEFAULT_EYE_HEIGHT = 1.6;
+
+/**
+ * Eye heights worth comparing a design against. Figures are stature less the
+ * ~11 cm from the crown of the head to the eyes, except the seated one, which
+ * is sitting eye height above a 45 cm bench.
+ */
+export const EYE_PRESETS: { label: string; height: number }[] = [
+  { label: 'Child, about 7', height: 1.12 },
+  { label: 'Seated on a bench', height: 1.22 },
+  { label: 'Average adult', height: 1.57 },
+  { label: 'Standard eye level', height: DEFAULT_EYE_HEIGHT },
+  { label: 'Tall adult', height: 1.78 },
+];
+
+/** Common places to stand that are not the lawn. */
+export const GROUND_PRESETS: { label: string; height: number }[] = [
+  { label: 'On the ground', height: 0 },
+  { label: 'Raised terrace', height: 0.45 },
+  { label: 'Deck or low wall', height: 1.1 },
+  { label: 'First-floor window', height: 2.8 },
+];
+
+export function clampEyeHeight(m: number): number {
+  return Math.max(0.3, Math.min(3, m));
+}
+
+export function clampGroundHeight(m: number): number {
+  return Math.max(0, Math.min(20, m));
+}
 
 /** Nothing is drawn closer than this — you would be standing in it. */
 export const MIN_DISTANCE = 0.8;
@@ -56,6 +97,21 @@ export interface Observer {
   fov: number;
   /** Degrees above the horizontal the viewer is looking; negative is down. */
   pitch: number;
+  /** Height of the viewer's eyes above whatever they are standing on, metres. */
+  eyeHeight: number;
+  /** Height of that surface above the plot — a terrace step, an upstairs window. */
+  groundHeight: number;
+}
+
+/**
+ * How far the eye is above the ground the plants grow out of.
+ *
+ * The projection only ever needs this one number: standing 1.6 m tall on a
+ * 45 cm terrace is, as far as the geometry is concerned, being 2.05 m tall on
+ * the lawn. Keeping them as two inputs is for the person, not the maths.
+ */
+export function eyeElevation(observer: Observer): number {
+  return observer.eyeHeight + observer.groundHeight;
 }
 
 /**

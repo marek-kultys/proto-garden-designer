@@ -4,10 +4,10 @@ import { sizeAt } from '../model/growth';
 import { bearingToCanvas } from '../model/sun';
 import { pointInPolygon } from '../model/geometry';
 import {
-  EYE_HEIGHT,
   angleDelta,
   compassMarks,
   effectiveFov,
+  eyeElevation,
   isInView,
   pixelsPerDegree,
   sight,
@@ -55,6 +55,7 @@ export function drawPanorama(
   // Tilting the head moves the horizon rather than the plants: the whole scene
   // is projected from the same eye point either way, so one offset does it.
   const horizonY = height * 0.6 + observer.pitch * pxPerDeg;
+  const eye = eyeElevation(observer);
 
   drawSky(ctx, width, horizonY, light);
   drawGround(ctx, width, height, horizonY, light);
@@ -82,8 +83,8 @@ export function drawPanorama(
     // Ground and top of the plant as true angles from a 1.6 m eye. Working in
     // angles rather than a flat scale is what puts the base of a near plant
     // below the base of a far one, so the ground reads as receding.
-    const baseAngle = (Math.atan2(EYE_HEIGHT, distance) * 180) / Math.PI;
-    const topAngle = (Math.atan2(item.size.height - EYE_HEIGHT, distance) * 180) / Math.PI;
+    const baseAngle = (Math.atan2(eye, distance) * 180) / Math.PI;
+    const topAngle = (Math.atan2(item.size.height - eye, distance) * 180) / Math.PI;
     const baseY = horizonY + baseAngle * pxPerDeg;
     const heightPx = (baseAngle + topAngle) * pxPerDeg;
     if (heightPx < 1.5) continue;
@@ -198,7 +199,8 @@ function drawPlotEdge(
         continue;
       }
       const x = width / 2 + view.offset * pxPerDeg;
-      const y = horizonY + (Math.atan2(EYE_HEIGHT, view.distance) * 180) / Math.PI * pxPerDeg;
+      const y =
+        horizonY + ((Math.atan2(eyeElevation(observer), view.distance) * 180) / Math.PI) * pxPerDeg;
 
       // A segment passing behind the viewer wraps the seam; break the path.
       if (started && Math.abs(view.offset - previousOffset) > 60) started = false;
