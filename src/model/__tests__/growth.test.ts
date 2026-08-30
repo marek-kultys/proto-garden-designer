@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { currentGrowthRate, sizeAt } from '../growth';
+import { currentGrowthRate, plantAge, sizeAt } from '../growth';
 import { SPECIES, getSpecies } from '../plants';
 
 describe('growth curve', () => {
@@ -75,5 +75,53 @@ describe('growth curve', () => {
       const species = getSpecies(id);
       expect(sizeAt(species, 4).height / species.matureHeight).toBeGreaterThan(0.9);
     }
+  });
+});
+
+describe('a plant that went in part-grown', () => {
+  const birch = getSpecies('betula-jacquemontii');
+
+  it('counts the head start as the plant\'s own age, not the garden\'s', () => {
+    expect(plantAge(10, 0)).toBe(10);
+    expect(plantAge(10, 5)).toBe(15);
+    expect(plantAge(0, 5)).toBe(5);
+  });
+
+  it('is already the size it would have reached in that many years', () => {
+    const specimen = sizeAt(birch, plantAge(10, 0));
+    const grownOnSite = sizeAt(birch, 10);
+    expect(specimen.height).toBeCloseTo(grownOnSite.height);
+  });
+
+  /**
+   * The point of buying one in: on the day the garden goes in it is a tree and
+   * the nursery stock beside it is a whip.
+   */
+  it('is taller than nursery stock on the day of planting', () => {
+    expect(sizeAt(birch, plantAge(10, 0)).height).toBeGreaterThan(
+      sizeAt(birch, plantAge(0, 0)).height * 1.5,
+    );
+  });
+
+  it('stays ahead for the whole span of the age slider', () => {
+    for (const year of [0, 1, 5, 10, 20]) {
+      expect(
+        sizeAt(birch, plantAge(10, year)).height,
+        `year ${year}`,
+      ).toBeGreaterThan(sizeAt(birch, plantAge(0, year)).height);
+    }
+  });
+
+  it('closes the gap as both approach mature size, rather than staying parallel', () => {
+    const gapEarly =
+      sizeAt(birch, plantAge(10, 0)).height - sizeAt(birch, plantAge(0, 0)).height;
+    const gapLate =
+      sizeAt(birch, plantAge(10, 20)).height - sizeAt(birch, plantAge(0, 20)).height;
+    // A logistic curve levels off, so the head start is worth less and less.
+    expect(gapLate).toBeLessThan(gapEarly);
+  });
+
+  it('never runs backwards past year zero', () => {
+    expect(plantAge(0, -5)).toBe(0);
   });
 });

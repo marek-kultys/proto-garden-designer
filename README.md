@@ -24,10 +24,19 @@ that you can turn and tilt.
 on a phone.
 
 Built to test whether the interaction idea has depth rather than to be a
-comprehensive plant database. A hundred and thirty-eight plants, each researched
+comprehensive plant database. A hundred and fifty-two plants, each researched
 rather than invented, chosen to span the axes the simulation actually exercises
 — trees, shrubs, conifers, climbers, grasses, ferns, perennials, bulbs and
 annuals.
+
+Plants go in either as nursery stock or as a ten-year-old specimen, so one
+bought-in tree can give a design structure on the day it is planted while
+everything round it is still a whip.
+
+Walls and raised beds can be drawn on the plan and given a height. Both are part
+of the simulation, not marks on a drawing: a wall throws a real shadow into the
+sun map and hides what is behind it in the 360° view, and a raised bed lifts the
+plants standing in it.
 
 Designs save as named projects in the browser, so a garden survives closing the
 tab, and export/import as a JSON file carries one between machines. Nothing is
@@ -35,7 +44,7 @@ sent anywhere and there is no backend.
 
 The library is filtered by type and by growing conditions — aspect, soil type,
 soil pH and drainage — so a border with dry shade on chalk narrows a hundred and
-thirty-eight plants to the handful that will actually take it.
+fifty-two plants to the handful that will actually take it.
 
 📄 **[PRODUCT.md](PRODUCT.md)** — what it is, where the brief came from, what it
 does, what was deliberately left out, and the roadmap.
@@ -45,7 +54,7 @@ does, what was deliberately left out, and the roadmap.
 ```bash
 npm install
 npm run dev        # http://localhost:5173
-npm test           # 178 tests
+npm test           # 230 tests
 npm run build      # production build into dist/
 ```
 
@@ -61,7 +70,8 @@ node scripts/check-singlefile.mjs     # confirms it runs from file:// with zero 
 
 ```
 src/model/    the simulation — sun, growth, phenology, shade, panorama geometry,
-              and the plant data itself (plants.ts)
+              walls and raised beds (structures.ts), and the plant data itself
+              (plants.ts)
 src/render/   canvas drawing — sketchy line work, the light palette, and one
               draw pass per view
 src/state/    a single zustand store; all state is plain and serialisable, plus
@@ -96,7 +106,9 @@ days later per degree of latitude north and per 120 m of altitude.
 
 **Sun and shade** — [`src/model/shade.ts`](src/model/shade.ts). Steps the sun
 across the sky and projects every canopy onto the ground, accumulating light per
-quarter-metre cell.
+quarter-metre cell. Walls and raised beds
+([`src/model/structures.ts`](src/model/structures.ts)) cast into the same map as
+opaque swept footprints.
 
 ![The sun and shade overlay](docs/img/shade-map-june-year20.png)
 
@@ -126,6 +138,25 @@ cold and grey at exactly the moment it should be going golden.
 **The elevation strip's vertical scale is fixed to the *mature* size of the
 planting**, never the current size. If it refitted as plants grew, everything
 would stay the same size on screen and the age slider would appear to do nothing.
+
+**A swept shadow is filled as one path, with every subpath wound the same way** —
+[`src/render/structure.ts`](src/render/structure.ts). The ground a wall shades is
+its footprint, its translated copy, and a quad per edge joining the two. Filling
+those separately double-darkens every overlap, and a wall's own segments overlap
+at each corner — so they go into one path and are filled once. But a nonzero fill
+*cancels* where two subpaths of opposite winding overlap, and the side quads a
+sweep produces wind against their own footprint. Left alone the shadow rubs
+itself out and the drawing shows bare grass while the sun map says the garden is
+shaded.
+
+**Exporting asks the host when there is one, and uses a link when there is not** —
+[`src/state/projectTransfer.ts`](src/state/projectTransfer.ts). A `download` link
+works on an ordinary page and is *silently inert* inside the artifact sandbox,
+which never grants a page permission to start its own download — so the app
+would have reported writing a file that was never written. Published as an
+artifact it asks the host to save instead, and the viewer confirms. Preferring
+the capability where it exists and falling back to the link where it does not is
+what lets one build be honest in both places.
 
 **Loading a design filters plants it no longer recognises** —
 [`src/state/projectFile.ts`](src/state/projectFile.ts). `getSpecies` throws on an
@@ -163,7 +194,7 @@ plan comes from the field actually rendered.
 ## Verification
 
 ```bash
-npm test                                      # 178 tests across 13 files
+npm test                                      # 230 tests across 15 files
 ```
 
 The models are where silent errors hide, so the unit tests check them against

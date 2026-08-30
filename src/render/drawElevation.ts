@@ -1,13 +1,15 @@
 import { getSpecies } from '../model/plants';
 import { phaseAt } from '../model/phenology';
-import { sizeAt } from '../model/growth';
+import { plantAge, sizeAt } from '../model/growth';
 import { shadowLengthFactor } from '../model/sun';
 import { canopyDensity } from '../model/shade';
-import type { PlantInstance, Site, TimeState, Vec2 } from '../model/types';
+import { groundOffsetAt } from '../model/structures';
+import type { PlantInstance, Site, Structure, TimeState, Vec2 } from '../model/types';
 import { inkColour, shade, type Lighting } from './palette';
 import { getForm } from './form';
 import { drawPlantElevation } from './plant';
 import { roughLine } from './sketch';
+import { drawStructureElevation, sliceStructure, type StructureSlice } from './structure';
 import { MIN_ELEVATION_HEIGHT, SIGHT_BAND } from './constants';
 
 /**
@@ -28,11 +30,13 @@ import { MIN_ELEVATION_HEIGHT, SIGHT_BAND } from './constants';
 
 export interface ElevationScene {
   plants: PlantInstance[];
+  structures: Structure[];
   site: Site;
   time: TimeState;
   light: Lighting;
   sightLine: { a: Vec2; b: Vec2 };
   selectedId: string | null;
+  selectedStructureId: string | null;
 }
 
 interface Projected {
@@ -89,7 +93,15 @@ export function drawElevation(
   let reference = MIN_ELEVATION_HEIGHT;
   for (const p of scene.plants) {
     const species = getSpecies(p.speciesId);
-    reference = Math.max(reference, species.matureHeight * 1.06);
+    // A plant in a raised bed reaches the bed's height higher than its own.
+    const base = groundOffsetAt(p, scene.structures);
+    reference = Math.max(reference, (species.matureHeight + base) * 1.06);
+  }
+  // Built things are at their full height from the day they go in, so they
+  // count against the same reference — otherwise a 3 m wall is drawn off the
+  // top of the strip on a garden of low planting.
+  for (const structure of scene.structures) {
+    reference = Math.max(reference, structure.height * 1.12);
   }
 
   const marginX = 46;
@@ -111,15 +123,49 @@ export function drawElevation(
   const dc = { ctx, light, pxPerM };
   const factor = shadowLengthFactor(light.altitude);
 
-  // Back to front, so nearer plants overlap those behind them.
-  const ordered = [...inBand].sort((a, b) => b.offset - a.offset);
+  const slices: StructureSlice[] = [];
+  for (const structure of scene.structures) {
+    const slice = sliceStructure(structure, sightLine.a, sightLine.b, SIGHT_BAND);
+    if (slice !== null) slices.push(slice);
+  }
 
-  for (const item of ordered) {
+  // Back to front, so nearer things overlap those behind them — planting and
+  // built work in one order, since a wall can be in front of one shrub and
+  // behind another.
+  type Item =
+    | { sort: number; kind: 'plant'; value: (typeof inBand)[number] }
+    | { sort: number; kind: 'structure'; value: StructureSlice };
+  const ordered: Item[] = [
+    ...inBand.map((value) => ({ sort: value.offset, kind: 'plant' as const, value })),
+    ...slices.map((value) => ({ sort: value.offset, kind: 'structure' as const, value })),
+  ].sort((a, b) => b.sort - a.sort);
+
+  for (const entry of ordered) {
+    if (entry.kind === 'structure') {
+      const depth = Math.min(1, Math.abs(entry.value.offset) / SIGHT_BAND);
+      ctx.save();
+      ctx.globalAlpha = 1 - depth * 0.25;
+      drawStructureElevation(
+        ctx,
+        entry.value,
+        originX,
+        groundY,
+        pxPerM,
+        light,
+        scene.selectedStructureId === entry.value.structure.id,
+      );
+      ctx.restore();
+      continue;
+    }
+
+    const item = entry.value;
     const species = getSpecies(item.plant.speciesId);
     const phase = phaseAt(species, time.doy, site);
-    const size = sizeAt(species, time.year);
+    const size = sizeAt(species, plantAge(item.plant.plantedAge, time.year));
     const form = getForm(species, item.plant.seed);
     const x = originX + item.along * pxPerM;
+    // A raised bed lifts what stands in it, which is the whole point of one.
+    const baseY = groundY - groundOffsetAt(item.plant, scene.structures) * pxPerM;
 
     // Distance haze: things further back sit a little further into the light.
     const depth = Math.min(1, Math.abs(item.offset) / SIGHT_BAND);
@@ -136,7 +182,7 @@ export function drawElevation(
         ctx.beginPath();
         ctx.ellipse(
           x + shadowLen * 0.18,
-          groundY + 2,
+          baseY + 2,
           Math.max(4, (size.spread / 2) * pxPerM + shadowLen * 0.2),
           Math.max(2, size.spread * pxPerM * 0.09 + 2),
           0,
@@ -155,7 +201,7 @@ export function drawElevation(
       phase,
       size,
       x,
-      groundY,
+      baseY,
       phase.flowerAge,
       scene.selectedId === item.plant.id,
     );
@@ -164,7 +210,7 @@ export function drawElevation(
 
   drawEndMarkers(ctx, originX, lineLength * pxPerM, groundY, height, light);
 
-  if (inBand.length === 0) {
+  if (inBand.length === 0 && slices.length === 0) {
     ctx.fillStyle = inkColour(light, 0.55);
     ctx.font = '12px ui-sans-serif, system-ui, sans-serif';
     ctx.textAlign = 'center';

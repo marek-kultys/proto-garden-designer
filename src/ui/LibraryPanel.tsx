@@ -4,7 +4,7 @@ import { phaseAt } from '../model/phenology';
 import { lightingFor } from '../render/palette';
 import { getForm } from '../render/form';
 import { drawPlantElevation } from '../render/plant';
-import { useStore } from '../state/store';
+import { PLACEMENT_AGES, useStore } from '../state/store';
 import type {
   DrainagePref,
   Foliage,
@@ -251,6 +251,10 @@ export function LibraryPanel({ onStartDrag }: LibraryProps) {
   const [openId, setOpenId] = useState<string | null>(null);
 
   const plants = useStore((s) => s.plants);
+
+  const placementAge = useStore((s) => s.placementAge);
+
+  const setPlacementAge = useStore((s) => s.setPlacementAge);
   const selectSpecies = useStore((s) => s.selectNextOfSpecies);
 
   /** How many of each species are on the plot right now. */
@@ -424,6 +428,28 @@ export function LibraryPanel({ onStartDrag }: LibraryProps) {
           'Drag onto the plan, or tap to drop one in the middle.'
         )}
       </p>
+
+      <div className="planting-size">
+        <span className="planting-size-label">Plant as</span>
+        <div className="chips">
+          {PLACEMENT_AGES.map((option) => (
+            <button
+              key={option.years}
+              className={`chip ${placementAge === option.years ? 'on' : ''}`}
+              onClick={() => setPlacementAge(option.years)}
+              aria-pressed={placementAge === option.years}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+        {placementAge > 0 && (
+          <p className="hint">
+            New plants go in with {placementAge} years of growth already made, and stay that much
+            ahead for the life of the design.
+          </p>
+        )}
+      </div>
 
       <div className="cards">
         {grouped.map((group) => (

@@ -30,6 +30,18 @@ function progress(years: number, yearsToMature: number, midpoint: number): numbe
   return Math.max(0, (raw - at0) / (1 - at0));
 }
 
+/**
+ * How old a plant is, as opposed to how old the garden is.
+ *
+ * They are the same number only for something planted as nursery stock. Kept as
+ * a named function rather than an addition at each call site, because a single
+ * place that forgets it draws a semi-mature tree as a whip and is very hard to
+ * spot afterwards.
+ */
+export function plantAge(plantedAge: number, gardenYear: number): number {
+  return Math.max(0, gardenYear + plantedAge);
+}
+
 export function sizeAt(species: Species, years: number): PlantSize {
   if (species.clipped) {
     const rate = species.annualGrowth ?? 0.3;

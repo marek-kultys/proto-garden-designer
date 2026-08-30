@@ -57,7 +57,7 @@ A few open questions were settled before building:
 | Which optional extras? | The sun/shade overlay only — soil alerts, save/load and a plant info panel were cut |
 
 Everything after that came from using it: ten plants became thirty and then a
-hundred and thirty-eight, plus a phone layout, a 360° view from inside the
+hundred and fifty-two, plus a phone layout, a 360° view from inside the
 garden, adjustable eye height, duplicating a plant in place, undo, and filtering
 the library by growing conditions.
 
@@ -87,7 +87,7 @@ are looking at the same thing and can disagree about something real.
 ## Principles
 
 **Depth over breadth first.** The palette began at ten plants deeply simulated
-rather than a hundred stubs, and grew to a hundred and thirty-eight as testing
+rather than a hundred stubs, and grew to a hundred and fifty-two as testing
 demanded specific plants. The rule has not changed: every entry is researched
 rather than invented, and carries a source link. What breadth buys is that a
 designer can look for the plant they actually had in mind; what depth buys is
@@ -126,7 +126,7 @@ terrace or an upstairs window.
 
 ### The plant library
 
-A hundred and thirty-eight plants, searchable by common name, Latin name, genus
+A hundred and fifty-two plants, searchable by common name, Latin name, genus
 or family, each card showing both names, mature dimensions, foliage type and a
 sketch thumbnail. Drag onto the plan to place; on a phone, tap to drop one in the
 middle and then drag it into position.
@@ -170,6 +170,34 @@ what they will undo. It covers the design — planting and the plot outline — 
 not the view: scrubbing to April or turning to face west are not edits, and
 including them would bury a deleted border under a scrub of the season slider.
 
+### Walls and raised beds
+
+Two built things can be drawn on the plan. A **wall** is a run of points with a
+height and a thickness — a garden wall, or a solid fence, which is the same thing
+thinner. A **raised bed** is a closed outline with a low height.
+
+Both are part of the simulation rather than marks on a drawing, which was the
+decision that shaped the work:
+
+- **A wall casts a real shadow.** It is stepped across the sun map with
+  everything else, as an opaque swept footprint rather than a dappled canopy. A
+  1.8 m south boundary wall takes a measurable share of a small garden's light,
+  and takes far more of it in December than in June — which is exactly the
+  question a designer has about the bed in front of it.
+- **A wall blocks the 360° view.** It is depth-sorted with the planting, so it
+  hides what is behind it and is hidden by what is in front. This is the view
+  where a boundary wall stops being a line and becomes the thing you are looking
+  at from the terrace.
+- **A raised bed lifts what grows in it.** A plant standing in one is drawn from
+  the top of the bed in the elevation and the 360° view, and casts its shadow
+  from there — longer, and starting further out. A bed that raised nothing would
+  be decoration.
+
+Height is adjustable per structure and is where the interest is: it is the one
+number that decides both the shadow and what you can see over. A wall runs from
+0.2 m to 4 m, a bed from 10 cm to 1.2 m — above which it is a terrace wall and
+should be drawn as one.
+
 ### Saving a design
 
 Designs are saved as named projects, with Save, Save as copy, New, rename,
@@ -209,6 +237,20 @@ been off the machine, may have been edited by hand, and may have been written by
 another version. It therefore goes through exactly the same boundary as a stored
 design rather than a second, more trusting path written for the occasion — so
 every guard above applies to it automatically.
+
+### Buying a plant in part-grown
+
+A plant can go in as **nursery stock** or as a **ten-year-old specimen**, chosen
+before it is placed. A specimen carries ten years of growth from the day the
+garden goes in and stays that far ahead for the whole life of the design — so at
+year 0 it is already a tree with everything around it still a whip, and at year
+20 it is a thirty-year-old.
+
+This is per plant rather than per garden on purpose. The garden-wide version of
+it is the age slider, which already exists; what this adds is the thing a
+designer actually does, which is buy structure in for one or two key plants and
+let the rest catch up. It is also the honest way to show what that money buys:
+the specimen shades the terrace on day one, and the shade map says so.
 
 ### The site
 
@@ -277,22 +319,24 @@ fortnight early. This is what makes the altitude field do real work.
 
 **Sun and shade.** The sun is stepped across the sky and every canopy projected
 onto the ground, accumulating light per cell over the whole daylight window.
+Walls and raised beds cast into the same map, as opaque swept footprints rather
+than ellipses — a solid thing, not a dappled one.
 
 ## The plant palette
 
-A hundred and thirty-eight plants, chosen to span the axes the simulation
+A hundred and fifty-two plants, chosen to span the axes the simulation
 exercises — vigorous to slow, evergreen to fully dormant, sun to deep shade, tree
 to groundcover, and now bulb, fern and climber as well.
 
 | Type | Count | Examples |
 |---|---|---|
-| Trees | 19 | birch, snowy mespilus, Japanese maple, magnolia, crab apple, wild cherry, beech, hornbeam |
-| Shrubs | 38 | hydrangeas, lavender, roses, witch hazel, daphne, cistus, sarcococca, mahonia, box |
+| Trees | 20 | birch, snowy mespilus, Japanese maple, magnolia, crab apple, apple, wild cherry, beech, hornbeam |
+| Shrubs | 41 | hydrangeas, lavender, roses, rhododendron, tamarisk, witch hazel, daphne, cistus, sarcococca, mahonia, box |
 | Conifers | 2 | clipped yew, dwarf mountain pine |
-| Climbers | 7 | clematis (montana, armandii, viticella), crimson glory vine, star jasmine, winter jasmine |
-| Grasses | 12 | miscanthus, molinia, calamagrostis, stipa, deschampsia |
+| Climbers | 10 | clematis (montana, armandii, viticella), ivy, Japanese honeysuckle, passion flower, crimson glory vine, star jasmine, winter jasmine |
+| Grasses | 14 | miscanthus, molinia, calamagrostis, stipa, pennisetum, Mexican feather grass, deschampsia |
 | Ferns | 2 | male fern, soft tree fern |
-| Perennials | 46 | hellebore, hosta, euphorbia, geranium, aster, amsonia, peony, dahlia, delphinium |
+| Perennials | 51 | hellebore, hosta, epimedium, lungwort, London pride, hollyhock, giant viper's bugloss, euphorbia, geranium, aster, peony, dahlia, delphinium |
 | Bulbs | 9 | snowdrop, cyclamen, narcissus, allium, tree lily |
 | Annuals | 3 | cosmos, love-in-a-mist, marigold |
 
@@ -314,6 +358,12 @@ than failing loudly:
 | Soft tree fern | almost all trunk, at two or three centimetres of growth a year |
 | Houttuynia | the only plant here that will grow at a pond margin |
 | Foxglove | a biennial, which the age slider cannot honestly represent at all |
+| Ivy | flowers in October and fruits through winter — the calendar the other way up |
+| Rhododendron | acid soil or nothing: the one plant here chalk rules out completely |
+| Giant viper's bugloss | monocarpic — a rosette for a year or two, then one spire, then dead |
+| Apple | a grafted tree, where the rootstock and not the variety decides the size |
+| Lungwort | flowers open pink and age blue, so one plant carries both at once |
+| Burnet rose | black hips, which almost no other rose has |
 
 ### The shapes they are drawn with
 
@@ -360,10 +410,11 @@ per-plant page. Cut to keep the focus on the simulation.
   growing-season convention; six hours of an eight-hour December day is 72% of all
   available light, so the thresholds are capped at a share of daylight and the
   legend says so when that applies.
-- **A climber has no wall to climb.** The plot is a polygon with plants in it;
-  there are no fences, walls, pergolas or house. A climber is drawn against an
-  implied trellis wherever it is placed, which is honest about the plant and
-  silent about whether there is anything there to support it.
+- **A climber still has no wall to climb.** Walls and raised beds now exist, but
+  nothing connects a climber to one: a clematis is drawn against its implied
+  trellis wherever it is placed, whether or not there is a wall behind it.
+  Attaching a climber to a structure is the obvious next step and is not built.
+  There are still no pergolas, houses or overhead structures of any kind.
 - **Winter-growing plants are approximated.** Phenology anchors run within one
   calendar year, so a cyclamen whose leaves appear in November and die back in
   May is shown with foliage from January instead. It is right for eight months of
@@ -378,17 +429,34 @@ per-plant page. Cut to keep the focus on the simulation.
 - **Pond still matches nothing.** Houttuynia now answers the bog end of the
   drainage axis, but there is no true aquatic in the palette, so the wettest chip
   remains dimmed.
+- **A bought-in specimen never sulks.** A plant placed at ten years old is put
+  straight onto the curve of one grown on site for ten years, and grows on from
+  there. Real semi-mature transplants check badly: they sit and recover for
+  several seasons, sometimes never catch up with a smaller plant put in beside
+  them, and are far likelier to fail outright. None of that is modelled, so the
+  age option shows the size a specimen is bought at rather than the risk it
+  carries.
+- **A wall is a flat, solid, opaque plane.** No thickness in elevation beyond a
+  drawn coping, no openings, no gates, no gaps between boards, and no light
+  through or around anything. A close-boarded fence and a brick wall behave
+  identically, and a slatted screen — which a designer would reach for precisely
+  because it filters rather than blocks — cannot be represented at all.
+- **Nothing sits on top of a structure.** A plant is raised by a bed it stands
+  in, but nothing can be placed on a wall, and there is no planting in the face
+  of one. The ground under a wall is treated as shaded rather than as unplantable.
 - **Saved projects stay on one device; a file is how they move.** Projects live
   in the browser's own storage, which is what lets saving work with no backend at
   all — but they are per-browser and per-device, and they are gone if site data is
   cleared. Export and import carry a design between machines, and are the only way
   a tester's garden reaches anyone else. A share link encoding the design in the
   URL fragment would do the same without the file step, and is not built.
-- **Export does nothing in the artifact build.** A page published as an artifact
-  runs in a sandbox that blocks downloads the page starts itself, so the button
-  reports success and no file arrives. It works on the hosted site and in the
-  single-file build. Nothing in the page can detect the difference, which is why
-  this is written down rather than handled.
+- **Export takes two different routes, and neither is guaranteed.** On an
+  ordinary page it is a download link. Published as an artifact the page is
+  framed in a sandbox that never lets a page start its own download, so it asks
+  the host instead, and the viewer confirms each save and may decline. The app
+  prefers whichever route exists and reports only what actually happened — the
+  one outcome ruled out is claiming to have written a file that was never
+  written.
 - **UK and north-west Europe.** The solar maths is global, but the plant palette,
   the phenology baselines and the summer-time rule are not.
 
@@ -405,7 +473,7 @@ The prototype exists to answer questions about the idea, not about the code:
    *what will this look like*. Early signs are that the 360° view is the one that
    makes people stop talking about the drawing and start talking about the garden
    — but that needs testing, not assuming.
-3. **Is a hundred and thirty-eight plants the right size?** The palette started
+3. **Is a hundred and fifty-two plants the right size?** The palette started
    at ten on a depth-over-breadth argument and grew four-fold because testing
    kept asking for specific plants. The open question is now the opposite one:
    whether a list this long is harder to work with than a curated short one, and
@@ -452,7 +520,7 @@ garden back without asking them to find and send an attachment.
 
 **Live at <https://marekkultys.com/proto-garden-designer/>.** The repository is
 public and GitHub Actions publishes the single-file build on every merge to
-`master`, with the 178 tests as a gate in front of it. Actions is free on public
+`master`, with the 230 tests as a gate in front of it. Actions is free on public
 repositories and a run takes about a minute.
 
 The decision that got it there: **go public rather than pay to stay private.**
@@ -496,6 +564,24 @@ Two ways to serve this app from that domain, if it should live under that name:
   This is the only way to get `melayerka.com/proto-garden-designer` specifically.
   It costs a cross-repository write, which means a token to manage, and it ties
   the two projects' deployments together.
+
+### Walls and raised beds — done
+
+Built as described above, and the first change to reach every part of the app at
+once: the sun map, all three views, undo, saving and the file format. Two bugs
+worth recording, because both looked like the drawing being wrong when it was
+not:
+
+- **The sun map ignored the walls entirely** at first. The renderer had been
+  extended and the *model* had not been given them, so the plan drew a shadow
+  while the overlay reported 99% full sun. Two ways of answering the same
+  question had been allowed to disagree.
+- **A wall's drawn shadow erased itself.** The swept shadow is filled as a
+  single path so overlapping parts do not double-darken — but a nonzero fill
+  cancels where subpaths of opposite winding overlap, and a sweep produces side
+  quads wound against their own footprint. The fix is to normalise the winding
+  before filling. Worth knowing because the symptom is a shadow that is simply
+  absent, with nothing in the code obviously wrong.
 
 ### Further out
 

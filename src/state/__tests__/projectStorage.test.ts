@@ -22,8 +22,9 @@ const SITE: Site = {
 
 const DESIGN: Design = {
   plot: rectanglePlot(14, 10),
-  plants: [{ id: 'a', speciesId: 'betula-jacquemontii', x: 4, y: 3, seed: 1 }],
+  plants: [{ id: 'a', speciesId: 'betula-jacquemontii', x: 4, y: 3, seed: 1, plantedAge: 0 }],
   site: SITE,
+  structures: [],
 };
 
 /** A Map-backed stand-in for localStorage, with the behaviours that matter. */

@@ -1,16 +1,18 @@
 import { getSpecies } from '../model/plants';
 import { phaseAt } from '../model/phenology';
-import { sizeAt } from '../model/growth';
+import { plantAge, sizeAt } from '../model/growth';
 import { bearingToCanvas, shadowLengthFactor } from '../model/sun';
 import { canopyDensity, type ShadeGrid } from '../model/shade';
 import { polygonBounds } from '../model/geometry';
 import type { Observer } from '../model/panorama';
-import type { PlantInstance, Plot, Site, TimeState, Vec2 } from '../model/types';
+import { groundOffsetAt } from '../model/structures';
+import type { PlantInstance, Plot, Site, Structure, TimeState, Vec2 } from '../model/types';
 import { inkColour, shade, type Lighting } from './palette';
 import { blobPoints, curvePath, roughCurve, roughLine, roughPolygon, subSeed } from './sketch';
 import { getForm } from './form';
 import { canopyOutline, drawPlantPlan } from './plant';
 import { drawShadeOverlay } from './overlay';
+import { drawStructurePlan, drawStructureShadowPlan } from './structure';
 import { drawObserverOnPlan } from './drawPanorama';
 import { niceScaleStep, toScreen, type Viewport } from './viewport';
 import { SIGHT_BAND } from './constants';
@@ -18,6 +20,8 @@ import { SIGHT_BAND } from './constants';
 export interface Scene {
   plot: Plot;
   plants: PlantInstance[];
+  structures: Structure[];
+  selectedStructureId: string | null;
   site: Site;
   time: TimeState;
   calendarYear: number;
@@ -84,18 +88,26 @@ export function drawPlan(
     .map((plant) => {
       const species = getSpecies(plant.speciesId);
       const phase = phaseAt(species, time.doy, site);
-      const size = sizeAt(species, time.year);
+      const size = sizeAt(species, plantAge(plant.plantedAge, time.year));
       const form = getForm(species, plant.seed);
       const screen = toScreen(viewport, plant);
-      return { plant, species, phase, size, form, screen };
+      const base = groundOffsetAt(plant, scene.structures);
+      return { plant, species, phase, size, form, screen, base };
     })
     .sort((a, b) => b.size.spread - a.size.spread);
+
+  // Drawn before the planting: a raised bed is ground that plants stand in, and
+  // a wall seen from above sits behind whatever is growing in front of it.
+  for (const structure of scene.structures) {
+    drawStructurePlan(ctx, structure, viewport, light, false);
+  }
 
   if (opts.showShadows && light.altitude > 0.5 && plotPath) {
     // Clipped to the plot: a shadow sprawling across the paper outside the
     // boundary reads as part of the drawing rather than as a consequence of it.
     ctx.save();
     ctx.clip(plotPath);
+    drawStructureShadowPlan(ctx, scene.structures, viewport, light, site);
     drawShadows(ctx, drawables, viewport, light, site);
     ctx.restore();
   }
@@ -113,6 +125,11 @@ export function drawPlan(
       d.phase.flowerAge,
       scene.selectedId === d.plant.id,
     );
+  }
+
+  const selectedStructure = scene.structures.find((x) => x.id === scene.selectedStructureId);
+  if (selectedStructure !== undefined) {
+    drawStructurePlan(ctx, selectedStructure, viewport, light, true);
   }
 
   if (plotPath) {
@@ -199,6 +216,8 @@ type Drawable = {
   size: ReturnType<typeof sizeAt>;
   form: ReturnType<typeof getForm>;
   screen: Vec2;
+  /** Height of the ground under it — non-zero when it stands in a raised bed. */
+  base: number;
 };
 
 /**
@@ -229,11 +248,15 @@ function drawShadows(
     const len = Math.min(40, d.size.height * factor) * viewport.scale;
     if (len < 1) continue;
     const stretch = (radius + len / 2) / radius;
+    // Standing in a raised bed pushes the whole shadow further from the plant,
+    // by the height of the bed — the same reason a wall's shadow starts at its
+    // foot and not at the viewer.
+    const lift = Math.min(40, d.base * factor) * viewport.scale;
 
     ctx.save();
     ctx.translate(d.screen.x, d.screen.y);
     ctx.rotate(angle);
-    ctx.translate(len / 2, 0);
+    ctx.translate(lift + len / 2, 0);
     ctx.scale(stretch, 1);
     ctx.fillStyle = `rgba(46, 54, 78, ${(light.shadowAlpha * density).toFixed(3)})`;
     ctx.fill(curvePath(canopyOutline(d.form, 0, 0, radius), true));

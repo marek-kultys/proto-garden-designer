@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   FILE_EXTENSION,
   exportProjectFile,
@@ -22,10 +22,11 @@ const SITE: Site = {
 const DESIGN: Design = {
   plot: rectanglePlot(14, 10),
   plants: [
-    { id: 'a', speciesId: 'betula-jacquemontii', x: 4, y: 3, seed: 1234 },
-    { id: 'b', speciesId: 'taxus-baccata', x: 11, y: 6, seed: 5678 },
+    { id: 'a', speciesId: 'betula-jacquemontii', x: 4, y: 3, seed: 1234, plantedAge: 0 },
+    { id: 'b', speciesId: 'taxus-baccata', x: 11, y: 6, seed: 5678, plantedAge: 0 },
   ],
   site: SITE,
+  structures: [],
 };
 
 function fileOf(text: string, name = 'garden.json'): File {
@@ -73,11 +74,60 @@ describe('the exported file', () => {
     expect(serialiseProject('x', DESIGN, new Date())).toContain('\n  ');
   });
 
-  it('reports rather than throws when the browser has no download machinery', () => {
-    // Node has no document, which is the same shape of failure as a browser
-    // refusing the download: it must come back as a value, not an exception.
-    expect(() => exportProjectFile('x', DESIGN)).not.toThrow();
-    expect(exportProjectFile('x', DESIGN).ok).toBe(false);
+  it('reports rather than throws when there is no way to save at all', async () => {
+    // Node has neither a document nor a `claude` host, which is the same shape
+    // of failure as a browser refusing the download: it must come back as a
+    // value, not an exception.
+    await expect(exportProjectFile('x', DESIGN)).resolves.toMatchObject({ ok: false });
+  });
+
+  it('uses the host capability when the page is given one, rather than a link', async () => {
+    const saved: { filename: string; data: string }[] = [];
+    vi.stubGlobal('window', {
+      claude: {
+        use: async (name: string) =>
+          name === 'downloads'
+            ? {
+                save: async (request: { filename: string; data: string }) => {
+                  saved.push(request);
+                  return { status: 'saved' };
+                },
+              }
+            : null,
+      },
+    });
+    vi.resetModules();
+    const fresh = await import('../projectTransfer');
+
+    const result = await fresh.exportProjectFile('Back garden', DESIGN);
+
+    expect(result.ok).toBe(true);
+    expect(saved).toHaveLength(1);
+    expect(saved[0].filename).toBe('back-garden.json');
+    // The bytes handed to the host are the same file the loader can read back.
+    expect(JSON.parse(saved[0].data)).toMatchObject({ schema: 'garden-designer-project' });
+    vi.unstubAllGlobals();
+  });
+
+  it('reports a declined save without claiming to have written a file', async () => {
+    vi.stubGlobal('window', {
+      claude: {
+        use: async () => ({
+          save: async () => {
+            throw { code: 'declined', message: 'no' };
+          },
+        }),
+      },
+    });
+    vi.resetModules();
+    const fresh = await import('../projectTransfer');
+
+    const result = await fresh.exportProjectFile('x', DESIGN);
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.detail).toMatch(/cancelled/i);
+    vi.unstubAllGlobals();
   });
 });
 
@@ -114,7 +164,7 @@ describe('importing a file', () => {
       ...DESIGN,
       plants: [
         ...DESIGN.plants,
-        { id: 'ghost', speciesId: 'acer-palmatum-osakazuki', x: 2, y: 2, seed: 9 },
+        { id: 'ghost', speciesId: 'acer-palmatum-osakazuki', x: 2, y: 2, seed: 9, plantedAge: 0 },
       ],
     };
     const result = await readProjectFromFile(fileOf(serialiseProject('x', tampered, new Date())));

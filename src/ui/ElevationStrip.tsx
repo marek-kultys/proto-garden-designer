@@ -16,6 +16,8 @@ export function ElevationStrip({ width, height }: ElevationStripProps) {
   const time = useStore((s) => s.time);
   const sightLine = useStore((s) => s.sightLine);
   const selectedId = useStore((s) => s.selectedId);
+  const structures = useStore((s) => s.structures);
+  const selectedStructureId = useStore((s) => s.selectedStructureId);
   const { light } = useSun();
 
   useEffect(() => {
@@ -29,13 +31,26 @@ export function ElevationStrip({ width, height }: ElevationStripProps) {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     drawElevation(ctx, width, height, {
       plants,
+      structures,
       site,
       time,
       light,
       sightLine,
       selectedId,
+      selectedStructureId,
     });
-  }, [plants, site, time, light, sightLine, selectedId, width, height]);
+  }, [
+    plants,
+    structures,
+    site,
+    time,
+    light,
+    sightLine,
+    selectedId,
+    selectedStructureId,
+    width,
+    height,
+  ]);
 
   return (
     <>

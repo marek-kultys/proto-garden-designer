@@ -9,7 +9,15 @@ import {
   normaliseBearing,
   type Observer,
 } from '../model/panorama';
-import type { PlantInstance, Plot, Site, TimeState, Vec2 } from '../model/types';
+import {
+  DEFAULT_BED_HEIGHT,
+  DEFAULT_WALL_HEIGHT,
+  DEFAULT_WALL_THICKNESS,
+  clampHeight,
+  clampThickness,
+  minimumPoints,
+} from '../model/structures';
+import type { PlantInstance, Plot, Site, Structure, TimeState, Vec2 } from '../model/types';
 import {
   describeFailure,
   describeSkipped,
@@ -23,7 +31,18 @@ import {
   writeProject,
 } from './projectStorage';
 
-export type Tool = 'select' | 'draw-plot';
+/**
+ * What a click on the plan does.
+ *
+ * The three drawing tools share one drafting mechanism — points collected as
+ * you click, committed when you finish — because they are the same gesture
+ * producing different things. Only `commitDraft` knows the difference.
+ */
+export type Tool = 'select' | 'draw-plot' | 'draw-wall' | 'draw-bed';
+
+export function isDrawingTool(tool: Tool): boolean {
+  return tool !== 'select';
+}
 
 /** Which drawing occupies the strip under the plan. */
 export type StageView = 'elevation' | 'panorama';
@@ -58,6 +77,18 @@ const DEFAULT_SITE: Site = {
 const DEFAULT_PROJECT_NAME = 'Untitled garden';
 
 /**
+ * How old a plant is when it goes in, in years of growth already made.
+ *
+ * Nursery stock is what you buy by default. Ten years is the semi-mature
+ * specimen a designer brings in when a garden needs structure on day one rather
+ * than in a decade — one tree, usually, at many times the price.
+ */
+export const PLACEMENT_AGES = [
+  { label: 'Nursery stock', years: 0 },
+  { label: '10 years old', years: 10 },
+];
+
+/**
  * The fingerprint of an untouched design, so a freshly opened app does not
  * claim to have unsaved changes before anything has been done to it.
  */
@@ -65,6 +96,7 @@ const EMPTY_FINGERPRINT = JSON.stringify({
   plot: DEFAULT_PLOT,
   plants: [] as PlantInstance[],
   site: DEFAULT_SITE,
+  structures: [] as Structure[],
 });
 
 /**
@@ -75,7 +107,7 @@ const EMPTY_FINGERPRINT = JSON.stringify({
  * be a surprise rather than a restoration.
  */
 export function currentDesign(s: AppState): Design {
-  return { plot: s.plot, plants: s.plants, site: s.site };
+  return { plot: s.plot, plants: s.plants, site: s.site, structures: s.structures };
 }
 
 /**
@@ -119,8 +151,10 @@ function applyDesign(
     ...pushHistory(s, label),
     plot: design.plot,
     plants,
+    structures: design.structures,
     site: design.site,
     selectedId: null,
+    selectedStructureId: null,
     // The sight line and the eye were placed for whatever plot was here before
     // and can land outside this one — which is how the elevation strip comes up
     // empty and the 360° view ends up underground. Same repositioning as
@@ -154,7 +188,9 @@ export type OpenOutcome =
 interface Snapshot {
   plants: PlantInstance[];
   plot: Plot;
+  structures: Structure[];
   selectedId: string | null;
+  selectedStructureId: string | null;
 }
 
 interface HistoryEntry {
@@ -176,16 +212,26 @@ const HISTORY_LIMIT = 80;
 const COALESCE_MS = 600;
 
 function snapshot(s: AppState): Snapshot {
-  return { plants: s.plants, plot: s.plot, selectedId: s.selectedId };
+  return {
+    plants: s.plants,
+    plot: s.plot,
+    structures: s.structures,
+    selectedId: s.selectedId,
+    selectedStructureId: s.selectedStructureId,
+  };
 }
 
 function restore(snap: Snapshot) {
   return {
     plants: snap.plants,
     plot: snap.plot,
+    structures: snap.structures,
     // The selection may name a plant that no longer exists on this side of the
     // edit, which would leave a highlight round nothing.
     selectedId: snap.plants.some((p) => p.id === snap.selectedId) ? snap.selectedId : null,
+    selectedStructureId: snap.structures.some((x) => x.id === snap.selectedStructureId)
+      ? snap.selectedStructureId
+      : null,
   };
 }
 
@@ -211,6 +257,7 @@ function pushHistory(s: AppState, label: string, coalesceKey?: string) {
 export interface AppState {
   plot: Plot;
   plants: PlantInstance[];
+  structures: Structure[];
   site: Site;
   time: TimeState;
   baseYear: number;
@@ -219,6 +266,7 @@ export interface AppState {
   draft: Vec2[];
   draftCursor: Vec2 | null;
   selectedId: string | null;
+  selectedStructureId: string | null;
   sightLine: { a: Vec2; b: Vec2 };
   observer: Observer;
   stageView: StageView;
@@ -239,6 +287,12 @@ export interface AppState {
   lastPushKey: string | null;
   lastPushAt: number;
 
+  /**
+   * The head start given to the next plant placed. A tool setting rather than
+   * part of the design, so it is deliberately not saved with one.
+   */
+  placementAge: number;
+
   /** Null until the design has been saved under a name at least once. */
   projectId: string | null;
   projectName: string;
@@ -246,6 +300,7 @@ export interface AppState {
   savedFingerprint: string;
 
   addPlant: (speciesId: string, at: Vec2) => void;
+  setPlacementAge: (years: number) => void;
   movePlant: (id: string, at: Vec2) => void;
   removePlant: (id: string) => void;
   /** Plant another of the same kind, just off the original. */
@@ -254,6 +309,12 @@ export interface AppState {
   select: (id: string | null) => void;
   /** Step the selection through the instances of one species, for the count badge. */
   selectNextOfSpecies: (speciesId: string) => void;
+
+  moveStructure: (id: string, by: Vec2) => void;
+  removeStructure: (id: string) => void;
+  setStructureHeight: (id: string, metres: number) => void;
+  setStructureThickness: (id: string, metres: number) => void;
+  selectStructure: (id: string | null) => void;
 
   setTime: (patch: Partial<TimeState>) => void;
   setSite: (patch: Partial<Site>) => void;
@@ -300,6 +361,7 @@ function newId(): string {
 export const useStore = create<AppState>((set, get) => ({
   plot: DEFAULT_PLOT,
   plants: [],
+  structures: [],
   site: DEFAULT_SITE,
   // Midday in early June, on the day the garden goes in.
   time: { hour: 13, doy: 155, year: 0 },
@@ -309,6 +371,7 @@ export const useStore = create<AppState>((set, get) => ({
   draft: [],
   draftCursor: null,
   selectedId: null,
+  selectedStructureId: null,
   sightLine: { a: { x: 0.5, y: 5 }, b: { x: 13.5, y: 5 } },
   // Standing at the near edge looking up the garden, which is where anyone
   // stands when they walk out of the house.
@@ -334,6 +397,7 @@ export const useStore = create<AppState>((set, get) => ({
   lastPushKey: null,
   lastPushAt: 0,
 
+  placementAge: 0,
   projectId: null,
   projectName: DEFAULT_PROJECT_NAME,
   savedFingerprint: EMPTY_FINGERPRINT,
@@ -347,9 +411,12 @@ export const useStore = create<AppState>((set, get) => ({
         x: at.x,
         y: at.y,
         seed: Math.floor(Math.random() * 1e9),
+        plantedAge: s.placementAge,
       };
       return { ...history, plants: [...s.plants, plant], selectedId: plant.id };
     }),
+
+  setPlacementAge: (years) => set({ placementAge: Math.max(0, years) }),
 
   movePlant: (id, at) =>
     set((s) => ({
@@ -384,6 +451,9 @@ export const useStore = create<AppState>((set, get) => ({
         // A fresh seed: a second plant of the same kind, not a clone of the
         // same individual. Two hostas in a border are never identical.
         seed: Math.floor(Math.random() * 1e9),
+        // The same age as the one it was taken from, not whatever the tool is
+        // currently set to — "add another" means another of *that* plant.
+        plantedAge: source.plantedAge,
       };
       return { ...history, plants: [...s.plants, copy], selectedId: copy.id };
     }),
@@ -391,7 +461,10 @@ export const useStore = create<AppState>((set, get) => ({
   // The one genuinely destructive action here, and the reason undo exists.
   clearPlants: () =>
     set((s) => ({ ...pushHistory(s, 'Clear planting'), plants: [], selectedId: null })),
-  select: (id) => set({ selectedId: id }),
+  // One selection at a time: the header and the side panel both describe "the
+  // selected thing", and two highlights at once would make that a lie.
+  select: (id) => set({ selectedId: id, selectedStructureId: null }),
+  selectStructure: (id) => set({ selectedStructureId: id, selectedId: null }),
 
   selectNextOfSpecies: (speciesId) =>
     set((s) => {
@@ -403,6 +476,43 @@ export const useStore = create<AppState>((set, get) => ({
       return { selectedId: matches[(at + 1) % matches.length].id };
     }),
 
+  moveStructure: (id, by) =>
+    set((s) => ({
+      // Keyed on the structure, so one drag is one undo step but moving two in
+      // turn stays two — the same rule the plants use.
+      ...pushHistory(s, 'Move structure', `structure:${id}`),
+      structures: s.structures.map((x) =>
+        x.id === id
+          ? { ...x, points: x.points.map((p) => ({ x: p.x + by.x, y: p.y + by.y })) }
+          : x,
+      ),
+    })),
+
+  removeStructure: (id) =>
+    set((s) => ({
+      ...pushHistory(s, 'Remove structure'),
+      structures: s.structures.filter((x) => x.id !== id),
+      selectedStructureId: s.selectedStructureId === id ? null : s.selectedStructureId,
+    })),
+
+  setStructureHeight: (id, metres) =>
+    set((s) => ({
+      // Coalesced: dragging the height slider fires continuously, and one undo
+      // step per pixel would bury whatever came before it.
+      ...pushHistory(s, 'Change height', `height:${id}`),
+      structures: s.structures.map((x) =>
+        x.id === id ? { ...x, height: clampHeight(x.kind, metres) } : x,
+      ),
+    })),
+
+  setStructureThickness: (id, metres) =>
+    set((s) => ({
+      ...pushHistory(s, 'Change thickness', `thickness:${id}`),
+      structures: s.structures.map((x) =>
+        x.id === id ? { ...x, thickness: clampThickness(metres) } : x,
+      ),
+    })),
+
   setTime: (patch) => set((s) => ({ time: { ...s.time, ...patch } })),
   setSite: (patch) => set((s) => ({ site: { ...s.site, ...patch } })),
 
@@ -412,6 +522,35 @@ export const useStore = create<AppState>((set, get) => ({
 
   commitDraft: () =>
     set((s) => {
+      // A wall or a bed is the same gesture as a plot outline, producing a
+      // different thing — so the drafting, the preview and the cancel are
+      // shared, and only the commit knows which tool was in hand.
+      if (s.tool === 'draw-wall' || s.tool === 'draw-bed') {
+        const kind = s.tool === 'draw-wall' ? 'wall' : 'bed';
+        if (s.draft.length < minimumPoints(kind)) {
+          return { tool: 'select', draft: [], draftCursor: null };
+        }
+        const structure: Structure = {
+          id: newId(),
+          kind,
+          points: s.draft,
+          height: kind === 'wall' ? DEFAULT_WALL_HEIGHT : DEFAULT_BED_HEIGHT,
+          thickness: DEFAULT_WALL_THICKNESS,
+          seed: Math.floor(Math.random() * 1e9),
+        };
+        return {
+          ...pushHistory(s, kind === 'wall' ? 'Draw wall' : 'Draw raised bed'),
+          structures: [...s.structures, structure],
+          // Selected on arrival, because the next thing anyone does is set its
+          // height, and the height control lives with the selection.
+          selectedStructureId: structure.id,
+          selectedId: null,
+          draft: [],
+          draftCursor: null,
+          tool: 'select',
+        };
+      }
+
       if (s.draft.length < 3) return { tool: 'select', draft: [], draftCursor: null };
       // Keep the sight line inside whatever was just drawn.
       const xs = s.draft.map((p) => p.x);
@@ -499,8 +638,10 @@ export const useStore = create<AppState>((set, get) => ({
       ...pushHistory(s, 'New project'),
       plot: DEFAULT_PLOT,
       plants: [],
+      structures: [],
       site: DEFAULT_SITE,
       selectedId: null,
+      selectedStructureId: null,
       sightLine: { a: { x: 0.5, y: 5 }, b: { x: 13.5, y: 5 } },
       observer: { ...s.observer, x: 7, y: 9.2, heading: 0, pitch: 12 },
       projectId: null,
@@ -550,7 +691,11 @@ export const useStore = create<AppState>((set, get) => ({
     if (result === null) return { ok: false, detail: 'That design is no longer in this browser.' };
     if (!result.ok) return { ok: false, detail: describeFailure(result.failure) };
     set((s) => applyDesign(s, result.name, result.design, id, 'Open project'));
-    return { ok: true, name: result.name, note: describeSkipped(result.skipped) };
+    return {
+      ok: true,
+      name: result.name,
+      note: describeSkipped(result.skipped, result.droppedStructures),
+    };
   },
 
   /**

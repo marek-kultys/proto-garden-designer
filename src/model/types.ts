@@ -182,6 +182,46 @@ export interface PlantInstance {
   y: number;
   /** Stable per-instance randomness so the sketchy linework never shimmers. */
   seed: number;
+  /**
+   * Years of growth this plant had already made when it went in.
+   *
+   * Nursery stock is 0. A semi-mature specimen bought in at ten years old is
+   * 10, and is that much further along its curve for the whole life of the
+   * design — so at year 0 it is already a tree while everything round it is a
+   * whip, and at year 20 it is a thirty-year-old.
+   *
+   * Per plant rather than per garden, because the garden-wide version of this
+   * is the age slider, which already exists. What this adds is the thing a
+   * designer actually does: buy structure in for one or two key plants and let
+   * the rest catch up.
+   */
+  plantedAge: number;
+}
+
+/**
+ * Built things in the garden, as opposed to grown ones.
+ *
+ * `wall` is a run of points with a thickness — a garden wall, or a solid fence,
+ * which is the same thing thinner. `bed` is a closed outline with a low height:
+ * a raised bed, whose whole point is that the soil in it sits above the ground,
+ * so plants standing in one are lifted by its height.
+ */
+export type StructureKind = 'wall' | 'bed';
+
+export interface Structure {
+  id: string;
+  kind: StructureKind;
+  /**
+   * Plot-space metres. A wall is an open run of two or more points; a bed is a
+   * closed outline of three or more.
+   */
+  points: Vec2[];
+  /** Metres above the ground. */
+  height: number;
+  /** Metres. Walls only; a bed's walls are drawn at a fixed thin gauge. */
+  thickness: number;
+  /** Stable per-instance randomness, so the sketchy linework never shimmers. */
+  seed: number;
 }
 
 export interface Site {

@@ -1,5 +1,6 @@
 import { useCallback, useRef, type ReactNode } from 'react';
 import { LOCATION_PRESETS, useStore } from '../state/store';
+import { StructuresPanel } from './StructuresPanel';
 import { seasonShift } from '../model/phenology';
 import { EYE_PRESETS, GROUND_PRESETS, eyeElevation } from '../model/panorama';
 import { compassLabel, formatHour, useSun } from './useSun';
@@ -294,6 +295,8 @@ export function SitePanel({ extraTools }: SitePanelProps) {
         </div>
         <div className="readout-note">{shiftText}</div>
       </div>
+
+      <StructuresPanel />
 
       <h3>Show</h3>
       <label className="check">

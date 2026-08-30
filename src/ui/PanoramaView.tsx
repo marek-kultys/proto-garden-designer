@@ -33,6 +33,8 @@ export function PanoramaView({ width, height }: PanoramaViewProps) {
   const time = useStore((s) => s.time);
   const observer = useStore((s) => s.observer);
   const selectedId = useStore((s) => s.selectedId);
+  const structures = useStore((s) => s.structures);
+  const selectedStructureId = useStore((s) => s.selectedStructureId);
   const setHeading = useStore((s) => s.setHeading);
   const setRenderedFov = useStore((s) => s.setRenderedFov);
   const setPitch = useStore((s) => s.setPitch);
@@ -48,8 +50,30 @@ export function PanoramaView({ width, height }: PanoramaViewProps) {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    drawPanorama(ctx, width, height, { plot, plants, site, time, light, observer, selectedId });
-  }, [plot, plants, site, time, light, observer, selectedId, width, height]);
+    drawPanorama(ctx, width, height, {
+      plot,
+      plants,
+      structures,
+      site,
+      time,
+      light,
+      observer,
+      selectedId,
+      selectedStructureId,
+    });
+  }, [
+    plot,
+    plants,
+    structures,
+    site,
+    time,
+    light,
+    observer,
+    selectedId,
+    selectedStructureId,
+    width,
+    height,
+  ]);
 
   const fov = effectiveFov(width, height, observer.fov);
   const degPerPx = 1 / pixelsPerDegree(width, height, observer.fov);
