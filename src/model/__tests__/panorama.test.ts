@@ -195,9 +195,20 @@ describe('eye height', () => {
 describe('fitting the field to the panel', () => {
   it('gives the field you asked for when the panel is tall enough', () => {
     // 90° across 1200 px is 13.3 px/deg, so the vertical sweep needs
-    // 13.3 × 50 ≈ 667 px before the horizontal is the binding constraint.
-    expect(effectiveFov(1200, 700, 90)).toBeCloseTo(90, 1);
-    expect(effectiveFov(1200, 620, 90)).toBeGreaterThan(90);
+    // 13.3 × MIN_VERTICAL_FOV px before the horizontal becomes the binding
+    // constraint. Written against the constant rather than a number, because
+    // the floor was lowered once already — a wide field bends every straight
+    // line, and a gardener testing this called the result deformed.
+    const bindsAbove = (1200 / 90) * MIN_VERTICAL_FOV;
+    expect(effectiveFov(1200, bindsAbove + 40, 90)).toBeCloseTo(90, 1);
+    expect(effectiveFov(1200, bindsAbove - 40, 90)).toBeGreaterThan(90);
+  });
+
+  it('lets a narrower request actually narrow the view', () => {
+    // The point of the width control: asking for less must give less, not the
+    // same picture. On a strip that used to be pinned wide by the floor, 60°
+    // now genuinely reads narrower than 120°.
+    expect(effectiveFov(1250, 300, 60)).toBeLessThan(effectiveFov(1250, 300, 120));
   });
 
   it('opens the field out rather than magnifying a short panel', () => {

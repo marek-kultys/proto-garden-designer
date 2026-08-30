@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { rectanglePlot } from '../model/geometry';
+import { polygonBounds, rectanglePlot } from '../model/geometry';
+import { DEFAULT_SLICE_DEPTH, SLICE_DEPTH_RANGE } from '../render/constants';
 import { getSpecies } from '../model/plants';
 import {
   DEFAULT_EYE_HEIGHT,
@@ -268,6 +269,11 @@ export interface AppState {
   selectedId: string | null;
   selectedStructureId: string | null;
   sightLine: { a: Vec2; b: Vec2 };
+  /**
+   * Depth of the slice the elevation shows, in metres. A way of looking rather
+   * than part of the design, like the sight line itself, so it is not saved.
+   */
+  sliceDepth: number;
   observer: Observer;
   stageView: StageView;
   /**
@@ -293,6 +299,13 @@ export interface AppState {
    */
   placementAge: number;
 
+  /**
+   * Set while an existing structure's outline is being drawn again. Committing
+   * then replaces that structure's shape rather than adding another one beside
+   * it, which is what "redraw" has to mean.
+   */
+  redrawingId: string | null;
+
   /** Null until the design has been saved under a name at least once. */
   projectId: string | null;
   projectName: string;
@@ -311,6 +324,10 @@ export interface AppState {
   selectNextOfSpecies: (speciesId: string) => void;
 
   moveStructure: (id: string, by: Vec2) => void;
+  /** Drag one corner of a wall or bed, reshaping it. */
+  moveStructurePoint: (id: string, index: number, to: Vec2) => void;
+  /** Draw the outline again from scratch, keeping its height and thickness. */
+  redrawStructure: (id: string) => void;
   removeStructure: (id: string) => void;
   setStructureHeight: (id: string, metres: number) => void;
   setStructureThickness: (id: string, metres: number) => void;
@@ -327,7 +344,10 @@ export interface AppState {
   resetPlot: (width: number, height: number) => void;
 
   setSightEnd: (end: 'a' | 'b', p: Vec2) => void;
+  setSliceDepth: (metres: number) => void;
   moveObserver: (p: Vec2) => void;
+  /** Put the eye back in the middle of the plot, for when it has been lost. */
+  centreObserver: () => void;
   turnObserver: (byDegrees: number) => void;
   setHeading: (heading: number) => void;
   setFov: (fov: number) => void;
@@ -373,6 +393,7 @@ export const useStore = create<AppState>((set, get) => ({
   selectedId: null,
   selectedStructureId: null,
   sightLine: { a: { x: 0.5, y: 5 }, b: { x: 13.5, y: 5 } },
+  sliceDepth: DEFAULT_SLICE_DEPTH,
   // Standing at the near edge looking up the garden, which is where anyone
   // stands when they walk out of the house.
   observer: {
@@ -398,6 +419,7 @@ export const useStore = create<AppState>((set, get) => ({
   lastPushAt: 0,
 
   placementAge: 0,
+  redrawingId: null,
   projectId: null,
   projectName: DEFAULT_PROJECT_NAME,
   savedFingerprint: EMPTY_FINGERPRINT,
@@ -488,6 +510,34 @@ export const useStore = create<AppState>((set, get) => ({
       ),
     })),
 
+  moveStructurePoint: (id, index, to) =>
+    set((s) => ({
+      // Keyed on the corner, so dragging one is a single undo step, and moving
+      // two corners in turn stays two.
+      ...pushHistory(s, 'Reshape', `point:${id}:${index}`),
+      structures: s.structures.map((x) =>
+        x.id === id
+          ? { ...x, points: x.points.map((p, i) => (i === index ? to : p)) }
+          : x,
+      ),
+    })),
+
+  redrawStructure: (id) =>
+    set((s) => {
+      const structure = s.structures.find((x) => x.id === id);
+      if (structure === undefined) return {};
+      return {
+        tool: structure.kind === 'wall' ? 'draw-wall' : 'draw-bed',
+        redrawingId: id,
+        draft: [],
+        draftCursor: null,
+        // The old shape stays on the plan while the new one is drawn, as
+        // something to line the new outline up against.
+        selectedStructureId: id,
+        selectedId: null,
+      };
+    }),
+
   removeStructure: (id) =>
     set((s) => ({
       ...pushHistory(s, 'Remove structure'),
@@ -516,7 +566,7 @@ export const useStore = create<AppState>((set, get) => ({
   setTime: (patch) => set((s) => ({ time: { ...s.time, ...patch } })),
   setSite: (patch) => set((s) => ({ site: { ...s.site, ...patch } })),
 
-  setTool: (tool) => set({ tool, draft: [], draftCursor: null }),
+  setTool: (tool) => set({ tool, draft: [], draftCursor: null, redrawingId: null }),
   pushDraftPoint: (p) => set((s) => ({ draft: [...s.draft, p] })),
   setDraftCursor: (p) => set({ draftCursor: p }),
 
@@ -528,8 +578,23 @@ export const useStore = create<AppState>((set, get) => ({
       if (s.tool === 'draw-wall' || s.tool === 'draw-bed') {
         const kind = s.tool === 'draw-wall' ? 'wall' : 'bed';
         if (s.draft.length < minimumPoints(kind)) {
-          return { tool: 'select', draft: [], draftCursor: null };
+          // Abandoned before it was a shape. The original is left exactly as it
+          // was — a half-finished redraw must never destroy what it replaces.
+          return { tool: 'select', draft: [], draftCursor: null, redrawingId: null };
         }
+        if (s.redrawingId !== null) {
+          const id = s.redrawingId;
+          return {
+            ...pushHistory(s, 'Redraw shape'),
+            structures: s.structures.map((x) => (x.id === id ? { ...x, points: s.draft } : x)),
+            selectedStructureId: id,
+            draft: [],
+            draftCursor: null,
+            redrawingId: null,
+            tool: 'select',
+          };
+        }
+
         const structure: Structure = {
           id: newId(),
           kind,
@@ -574,7 +639,7 @@ export const useStore = create<AppState>((set, get) => ({
       };
     }),
 
-  cancelDraft: () => set({ draft: [], draftCursor: null, tool: 'select' }),
+  cancelDraft: () => set({ draft: [], draftCursor: null, tool: 'select', redrawingId: null }),
 
   resetPlot: (width, height) =>
     set((s) => ({
@@ -594,7 +659,43 @@ export const useStore = create<AppState>((set, get) => ({
 
   setSightEnd: (end, p) => set((s) => ({ sightLine: { ...s.sightLine, [end]: p } })),
 
-  moveObserver: (p) => set((s) => ({ observer: { ...s.observer, x: p.x, y: p.y } })),
+  setSliceDepth: (metres) =>
+    set({
+      sliceDepth: Number.isFinite(metres)
+        ? Math.max(SLICE_DEPTH_RANGE.min, Math.min(SLICE_DEPTH_RANGE.max, metres))
+        : DEFAULT_SLICE_DEPTH,
+    }),
+
+  /**
+   * Move the eye, but keep it within reach.
+   *
+   * Standing a little outside the garden is a real thing to want — you look at
+   * a border from the house, not from inside it — so this allows a margin round
+   * the plot rather than pinning the eye inside it. What it will not allow is
+   * dragging the eye so far out that it leaves the drawing altogether: once it
+   * is off the plan, or hidden behind the view below, there is no way to take
+   * hold of it again and the 360° view is stuck wherever it was left.
+   */
+  moveObserver: (p) =>
+    set((s) => {
+      const b = polygonBounds(s.plot);
+      const margin = Math.max(1, Math.max(b.maxX - b.minX, b.maxY - b.minY) * 0.12);
+      return {
+        observer: {
+          ...s.observer,
+          x: Math.max(b.minX - margin, Math.min(b.maxX + margin, p.x)),
+          y: Math.max(b.minY - margin, Math.min(b.maxY + margin, p.y)),
+        },
+      };
+    }),
+
+  centreObserver: () =>
+    set((s) => {
+      const b = polygonBounds(s.plot);
+      return {
+        observer: { ...s.observer, x: (b.minX + b.maxX) / 2, y: (b.minY + b.maxY) / 2 },
+      };
+    }),
   turnObserver: (byDegrees) =>
     set((s) => ({
       observer: { ...s.observer, heading: normaliseBearing(s.observer.heading + byDegrees) },

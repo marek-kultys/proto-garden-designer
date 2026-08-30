@@ -24,6 +24,8 @@ export function StructuresPanel() {
   const setStructureHeight = useStore((s) => s.setStructureHeight);
   const setStructureThickness = useStore((s) => s.setStructureThickness);
   const removeStructure = useStore((s) => s.removeStructure);
+  const redrawStructure = useStore((s) => s.redrawStructure);
+  const redrawingId = useStore((s) => s.redrawingId);
 
   const selected = structures.find((x) => x.id === selectedStructureId);
   const drawing = tool === 'draw-wall' || tool === 'draw-bed';
@@ -52,9 +54,13 @@ export function StructuresPanel() {
 
       {drawing ? (
         <p className="hint">
-          {tool === 'draw-wall'
-            ? 'Click along the line of the wall. Enter finishes it, Escape cancels.'
-            : 'Click round the edge of the bed. Enter closes it, Escape cancels.'}
+          {redrawingId !== null
+            ? tool === 'draw-wall'
+              ? 'Click a new line for this wall. Enter finishes it, Escape leaves it as it was.'
+              : 'Click a new outline for this bed. Enter closes it, Escape leaves it as it was.'
+            : tool === 'draw-wall'
+              ? 'Click along the line of the wall. Enter finishes it, Escape cancels.'
+              : 'Click round the edge of the bed. Enter closes it, Escape cancels.'}
         </p>
       ) : (
         <p className="hint">
@@ -123,7 +129,12 @@ export function StructuresPanel() {
             </>
           )}
 
+          <p className="hint">
+            Drag a corner on the plan to reshape it, or drag the middle to move the whole thing.
+          </p>
+
           <div className="structure-actions">
+            <button onClick={() => redrawStructure(selected.id)}>Redraw shape</button>
             <button onClick={() => selectStructure(null)}>Done</button>
             <button className="danger" onClick={() => removeStructure(selected.id)}>
               Remove

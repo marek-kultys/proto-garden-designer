@@ -1,4 +1,5 @@
 import { footprints, sweptPolygons } from '../model/structures';
+import { pointInPolygon } from '../model/geometry';
 import { bearingToCanvas, shadowLengthFactor } from '../model/sun';
 import type { Site, Structure, Vec2 } from '../model/types';
 import { inkColour, shade, type Lighting } from './palette';
@@ -314,6 +315,21 @@ export function panoramaFaces(
   const faces: PanoramaFace[] = [];
   for (const structure of structures) {
     if (structure.height <= 0) continue;
+
+    /*
+     * A bed is drawn once, whole, by `panoramaBeds` — never as separate walls.
+     *
+     * There was a pass here that redrew a bed's front walls on top of it, to
+     * put the near wall ahead of the planting. It was not needed: a plant is
+     * drawn upward from its base on the soil and never reaches below it, so it
+     * cannot cover the wall in front of it. And it did real harm on the shapes
+     * people actually draw — on a concave outline the test for "facing the
+     * viewer" also passes for segments round the back, each of which was then
+     * drawn as a full-height wall at its own distance and outlined. The result
+     * was a bed panelled with seams and stacked into phantom tiers.
+     */
+    if (structure.kind === 'bed') continue;
+
     for (const seg of segmentsFor(structure)) {
       const mx = (seg.a.x + seg.b.x) / 2 - observer.x;
       const my = (seg.a.y + seg.b.y) / 2 - observer.y;
@@ -321,6 +337,121 @@ export function panoramaFaces(
     }
   }
   return faces;
+}
+
+export interface PanoramaBed {
+  structure: Structure;
+  polygon: Vec2[];
+  /** Distance to the far edge; plants standing in it are nearer, so draw after. */
+  distance: number;
+}
+
+/**
+ * A raised bed, taken as one solid thing rather than a set of separate walls.
+ *
+ * The earlier attempt drew each side and hid the ones facing away. That works
+ * for a rectangle and fails for the shapes people actually draw: a bed clicked
+ * out freehand has a dozen corners and is usually concave, and on a concave
+ * shape "facing away" is not the same as "hidden". Sides that were needed got
+ * dropped, leaving holes you could see the garden through — the bed read as
+ * empty, and a plant standing over a hole had neither wall nor soil beneath it.
+ *
+ * Drawing the whole mass in one piece removes the question. There is no inside
+ * to leak through, whatever shape the bed is.
+ */
+export function panoramaBeds(
+  structures: Structure[],
+  observer: { x: number; y: number },
+): PanoramaBed[] {
+  const beds: PanoramaBed[] = [];
+  for (const structure of structures) {
+    if (structure.kind !== 'bed' || structure.height <= 0) continue;
+    if (structure.points.length < 3) continue;
+    let far = 0;
+    for (const p of structure.points) {
+      const d = Math.hypot(p.x - observer.x, p.y - observer.y);
+      if (d > far) far = d;
+    }
+    beds.push({ structure, polygon: structure.points, distance: far });
+  }
+
+  // Where two beds overlap, the taller holds the soil and must be drawn last,
+  // or a plant given the taller bed's height hangs above the shorter's surface.
+  for (const bed of beds) {
+    for (const other of beds) {
+      if (other === bed) continue;
+      if (other.structure.height <= bed.structure.height) continue;
+      if (!overlaps(bed.polygon, other.polygon)) continue;
+      bed.distance = Math.max(bed.distance, other.distance + 0.01);
+    }
+  }
+
+  return beds;
+}
+
+/** A whole bed: sides and soil, drawn as one shape that cannot have gaps. */
+export function drawBedPanorama(
+  ctx: CanvasRenderingContext2D,
+  bed: PanoramaBed,
+  opts: PanoramaFaceOptions,
+): void {
+  const { width, horizonY, pxPerDeg, fov, eye, light, selected, project } = opts;
+  const height = bed.structure.height;
+  const polygon = bed.polygon;
+
+  const samples = polygon.map((p) => project(p));
+  const angles = unwrapped(samples.map((s) => s.offset));
+
+  const tops: Vec2[] = [];
+  const bases: Vec2[] = [];
+  let anyInView = false;
+
+  for (let i = 0; i < samples.length; i += 1) {
+    const offset = angles[i];
+    const distance = samples[i].distance;
+    if (Math.abs(offset) <= fov / 2 + 30) anyInView = true;
+    const x = width / 2 + offset * pxPerDeg;
+    tops.push({ x, y: horizonY - ((Math.atan2(height - eye, distance) * 180) / Math.PI) * pxPerDeg });
+    bases.push({ x, y: horizonY + ((Math.atan2(eye, distance) * 180) / Math.PI) * pxPerDeg });
+  }
+  if (!anyInView) return;
+
+  // The mass: every side, plus the soil, in one path. Wound the same way so a
+  // nonzero fill unions them instead of cancelling where they overlap.
+  const mass = new Path2D();
+  for (let i = 0; i < polygon.length; i += 1) {
+    const j = (i + 1) % polygon.length;
+    mass.addPath(pathOf(sameWinding([tops[i], tops[j], bases[j], bases[i]])));
+  }
+  mass.addPath(pathOf(sameWinding(tops)));
+
+  /*
+   * Distance is paid for in colour, not in transparency.
+   *
+   * Fading a bed with globalAlpha makes it see-through: a bed behind shows
+   * through a bed in front, so two that are yards apart look as though they
+   * overlap, and the soil reads as washed out and empty. A bed is a solid
+   * thing. It is lightened towards the haze with distance and stays opaque.
+   */
+  const haze = Math.min(0.5, bed.distance / 90);
+  ctx.save();
+
+  ctx.fillStyle = shade(BED_SOIL, light, { value: 0.94 + haze * 0.42 });
+  ctx.fill(mass);
+
+  // The soil surface on top of it, lit from above so it reads as the face you
+  // can plant into rather than another wall.
+  const soil = pathOf(tops);
+  ctx.fillStyle = shade(BED_SOIL, light, { value: 1.12 + haze * 0.42 });
+  ctx.fill(soil);
+
+  // Only the soil's edge is drawn. Stroking the mass would draw every seam
+  // between one side and the next, and an eleven-cornered bed would come out
+  // looking like a fence rather than a solid block of earth.
+  ctx.strokeStyle = inkColour(light, selected ? 0.95 : 0.55);
+  ctx.lineWidth = selected ? 2.2 : 1.2;
+  ctx.stroke(soil);
+  ctx.restore();
 }
 
 export interface FaceProjection {
@@ -343,6 +474,34 @@ export interface PanoramaFaceOptions {
   project: (p: Vec2) => FaceProjection;
 }
 
+
+/**
+ * Angles along a run, kept continuous instead of wrapping at the back.
+ *
+ * `offset` comes back in (-180, 180], so a face that passes behind the viewer
+ * jumps from about +170 to -170 between one sample and the next. Joining those
+ * two points draws a band straight across the whole view: stand near a wall,
+ * turn your back on it, and it covers everything in front of you.
+ *
+ * Unwrapping keeps each sample within half a turn of the one before, so a run
+ * behind you stays at a large angle and lands harmlessly off-screen, while one
+ * passing beside you crosses the edge of the frame smoothly.
+ */
+function unwrapped(offsets: number[]): number[] {
+  const out: number[] = [];
+  let previous: number | null = null;
+  for (const raw of offsets) {
+    let angle = raw;
+    if (previous !== null) {
+      while (angle - previous > 180) angle -= 360;
+      while (angle - previous < -180) angle += 360;
+    }
+    previous = angle;
+    out.push(angle);
+  }
+  return out;
+}
+
 /** How finely a run is sampled; a straight wall is a curve in this projection. */
 const FACE_SAMPLES = 28;
 
@@ -361,17 +520,25 @@ export function drawStructurePanorama(
   const { width, horizonY, pxPerDeg, fov, eye, light, selected, project } = opts;
   const height = face.structure.height;
 
+  const samples: { offset: number; distance: number }[] = [];
+  for (let i = 0; i <= FACE_SAMPLES; i += 1) {
+    const t = i / FACE_SAMPLES;
+    samples.push(
+      project({
+        x: face.a.x + (face.b.x - face.a.x) * t,
+        y: face.a.y + (face.b.y - face.a.y) * t,
+      }),
+    );
+  }
+  const angles = unwrapped(samples.map((s) => s.offset));
+
   const tops: Vec2[] = [];
   const bases: Vec2[] = [];
   let anyInView = false;
 
-  for (let i = 0; i <= FACE_SAMPLES; i += 1) {
-    const t = i / FACE_SAMPLES;
-    const point = {
-      x: face.a.x + (face.b.x - face.a.x) * t,
-      y: face.a.y + (face.b.y - face.a.y) * t,
-    };
-    const { offset, distance } = project(point);
+  for (let i = 0; i < samples.length; i += 1) {
+    const offset = angles[i];
+    const distance = samples[i].distance;
     // Generous margin: a wall whose centre has swung out of frame still has an
     // end in it, and dropping it early makes it flick away as you turn.
     if (Math.abs(offset) <= fov / 2 + 30) anyInView = true;
@@ -386,12 +553,11 @@ export function drawStructurePanorama(
   if (!anyInView) return;
 
   const isWall = face.structure.kind === 'wall';
-  // Faces away from the light read darker, which is most of what makes a wall
-  // look solid rather than like a painted line.
+  // Distance in colour rather than transparency, for the same reason as the
+  // beds: a wall you can see through is not a wall.
   const haze = Math.min(0.5, face.distance / 90);
 
   ctx.save();
-  ctx.globalAlpha = 1 - haze * 0.55;
 
   const path = new Path2D();
   path.moveTo(tops[0].x, tops[0].y);
@@ -399,7 +565,7 @@ export function drawStructurePanorama(
   for (let i = bases.length - 1; i >= 0; i -= 1) path.lineTo(bases[i].x, bases[i].y);
   path.closePath();
 
-  ctx.fillStyle = shade(isWall ? WALL_FACE : BED_SOIL, light, { value: 0.94 });
+  ctx.fillStyle = shade(isWall ? WALL_FACE : BED_SOIL, light, { value: 0.94 + haze * 0.42 });
   ctx.fill(path);
 
   ctx.strokeStyle = inkColour(light, selected ? 0.95 : 0.7);
@@ -416,5 +582,141 @@ export function drawStructurePanorama(
     ctx.stroke();
   }
 
+  ctx.restore();
+}
+
+/**
+ * The top of a structure: the soil surface of a raised bed, or the coping of a
+ * wall low enough to look down on.
+ *
+ * Without this a bed is four upright faces with nothing between them, and the
+ * garden shows straight through the middle of it — an empty trough rather than
+ * something filled to its own height.
+ */
+export interface PanoramaTop {
+  structure: Structure;
+  polygon: Vec2[];
+  /**
+   * Distance to the far edge, not the near one.
+   *
+   * The surface is drawn early, with the back of the bed, so that anything
+   * standing in it — and the near face in front of it — is painted over the
+   * top. Sorting it by its nearest corner instead would lay the soil over the
+   * plants growing out of it.
+   */
+  distance: number;
+}
+
+/** Do these two footprints share any ground? Approximate, and cheap. */
+function overlaps(a: Vec2[], b: Vec2[]): boolean {
+  const centroid = (poly: Vec2[]) => ({
+    x: poly.reduce((t, p) => t + p.x, 0) / poly.length,
+    y: poly.reduce((t, p) => t + p.y, 0) / poly.length,
+  });
+  if (a.some((p) => pointInPolygon(p, b))) return true;
+  if (b.some((p) => pointInPolygon(p, a))) return true;
+  // One wholly inside the other, with no vertex of either inside the other's
+  // edges — a small bed centred in a big one.
+  return pointInPolygon(centroid(a), b) || pointInPolygon(centroid(b), a);
+}
+
+export function panoramaTops(
+  structures: Structure[],
+  observer: { x: number; y: number },
+  eye: number,
+): PanoramaTop[] {
+  const tops: PanoramaTop[] = [];
+  for (const structure of structures) {
+    // Beds carry their own soil surface; this is the coping of a low wall.
+    if (structure.kind === 'bed') continue;
+    // Nothing to see: you are not above it, so the top is edge-on or hidden.
+    if (structure.height <= 0 || structure.height >= eye) continue;
+    for (const polygon of footprints(structure)) {
+      let far = 0;
+      for (const p of polygon) {
+        const d = Math.hypot(p.x - observer.x, p.y - observer.y);
+        if (d > far) far = d;
+      }
+      tops.push({ structure, polygon, distance: far });
+    }
+  }
+
+  /**
+   * Where two beds overlap, the taller one holds the soil, and that is the
+   * height a plant standing there is given. The drawing has to agree, or the
+   * plant hangs in the air above the shorter bed's surface — which is exactly
+   * what happens with beds drawn by hand, since those overlap by a few
+   * centimetres almost every time.
+   *
+   * Done by pushing the shorter one further away rather than by sorting tops
+   * among themselves, so their order against the plants and walls — which is
+   * genuinely a question of distance — is left alone.
+   */
+  for (const top of tops) {
+    for (const other of tops) {
+      if (other === top) continue;
+      if (other.structure.height <= top.structure.height) continue;
+      if (!overlaps(top.polygon, other.polygon)) continue;
+      top.distance = Math.max(top.distance, other.distance + 0.01);
+    }
+  }
+
+  return tops;
+}
+
+/** How finely each edge of a top surface is sampled, for the same curve reason. */
+const TOP_EDGE_SAMPLES = 10;
+
+export function drawStructureTopPanorama(
+  ctx: CanvasRenderingContext2D,
+  top: PanoramaTop,
+  opts: PanoramaFaceOptions,
+): void {
+  const { width, horizonY, pxPerDeg, fov, eye, light, selected, project } = opts;
+  const height = top.structure.height;
+  const polygon = top.polygon;
+  if (polygon.length < 3) return;
+
+  const samples: { offset: number; distance: number }[] = [];
+  for (let i = 0; i < polygon.length; i += 1) {
+    const a = polygon[i];
+    const b = polygon[(i + 1) % polygon.length];
+    for (let s = 0; s < TOP_EDGE_SAMPLES; s += 1) {
+      const t = s / TOP_EDGE_SAMPLES;
+      samples.push(project({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t }));
+    }
+  }
+  const angles = unwrapped(samples.map((s) => s.offset));
+
+  const outline: Vec2[] = [];
+  let anyInView = false;
+  for (let i = 0; i < samples.length; i += 1) {
+    const offset = angles[i];
+    if (Math.abs(offset) <= fov / 2 + 30) anyInView = true;
+    // height is below the eye by construction, so this angle is negative and
+    // the surface lands below the horizon — which is what looking down is.
+    const angle = (Math.atan2(height - eye, samples[i].distance) * 180) / Math.PI;
+    outline.push({
+      x: width / 2 + offset * pxPerDeg,
+      y: horizonY - angle * pxPerDeg,
+    });
+  }
+  if (!anyInView) return;
+
+  const path = new Path2D();
+  path.moveTo(outline[0].x, outline[0].y);
+  for (const p of outline) path.lineTo(p.x, p.y);
+  path.closePath();
+
+  ctx.save();
+  const haze = Math.min(0.5, top.distance / 90);
+  // Lit from above, so the top is the brighter face of the same material.
+  ctx.fillStyle = shade(top.structure.kind === 'wall' ? WALL_TOP : BED_SOIL, light, {
+    value: (top.structure.kind === 'wall' ? 1.04 : 1.12) + haze * 0.42,
+  });
+  ctx.fill(path);
+  ctx.strokeStyle = inkColour(light, selected ? 0.9 : 0.55);
+  ctx.lineWidth = selected ? 2 : 1.1;
+  ctx.stroke(path);
   ctx.restore();
 }

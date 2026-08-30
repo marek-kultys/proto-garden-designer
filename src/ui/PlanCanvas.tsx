@@ -30,6 +30,7 @@ type DragMode =
   | { kind: 'none' }
   | { kind: 'plant'; id: string; grabX: number; grabY: number }
   | { kind: 'structure'; id: string; lastX: number; lastY: number }
+  | { kind: 'structure-point'; id: string; index: number }
   | { kind: 'sight'; end: 'a' | 'b' }
   | { kind: 'observer' };
 
@@ -145,14 +146,15 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
       {
         plot: state.plot,
         plants: state.plants,
-          structures: state.structures,
+        structures: state.structures,
         site: state.site,
         time: state.time,
         calendarYear,
         light,
         selectedId: state.selectedId,
-          selectedStructureId: state.selectedStructureId,
+        selectedStructureId: state.selectedStructureId,
         sightLine: state.sightLine,
+        sliceDepth: state.sliceDepth,
         observer: state.observer,
       },
       {
@@ -224,6 +226,24 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
   };
 
   /**
+   * A corner handle of the selected structure, if the pointer is on one.
+   *
+   * Only the selected structure's corners are grabbable, because only its
+   * handles are drawn — an invisible grab target is worse than none.
+   */
+  const hitStructurePoint = (p: { x: number; y: number }): number | null => {
+    const structure = state.structures.find((x) => x.id === state.selectedStructureId);
+    if (structure === undefined) return null;
+    const grab = 11 / viewport.scale;
+    let best: { index: number; d: number } | null = null;
+    for (let i = 0; i < structure.points.length; i += 1) {
+      const d = Math.hypot(structure.points[i].x - p.x, structure.points[i].y - p.y);
+      if (d <= grab && (best === null || d < best.d)) best = { index: i, d };
+    }
+    return best === null ? null : best.index;
+  };
+
+  /**
    * The structure under a point, if any.
    *
    * A thin wall is hard to hit exactly, so the test is widened to a comfortable
@@ -266,6 +286,15 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
         canvasRef.current?.setPointerCapture(e.pointerId);
         return;
       }
+    }
+
+    // A corner of the selected structure wins over anything under it: you have
+    // already said which thing you are working on by selecting it.
+    const corner = hitStructurePoint(p);
+    if (corner !== null && state.selectedStructureId !== null) {
+      drag.current = { kind: 'structure-point', id: state.selectedStructureId, index: corner };
+      canvasRef.current?.setPointerCapture(e.pointerId);
+      return;
     }
 
     const id = hitPlant(p);
@@ -324,6 +353,10 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
       state.moveObserver(p);
       return;
     }
+    if (mode.kind === 'structure-point') {
+      state.moveStructurePoint(mode.id, mode.index, p);
+      return;
+    }
     if (mode.kind === 'structure') {
       // Moved by how far the pointer went, not to where it is: a wall is a run
       // of points with no single centre to snap to the cursor.
@@ -333,6 +366,10 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
     }
 
     // Idle: report what is under the cursor.
+    if (hitStructurePoint(p) !== null) {
+      setHoverInfo('Drag this corner to reshape');
+      return;
+    }
     const id = hitPlant(p);
     const structureId = id === null ? hitStructure(p) : null;
     const hoveredStructure = state.structures.find((x) => x.id === structureId);

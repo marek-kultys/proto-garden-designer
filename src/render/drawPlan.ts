@@ -15,7 +15,7 @@ import { drawShadeOverlay } from './overlay';
 import { drawStructurePlan, drawStructureShadowPlan } from './structure';
 import { drawObserverOnPlan } from './drawPanorama';
 import { niceScaleStep, toScreen, type Viewport } from './viewport';
-import { SIGHT_BAND } from './constants';
+import { sliceHalfWidth } from './constants';
 
 export interface Scene {
   plot: Plot;
@@ -28,6 +28,8 @@ export interface Scene {
   light: Lighting;
   selectedId: string | null;
   sightLine: { a: Vec2; b: Vec2 };
+  /** Depth of the elevation's slice, so the band drawn here tells the truth. */
+  sliceDepth: number;
   observer: Observer;
 }
 
@@ -98,7 +100,9 @@ export function drawPlan(
 
   // Drawn before the planting: a raised bed is ground that plants stand in, and
   // a wall seen from above sits behind whatever is growing in front of it.
-  for (const structure of scene.structures) {
+  // Shortest first, so where two beds overlap the taller one's surface is the
+  // one you see — the same rule the planting stands on.
+  for (const structure of [...scene.structures].sort((a, b) => a.height - b.height)) {
     drawStructurePlan(ctx, structure, viewport, light, false);
   }
 
@@ -143,7 +147,9 @@ export function drawPlan(
     drawDraftPolygon(ctx, viewport, opts.draftPolygon, opts.draftCursor ?? null, light);
   }
 
-  if (opts.showSightLine && hasPlot) drawSightLine(ctx, viewport, scene.sightLine, light);
+  if (opts.showSightLine && hasPlot) {
+    drawSightLine(ctx, viewport, scene.sightLine, light, sliceHalfWidth(scene.sliceDepth));
+  }
   if (opts.showObserver) {
     drawObserverOnPlan(
       ctx,
@@ -316,6 +322,7 @@ function drawSightLine(
   viewport: Viewport,
   line: { a: Vec2; b: Vec2 },
   light: Lighting,
+  band: number,
 ): void {
   const a = toScreen(viewport, line.a);
   const b = toScreen(viewport, line.b);
@@ -326,8 +333,8 @@ function drawSightLine(
   const dx = b.x - a.x;
   const dy = b.y - a.y;
   const len = Math.hypot(dx, dy) || 1;
-  const nx = (-dy / len) * SIGHT_BAND * viewport.scale;
-  const ny = (dx / len) * SIGHT_BAND * viewport.scale;
+  const nx = (-dy / len) * band * viewport.scale;
+  const ny = (dx / len) * band * viewport.scale;
   ctx.fillStyle = 'rgba(176, 92, 48, 0.05)';
   ctx.beginPath();
   ctx.moveTo(a.x + nx, a.y + ny);

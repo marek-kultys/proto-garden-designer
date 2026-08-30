@@ -18,6 +18,7 @@ export function ElevationStrip({ width, height }: ElevationStripProps) {
   const selectedId = useStore((s) => s.selectedId);
   const structures = useStore((s) => s.structures);
   const selectedStructureId = useStore((s) => s.selectedStructureId);
+  const sliceDepth = useStore((s) => s.sliceDepth);
   const { light } = useSun();
 
   useEffect(() => {
@@ -36,6 +37,7 @@ export function ElevationStrip({ width, height }: ElevationStripProps) {
       time,
       light,
       sightLine,
+      sliceDepth,
       selectedId,
       selectedStructureId,
     });
@@ -46,6 +48,7 @@ export function ElevationStrip({ width, height }: ElevationStripProps) {
     time,
     light,
     sightLine,
+    sliceDepth,
     selectedId,
     selectedStructureId,
     width,

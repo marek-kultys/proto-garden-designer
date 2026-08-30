@@ -112,7 +112,10 @@ down (see *Known trade-offs*) rather than smoothed over.
 plant footprints and cast shadows.
 
 **Elevation** — a measured slice through the plan, taken along a sight line you
-can drag to either end. Plants in the band are drawn side-on against a height
+can drag to either end, and **as deep as you choose** — from five metres, which
+reads a single row cleanly, out to twenty, which takes in a whole border layered
+front to back. The band shaded on the plan always shows exactly what the strip is
+drawing, so a plant missing from the elevation is never a mystery. Plants in the band are drawn side-on against a height
 ruler, depth-sorted. This is where height, silhouette, leaf-drop and autumn
 colour are legible.
 
@@ -188,10 +191,57 @@ decision that shaped the work:
   hides what is behind it and is hidden by what is in front. This is the view
   where a boundary wall stops being a line and becomes the thing you are looking
   at from the terrace.
+- **A raised bed is drawn as one solid mass**, sides and soil together, rather
+  than as a set of separate walls. This was arrived at the hard way. Hiding the
+  walls that face away works for a rectangle and fails for the shapes people
+  actually draw: a bed clicked out freehand has a dozen corners and is usually
+  concave, and on a concave shape "facing away" is not the same as "hidden".
+  Walls that were needed got dropped and the garden showed through the gaps —
+  the bed read as empty, and a plant standing over a gap had neither wall nor
+  soil beneath it. Drawn whole, there is no inside to leak through, whatever
+  shape the bed is, and it is drawn *only* that way — never also as separate
+  walls. A pass that redrew a bed's front walls over it, to put the near wall
+  ahead of the planting, did real harm and was never needed: on a concave
+  outline the test for "facing the viewer" also passes for segments round the
+  back, each then drawn as a full-height wall at its own distance and outlined,
+  so the bed came out panelled with seams and stacked into phantom tiers. A
+  plant is drawn upward from its base on the soil and never reaches below it,
+  so it cannot cover the wall in front of it anyway. A wall — the built kind —
+  is still drawn face by face, because it is open on both sides and you can
+  walk round it.
+
+  Distance is paid for in colour rather than in transparency. Fading a
+  structure with alpha, as the planting is faded, makes it see-through: a bed
+  behind shows through a bed in front, so two that are yards apart look as
+  though they overlap, and the soil reads washed out and empty. Built things
+  stay opaque and lighten towards the haze instead. Nor is the mass outlined —
+  stroking it draws every seam between one side and the next, and an
+  eleven-cornered bed comes out looking like a fence rather than a block of
+  earth.
+
+  The mass is drawn at the bed's *far* edge, so plants standing in it are
+  painted afterwards and grow out of the soil. Its front walls are then drawn a
+  second time, at their own distance, because the near wall belongs between you
+  and the planting — drawn once at the far edge, the plants show straight
+  through it and the bed looks transparent. A mistake in choosing which walls
+  to redraw is now harmless: the solid mass is already underneath.
+- **Where two beds overlap, the taller one holds the soil.** A plant standing on
+  the overlap is given the taller bed's height, and the taller bed's surface is
+  the one drawn — the two have to agree, or the plant hangs in the air above the
+  shorter bed. Hand-drawn beds overlap by a few centimetres almost every time,
+  so this is the ordinary case rather than an exotic one.
 - **A raised bed lifts what grows in it.** A plant standing in one is drawn from
   the top of the bed in the elevation and the 360° view, and casts its shadow
   from there — longer, and starting further out. A bed that raised nothing would
   be decoration.
+
+Both can be changed after they are drawn. Selecting one shows a handle at every
+corner, and dragging a handle reshapes it; dragging the middle moves the whole
+thing. **Redraw shape** starts the outline again from scratch while keeping the
+height and thickness, for when the shape is wrong enough that nudging corners is
+not the answer. A redraw abandoned halfway leaves the original exactly as it was
+— the old shape stays on the plan while the new one is drawn, both as something
+to line up against and so that changing your mind costs nothing.
 
 Height is adjustable per structure and is where the interest is: it is the one
 number that decides both the shadow and what you can see over. A wall runs from
@@ -251,6 +301,17 @@ it is the age slider, which already exists; what this adds is the thing a
 designer actually does, which is buy structure in for one or two key plants and
 let the rest catch up. It is also the honest way to show what that money buys:
 the specimen shades the terrace on day one, and the shade map says so.
+
+The eye cannot be dragged off the plan. Standing a little outside the garden is
+a real thing to want — you look at a border from the house, not from inside it —
+so there is a margin around the plot rather than a hard edge at it. What is not
+allowed is losing the eye altogether: once it is off the drawing, or hidden
+behind the view below, there is nothing left to take hold of and the 360° view
+is stuck wherever it was abandoned. **Centre** puts it back in the middle of the
+plot, for a design where that has already happened. It sits in the 360° view's
+own control bar, because that is where you are standing when you notice the eye
+has gone; the Site panel carries the same button, further from the moment of
+need.
 
 ### The site
 
@@ -397,6 +458,20 @@ per-plant page. Cut to keep the focus on the simulation.
 
 ## Known trade-offs
 
+- **The 360° view can be made narrower.** Its width is adjustable, and narrower
+  is worth having: a cylindrical projection bends every straight line, and past
+  about 120° a gardener's word for the result is "deformed". The floor on how
+  much sky and ground it must show was lowered so that asking for a narrow view
+  actually gives one; the cost is seeing less up and down at once, which the
+  tilt answers.
+- **The plan and the view below it share the height, and the divider between
+  them can be dragged.** Presets remain for the common cases; the divider is for
+  when neither fits the plot in hand — a long shallow garden wants the plan
+  short and the elevation deep, a square one the other way about.
+- **Depth of the slice is a way of looking, not part of the design.** It is not
+  saved with a project, for the same reason the position of the sight line is
+  not: both are how you are inspecting a garden rather than anything about the
+  garden itself.
 - **The elevation strip has empty sky either side.** Its scale is uniform in both
   directions, so once there is a 14 m tree in a 13 m slice, the vertical is the
   binding constraint and the content cannot fill a short wide strip without
@@ -441,6 +516,10 @@ per-plant page. Cut to keep the focus on the simulation.
   through or around anything. A close-boarded fence and a brick wall behave
   identically, and a slatted screen — which a designer would reach for precisely
   because it filters rather than blocks — cannot be represented at all.
+- **A shape can be reshaped but not re-pointed.** Corners can be dragged and the
+  whole outline can be drawn again, but there is no way to add a corner to an
+  existing shape or take one away. Turning a four-sided bed into a six-sided one
+  means redrawing it.
 - **Nothing sits on top of a structure.** A plant is raised by a bed it stands
   in, but nothing can be placed on a wall, and there is no planting in the face
   of one. The ground under a wall is treated as shaded rather than as unplantable.
@@ -520,7 +599,7 @@ garden back without asking them to find and send an attachment.
 
 **Live at <https://marekkultys.com/proto-garden-designer/>.** The repository is
 public and GitHub Actions publishes the single-file build on every merge to
-`master`, with the 230 tests as a gate in front of it. Actions is free on public
+`master`, with the 259 tests as a gate in front of it. Actions is free on public
 repositories and a run takes about a minute.
 
 The decision that got it there: **go public rather than pay to stay private.**

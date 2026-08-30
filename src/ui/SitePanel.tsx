@@ -97,6 +97,7 @@ function ViewpointSection() {
   const setGroundHeight = useStore((s) => s.setGroundHeight);
   const stageView = useStore((s) => s.stageView);
   const setStageView = useStore((s) => s.setStageView);
+  const centreObserver = useStore((s) => s.centreObserver);
 
   const matchedEye = EYE_PRESETS.find((p) => Math.abs(p.height - observer.eyeHeight) < 0.005);
   const matchedGround = GROUND_PRESETS.find(
@@ -179,6 +180,17 @@ function ViewpointSection() {
           </button>
         )}
       </p>
+
+      <button
+        className="viewpoint-centre"
+        onClick={() => {
+          centreObserver();
+          setStageView('panorama');
+        }}
+        title="Put the eye back in the middle of the plot"
+      >
+        Centre the viewpoint
+      </button>
     </>
   );
 }

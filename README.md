@@ -15,8 +15,8 @@ years later:
 | ![The garden at planting](docs/img/plan-june-year0.png) | ![The same garden twenty years on](docs/img/plan-june-year20.png) |
 
 Three ways of looking at it: the **plan** you arrange on, a measured **elevation**
-through a slice of it, and a **360° view** from an eye point inside the garden
-that you can turn and tilt.
+through a slice of it — five to twenty metres deep, as you choose — and a
+**360° view** from an eye point inside the garden that you can turn and tilt.
 
 ![The 360° view, an evening in June](docs/img/panorama-june-year20.png)
 
@@ -33,7 +33,8 @@ Plants go in either as nursery stock or as a ten-year-old specimen, so one
 bought-in tree can give a design structure on the day it is planted while
 everything round it is still a whip.
 
-Walls and raised beds can be drawn on the plan and given a height. Both are part
+Walls and raised beds can be drawn on the plan, given a height, and reshaped
+afterwards by dragging their corners or drawing the outline again. Both are part
 of the simulation, not marks on a drawing: a wall throws a real shadow into the
 sun map and hides what is behind it in the 360° view, and a raised bed lifts the
 plants standing in it.
@@ -54,7 +55,7 @@ does, what was deliberately left out, and the roadmap.
 ```bash
 npm install
 npm run dev        # http://localhost:5173
-npm test           # 230 tests
+npm test           # 259 tests
 npm run build      # production build into dist/
 ```
 
@@ -194,7 +195,7 @@ plan comes from the field actually rendered.
 ## Verification
 
 ```bash
-npm test                                      # 230 tests across 15 files
+npm test                                      # 259 tests across 16 files
 ```
 
 The models are where silent errors hide, so the unit tests check them against

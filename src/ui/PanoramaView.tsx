@@ -4,6 +4,7 @@ import { drawPanorama } from '../render/drawPanorama';
 import {
   MAX_PITCH_DOWN,
   MAX_PITCH_UP,
+  FOV_RANGE,
   effectiveFov,
   eyeElevation,
   pixelsPerDegree,
@@ -38,6 +39,8 @@ export function PanoramaView({ width, height }: PanoramaViewProps) {
   const setHeading = useStore((s) => s.setHeading);
   const setRenderedFov = useStore((s) => s.setRenderedFov);
   const setPitch = useStore((s) => s.setPitch);
+  const setFov = useStore((s) => s.setFov);
+  const centreObserver = useStore((s) => s.centreObserver);
   const turnObserver = useStore((s) => s.turnObserver);
   const { light } = useSun();
 
@@ -127,6 +130,18 @@ export function PanoramaView({ width, height }: PanoramaViewProps) {
         <span className="pano-fov">
           {Math.round(fov)}° wide · eyes {eyeElevation(observer).toFixed(2)} m
         </span>
+        <label className="pano-width" title="How wide a view — narrower bends the picture less">
+          <span>View</span>
+          <input
+            type="range"
+            min={FOV_RANGE.min}
+            max={FOV_RANGE.max}
+            step={FOV_RANGE.step}
+            value={observer.fov}
+            onChange={(e) => setFov(Number(e.target.value))}
+            aria-label="Width of the view in degrees"
+          />
+        </label>
         <button
           onClick={() => setPitch(observer.pitch + 12)}
           disabled={observer.pitch >= MAX_PITCH_UP}
@@ -145,6 +160,15 @@ export function PanoramaView({ width, height }: PanoramaViewProps) {
         </button>
         <button onClick={() => turnObserver(45)} title="Turn right" aria-label="Turn right">
           ›
+        </button>
+        {/* Here rather than only in the side panel: this is where you are
+            standing when you notice the eye has wandered off the plan. */}
+        <button
+          className="pano-centre"
+          onClick={centreObserver}
+          title="Put the eye back in the middle of the plot"
+        >
+          Centre
         </button>
       </div>
 

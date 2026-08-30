@@ -42,9 +42,15 @@ export interface PanoramaScene {
 }
 
 import {
+  drawBedPanorama,
   drawStructurePanorama,
+  drawStructureTopPanorama,
+  panoramaBeds,
   panoramaFaces,
+  panoramaTops,
+  type PanoramaBed,
   type PanoramaFace,
+  type PanoramaTop,
 } from './structure';
 
 const DEG = Math.PI / 180;
@@ -85,16 +91,24 @@ export function drawPanorama(
   const faces = panoramaFaces(scene.structures, observer, segmentsOf).sort(
     (a, b) => b.distance - a.distance,
   );
+  // The coping of a wall lower than your eye. Beds carry their own soil.
+  const tops = panoramaTops(scene.structures, observer, eye);
+  // Raised beds, each one whole.
+  const beds = panoramaBeds(scene.structures, observer);
 
   // One depth order across planting and built work: a wall can be in front of
   // one shrub and behind another, and drawing all the walls first would make
   // every wall either always in front or always behind.
   type Item =
     | { sort: number; kind: 'plant'; value: (typeof visible)[number] }
-    | { sort: number; kind: 'face'; value: PanoramaFace };
+    | { sort: number; kind: 'face'; value: PanoramaFace }
+    | { sort: number; kind: 'top'; value: PanoramaTop }
+    | { sort: number; kind: 'bed'; value: PanoramaBed };
   const ordered: Item[] = [
     ...visible.map((value) => ({ sort: value.sighting.distance, kind: 'plant' as const, value })),
     ...faces.map((value) => ({ sort: value.distance, kind: 'face' as const, value })),
+    ...tops.map((value) => ({ sort: value.distance, kind: 'top' as const, value })),
+    ...beds.map((value) => ({ sort: value.distance, kind: 'bed' as const, value })),
   ].sort((a, b) => b.sort - a.sort);
 
   const project = (p: { x: number; y: number }) => {
@@ -103,6 +117,32 @@ export function drawPanorama(
   };
 
   for (const entry of ordered) {
+    if (entry.kind === 'bed') {
+      drawBedPanorama(ctx, entry.value, {
+        width,
+        horizonY,
+        pxPerDeg,
+        fov,
+        eye,
+        light,
+        selected: scene.selectedStructureId === entry.value.structure.id,
+        project,
+      });
+      continue;
+    }
+    if (entry.kind === 'top') {
+      drawStructureTopPanorama(ctx, entry.value, {
+        width,
+        horizonY,
+        pxPerDeg,
+        fov,
+        eye,
+        light,
+        selected: scene.selectedStructureId === entry.value.structure.id,
+        project,
+      });
+      continue;
+    }
     if (entry.kind === 'face') {
       drawStructurePanorama(ctx, entry.value, {
         width,
@@ -159,7 +199,7 @@ export function drawPanorama(
 
   drawCompass(ctx, width, horizonY, observer, fov, pxPerDeg, light);
 
-  if (visible.length === 0 && faces.length === 0) {
+  if (visible.length === 0 && faces.length === 0 && tops.length === 0 && beds.length === 0) {
     ctx.fillStyle = inkColour(light, 0.6);
     ctx.font = '12px ui-sans-serif, system-ui, sans-serif';
     ctx.textAlign = 'center';

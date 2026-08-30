@@ -187,3 +187,117 @@ describe('undo covers built work as well as planting', () => {
     expect(state().structures).toHaveLength(1);
   });
 });
+
+describe('reshaping and redrawing after the fact', () => {
+  const BED: Structure = {
+    id: 'b1',
+    kind: 'bed',
+    points: [
+      { x: 2, y: 2 },
+      { x: 6, y: 2 },
+      { x: 6, y: 5 },
+      { x: 2, y: 5 },
+    ],
+    height: 0.4,
+    thickness: 0.1,
+    seed: 7,
+  };
+
+  beforeEach(() => {
+    useStore.setState({ structures: [BED], selectedStructureId: BED.id, past: [], future: [] });
+  });
+
+  it('moves one corner and leaves the others alone', () => {
+    state().moveStructurePoint(BED.id, 1, { x: 9, y: 1 });
+
+    const points = state().structures[0].points;
+    expect(points[1]).toEqual({ x: 9, y: 1 });
+    expect(points[0]).toEqual(BED.points[0]);
+    expect(points[2]).toEqual(BED.points[2]);
+    expect(points[3]).toEqual(BED.points[3]);
+  });
+
+  it('folds a corner drag into one undo step', () => {
+    const before = state().past.length;
+    for (const x of [6.5, 7, 7.5, 8]) state().moveStructurePoint(BED.id, 1, { x, y: 2 });
+    expect(state().past.length).toBe(before + 1);
+
+    state().undo();
+    expect(state().structures[0].points[1]).toEqual(BED.points[1]);
+  });
+
+  it('keeps two different corners as two separate undo steps', () => {
+    const before = state().past.length;
+    state().moveStructurePoint(BED.id, 0, { x: 1, y: 1 });
+    state().moveStructurePoint(BED.id, 2, { x: 7, y: 6 });
+    expect(state().past.length).toBe(before + 2);
+  });
+
+  it('puts the drawing tool back in your hand when you ask to redraw', () => {
+    state().redrawStructure(BED.id);
+    expect(state().tool).toBe('draw-bed');
+    expect(state().redrawingId).toBe(BED.id);
+    // The old shape stays on the plan to line the new one up against.
+    expect(state().structures[0].points).toEqual(BED.points);
+  });
+
+  it('replaces the shape rather than adding a second bed beside it', () => {
+    state().redrawStructure(BED.id);
+    for (const p of [
+      { x: 1, y: 1 },
+      { x: 5, y: 1 },
+      { x: 5, y: 9 },
+      { x: 1, y: 9 },
+    ]) {
+      state().pushDraftPoint(p);
+    }
+    state().commitDraft();
+
+    expect(state().structures).toHaveLength(1);
+    expect(state().structures[0].points).toHaveLength(4);
+    expect(state().structures[0].points[2]).toEqual({ x: 5, y: 9 });
+    // Height and thickness are properties of the bed, not of its outline.
+    expect(state().structures[0].height).toBe(0.4);
+    expect(state().structures[0].id).toBe(BED.id);
+  });
+
+  /**
+   * The property that matters most: changing your mind halfway through must
+   * leave the bed exactly as it was, not delete it.
+   */
+  it('leaves the original alone when a redraw is abandoned', () => {
+    state().redrawStructure(BED.id);
+    state().pushDraftPoint({ x: 1, y: 1 });
+    state().cancelDraft();
+
+    expect(state().structures[0].points).toEqual(BED.points);
+    expect(state().redrawingId).toBeNull();
+    expect(state().tool).toBe('select');
+  });
+
+  it('leaves the original alone when a redraw is finished with too few corners', () => {
+    state().redrawStructure(BED.id);
+    state().pushDraftPoint({ x: 1, y: 1 });
+    state().pushDraftPoint({ x: 4, y: 1 });
+    state().commitDraft();
+
+    expect(state().structures[0].points).toEqual(BED.points);
+    expect(state().structures).toHaveLength(1);
+  });
+
+  it('undoes a redraw back to the shape it replaced', () => {
+    state().redrawStructure(BED.id);
+    for (const p of [
+      { x: 1, y: 1 },
+      { x: 5, y: 1 },
+      { x: 5, y: 9 },
+    ]) {
+      state().pushDraftPoint(p);
+    }
+    state().commitDraft();
+    expect(state().structures[0].points).toHaveLength(3);
+
+    state().undo();
+    expect(state().structures[0].points).toEqual(BED.points);
+  });
+});

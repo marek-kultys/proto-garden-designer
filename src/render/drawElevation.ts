@@ -10,7 +10,7 @@ import { getForm } from './form';
 import { drawPlantElevation } from './plant';
 import { roughLine } from './sketch';
 import { drawStructureElevation, sliceStructure, type StructureSlice } from './structure';
-import { MIN_ELEVATION_HEIGHT, SIGHT_BAND } from './constants';
+import { MIN_ELEVATION_HEIGHT, sliceHalfWidth } from './constants';
 
 /**
  * The side-on strip beneath the plan.
@@ -35,6 +35,8 @@ export interface ElevationScene {
   time: TimeState;
   light: Lighting;
   sightLine: { a: Vec2; b: Vec2 };
+  /** Depth of the slice across the sight line, in metres. */
+  sliceDepth: number;
   selectedId: string | null;
   selectedStructureId: string | null;
 }
@@ -71,6 +73,8 @@ export function drawElevation(
   scene: ElevationScene,
 ): void {
   const { light, sightLine, site, time } = scene;
+  // Half either side of the line, which is what the projection compares against.
+  const band = sliceHalfWidth(scene.sliceDepth);
   const lineLength = Math.max(
     1,
     Math.hypot(sightLine.b.x - sightLine.a.x, sightLine.b.y - sightLine.a.y),
@@ -85,7 +89,7 @@ export function drawElevation(
 
   const projected = project(scene.plants, sightLine.a, sightLine.b);
   const inBand = projected.filter(
-    (p) => Math.abs(p.offset) <= SIGHT_BAND && p.along >= -1 && p.along <= lineLength + 1,
+    (p) => Math.abs(p.offset) <= band && p.along >= -1 && p.along <= lineLength + 1,
   );
 
   // Vertical reference is the mature height of everything planted, so the view
@@ -125,7 +129,7 @@ export function drawElevation(
 
   const slices: StructureSlice[] = [];
   for (const structure of scene.structures) {
-    const slice = sliceStructure(structure, sightLine.a, sightLine.b, SIGHT_BAND);
+    const slice = sliceStructure(structure, sightLine.a, sightLine.b, band);
     if (slice !== null) slices.push(slice);
   }
 
@@ -142,7 +146,7 @@ export function drawElevation(
 
   for (const entry of ordered) {
     if (entry.kind === 'structure') {
-      const depth = Math.min(1, Math.abs(entry.value.offset) / SIGHT_BAND);
+      const depth = Math.min(1, Math.abs(entry.value.offset) / band);
       ctx.save();
       ctx.globalAlpha = 1 - depth * 0.25;
       drawStructureElevation(
@@ -168,7 +172,7 @@ export function drawElevation(
     const baseY = groundY - groundOffsetAt(item.plant, scene.structures) * pxPerM;
 
     // Distance haze: things further back sit a little further into the light.
-    const depth = Math.min(1, Math.abs(item.offset) / SIGHT_BAND);
+    const depth = Math.min(1, Math.abs(item.offset) / band);
     ctx.save();
     ctx.globalAlpha = 1 - depth * 0.25;
 
@@ -216,7 +220,7 @@ export function drawElevation(
     ctx.textAlign = 'center';
     ctx.fillText(
       scene.plants.length
-        ? 'No plants within 2.5 m of the sight line — drag the A/B handles on the plan'
+        ? `No plants within ${band.toFixed(1)} m of the sight line — widen the slice, or drag the A/B handles`
         : 'Drag plants onto the plan to see them here',
       width / 2,
       groundY - usableH / 2,

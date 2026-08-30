@@ -72,8 +72,18 @@ export const MIN_DISTANCE = 0.8;
  * magnifies everything vertically until a shrub three metres away fills the
  * frame and the horizon falls off the bottom. Rather than distort, the field is
  * allowed to open out: you see wider than you asked for instead of closer.
+ *
+ * Lowered from 50 after testing: on a short panel a 50 degree floor forced the
+ * view out past 140 degrees, and a gardener's word for that picture was
+ * "deformed" — which is fair, since a cylindrical projection that wide bends
+ * every straight line in the garden. At 28 the requested field is honoured in
+ * most panels, and the width control below is worth having because of it. The
+ * cost is less sky and ground at once, which the tilt already answers.
  */
-export const MIN_VERTICAL_FOV = 50;
+export const MIN_VERTICAL_FOV = 28;
+
+/** The field the viewer may ask for, in degrees. */
+export const FOV_RANGE = { min: 45, max: 140, step: 5 };
 
 /** Pixels per degree of arc — the one number the whole projection hangs off. */
 export function pixelsPerDegree(width: number, height: number, requestedFov: number): number {
