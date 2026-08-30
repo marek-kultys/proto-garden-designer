@@ -20,6 +20,9 @@ that you can turn and tilt.
 
 ![The 360° view, an evening in June](docs/img/panorama-june-year20.png)
 
+**Live at <https://marekkultys.com/proto-garden-designer/>** — no install, works
+on a phone.
+
 Built to test whether the interaction idea has depth rather than to be a
 comprehensive plant database. A hundred and thirty-eight plants, each researched
 rather than invented, chosen to span the axes the simulation actually exercises
@@ -46,7 +49,7 @@ For something you can email to a tester, or open by double-clicking with no
 server at all:
 
 ```bash
-SINGLEFILE=1 npm run build            # one self-contained dist/index.html, ~250 kB
+SINGLEFILE=1 npm run build            # one self-contained dist/index.html, ~384 kB
 node scripts/check-singlefile.mjs     # confirms it runs from file:// with zero network requests
 ```
 
@@ -182,17 +185,38 @@ the few images in `docs/img/` are committed.
 
 ## Deploying
 
-**Nothing is set up yet.** The single-file build is the easy route when it is
-wanted: `SINGLEFILE=1 npm run build` produces one `dist/index.html` with no
-external requests, so there are no asset URLs and none of the usual sub-path
-trouble on a GitHub Pages project site. A workflow that runs the tests, builds,
-and uploads that one file is roughly an hour's work.
+Live at **<https://marekkultys.com/proto-garden-designer/>**.
 
-One constraint to know first: this repo is private on a personal account. Pages
-from a private repo needs a paid plan, and below Enterprise Cloud the published
-site is public even when the repo is not. [PRODUCT.md](PRODUCT.md#publishing-it)
-sets out the options, including how to keep it genuinely private without a
-backend.
+Merging to `master` publishes it. [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)
+installs, runs the tests, builds, and uploads — and the test step is a gate, so a
+red suite stops the deploy rather than shipping a broken prototype to a tester.
+There is also a manual *Run workflow* button for publishing without a version
+bump. GitHub Actions is free on public repositories, and a run takes about a
+minute.
+
+What gets published is the **single-file** build, not the ordinary one. Two
+reasons, and the first is the one that bites: a normal Vite build writes absolute
+asset paths, which break the moment a site is served from a sub-path like
+`/proto-garden-designer/`. With everything inlined there are no asset paths to
+get wrong. The second is that it is byte-for-byte the file already emailed to
+testers, so the hosted and sent versions cannot drift apart.
+
+The URL comes from the repository name, appended to the custom domain on the
+**user site** (`marek-kultys.github.io`, which serves `marekkultys.com`). Project
+sites inherit that domain only while they have no custom domain of their own, so
+the Pages *Custom domain* field for this repo is deliberately blank. Renaming the
+repo moves the URL.
+
+A domain attached to a *project* repo does not work this way — it serves that one
+repo at its root and nothing beneath it. That is why `melayerka.com`, which is the
+custom domain on the `melayerka_art` repo, has no
+`melayerka.com/proto-garden-designer`. Serving this app from that domain means
+either a subdomain of it or publishing into that repo; see
+[PRODUCT.md](PRODUCT.md#publishing-it).
+
+The Playwright checks are deliberately not run in CI: they need a browser
+download and still carry a hardcoded container path. The 135 model and store
+tests are the device-free half, and they are what the gate runs.
 
 ## Testing with gardeners
 

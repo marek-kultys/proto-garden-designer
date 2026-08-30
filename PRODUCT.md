@@ -414,33 +414,54 @@ encodes the design in the URL *fragment* (never sent to a server, so it works on
 static hosting), or export and import of a small JSON file. Neither needs a
 backend either.
 
-### Publishing it
+### Publishing it — done
 
-**Effort: about an hour. No backend.** `SINGLEFILE=1 npm run build` already emits
-a single `dist/index.html` with no external requests at all, so it can be served
-by anything that serves a file — and because there are no asset URLs, the usual
-sub-path problem on GitHub Pages never arises. One workflow does it.
+**Live at <https://marekkultys.com/proto-garden-designer/>.** The repository is
+public and GitHub Actions publishes the single-file build on every merge to
+`master`, with the 135 tests as a gate in front of it. Actions is free on public
+repositories and a run takes about a minute.
 
-The constraint to know before choosing where: this repo is private, on a personal
-account. GitHub Pages from a private repo needs a paid plan, and below Enterprise
-Cloud **the published site is public even when the repo is private** — Pages
-access control is an Enterprise feature.
+The decision that got it there: **go public rather than pay to stay private.**
+GitHub Pro does let you publish Pages from a private repository, but the
+published *site* is public regardless — private Pages is an organisation and
+Enterprise Cloud feature, and GitHub's own answer to individuals asking for it is
+that it is not available to them. So Pro would have bought a hidden source tree
+and an open app, which is the wrong half for a prototype whose whole value is in
+what gardeners say after using it.
 
-### Keeping it private
+If it ever does need to be genuinely private, a JavaScript password prompt is
+theatre — the app has already been downloaded before the check runs. What works
+without a backend is **Cloudflare Pages behind Zero Trust Access**: about half an
+hour of clicking, free for a small number of users, per-tester email
+one-time-PIN, revocable, and the repo can go private again. The cost is a URL
+that is not on GitHub.
 
-**A password prompt written in JavaScript is theatre**, because the whole app has
-already been downloaded before the check runs. Two things do work without a
-backend:
+### Which domain it is served from
 
-- **Cloudflare Pages behind Zero Trust Access** — about half an hour of clicking
-  and no code. Free for a small number of users, per-tester email one-time-PIN,
-  revocable, and the repo stays private. The cost is that the URL is not
-  `github.io`.
-- **An encrypted build** — the built HTML encrypted at build time and decrypted in
-  the browser from a passphrase. Real cryptography rather than obscurity, and it
-  stays on GitHub Pages — but only while the source repo is private, since
-  otherwise anyone can clone the repo and run it unencrypted. One shared password,
-  no revocation.
+The URL is the repository name appended to the custom domain on the **user
+site** — `marek-kultys.github.io`, which serves `marekkultys.com`. Project sites
+inherit that domain automatically, but only while they carry no custom domain of
+their own, so this repo's Pages *Custom domain* field is deliberately left blank.
+
+A domain attached to a **project** repo behaves differently, and the difference
+is easy to miss because the DNS looks identical — both cases CNAME to
+`marek-kultys.github.io`. A project-repo domain serves that one repository at its
+root and nothing underneath it. `melayerka.com` is the custom domain on the
+`melayerka_art` repo, which is why `melayerka.com/proto-garden-designer` is a
+404 and always will be while that arrangement holds.
+
+Two ways to serve this app from that domain, if it should live under that name:
+
+- **A subdomain** — `garden.melayerka.com`, one CNAME record at OVH pointing to
+  `marek-kultys.github.io`, then set as this repo's custom domain. Cheap and it
+  cannot disturb the existing site. The cost is that a repo has only one home, so
+  the app *moves* off `marekkultys.com/proto-garden-designer` rather than gaining
+  a second address.
+- **Publishing into the `melayerka_art` repo** — the workflow writes the built
+  file into a folder there, and it is served as an ordinary path of that site.
+  This is the only way to get `melayerka.com/proto-garden-designer` specifically.
+  It costs a cross-repository write, which means a token to manage, and it ties
+  the two projects' deployments together.
 
 ### Further out
 
