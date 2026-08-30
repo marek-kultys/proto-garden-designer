@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { isDirty, useStore } from '../state/store';
+import { currentDesign, isDirty, useStore } from '../state/store';
 import { listProjects, storageAvailable, type ProjectSummary } from '../state/projectStorage';
+import { exportProjectFile, readProjectFromFile } from '../state/projectTransfer';
+import { describeFailure, describeSkipped } from '../state/projectFile';
 
 /**
  * Saving, naming and reopening a design.
@@ -42,12 +44,14 @@ export function ProjectsDialog({ onClose }: { onClose: () => void }) {
   const openProject = useStore((s) => s.openProject);
   const deleteSavedProject = useStore((s) => s.deleteSavedProject);
   const newProject = useStore((s) => s.newProject);
+  const importDesign = useStore((s) => s.importDesign);
 
   const [projects, setProjects] = useState<ProjectSummary[]>(() => listProjects());
   const [message, setMessage] = useState<Message | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [nameDraft, setNameDraft] = useState(projectName);
   const available = useRef(storageAvailable()).current;
+  const fileInput = useRef<HTMLInputElement>(null);
 
   const refresh = useCallback(() => setProjects(listProjects()), []);
 
@@ -128,6 +132,38 @@ export function ProjectsDialog({ onClose }: { onClose: () => void }) {
       refresh();
     },
     [deleteSavedProject, refresh],
+  );
+
+  const doExport = useCallback(() => {
+    const state = useStore.getState();
+    // Exports whatever is on screen, saved or not — the file is a copy of the
+    // design you are looking at, not of the last thing written to storage.
+    const result = exportProjectFile(state.projectName, currentDesign(state));
+    setMessage(
+      result.ok
+        ? { tone: 'ok', text: `Exported as ${result.filename}.` }
+        : { tone: 'error', text: result.detail },
+    );
+  }, []);
+
+  const doImport = useCallback(
+    async (file: File) => {
+      const result = await readProjectFromFile(file);
+      if (!result.ok) {
+        setMessage({ tone: 'error', text: describeFailure(result.failure) });
+        return;
+      }
+      importDesign(result.name, result.design);
+      const lost = describeSkipped(result.skipped);
+      setMessage({
+        tone: lost === null ? 'ok' : 'warn',
+        text:
+          `Imported “${result.name}”. It is not saved on this device yet — Save keeps it.` +
+          (lost === null ? '' : ` ${lost}`),
+      });
+      refresh();
+    },
+    [importDesign, refresh],
   );
 
   const doNew = useCallback(() => {
@@ -211,6 +247,26 @@ export function ProjectsDialog({ onClose }: { onClose: () => void }) {
               ))}
             </ul>
           )}
+        </div>
+
+        <div className="project-transfer">
+          <h3>Move between devices</h3>
+          <div className="project-actions">
+            <button onClick={doExport}>Export file</button>
+            <button onClick={() => fileInput.current?.click()}>Import file…</button>
+          </div>
+          <input
+            ref={fileInput}
+            type="file"
+            accept="application/json,.json"
+            className="visually-hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              // Cleared so choosing the same file twice in a row still fires.
+              e.target.value = '';
+              if (file !== undefined) void doImport(file);
+            }}
+          />
         </div>
 
         <p className="project-footnote">

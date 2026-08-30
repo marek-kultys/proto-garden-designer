@@ -30,8 +30,8 @@ rather than invented, chosen to span the axes the simulation actually exercises
 annuals.
 
 Designs save as named projects in the browser, so a garden survives closing the
-tab. Nothing is sent anywhere and there is no backend — which also means saved
-designs stay on that device.
+tab, and export/import as a JSON file carries one between machines. Nothing is
+sent anywhere and there is no backend.
 
 The library is filtered by type and by growing conditions — aspect, soil type,
 soil pH and drainage — so a border with dry shade on chalk narrows a hundred and
@@ -45,7 +45,7 @@ does, what was deliberately left out, and the roadmap.
 ```bash
 npm install
 npm run dev        # http://localhost:5173
-npm test           # 164 tests
+npm test           # 178 tests
 npm run build      # production build into dist/
 ```
 
@@ -66,7 +66,8 @@ src/render/   canvas drawing — sketchy line work, the light palette, and one
               draw pass per view
 src/state/    a single zustand store; all state is plain and serialisable, plus
               the save/load boundary (projectFile.ts is pure and browser-free,
-              projectStorage.ts is the only code that touches localStorage)
+              projectStorage.ts is the only code that touches localStorage, and
+              projectTransfer.ts exports and imports a design as a file)
 src/ui/       React components: the panels, the canvases, the time bar
 scripts/      Playwright checks and screenshot capture
 ```
@@ -162,7 +163,7 @@ plan comes from the field actually rendered.
 ## Verification
 
 ```bash
-npm test                                      # 164 tests across 12 files
+npm test                                      # 178 tests across 13 files
 ```
 
 The models are where silent errors hide, so the unit tests check them against

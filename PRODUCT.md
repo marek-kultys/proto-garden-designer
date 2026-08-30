@@ -176,6 +176,13 @@ Designs are saved as named projects, with Save, Save as copy, New, rename,
 Open and Delete. A marker in the header shows when there are unsaved changes,
 and ⌘/Ctrl-S saves over the open design.
 
+A design can also be **exported to a JSON file and imported back**, which is what
+carries it between machines — laptop to phone, or a tester's garden back to the
+designer — since saved projects otherwise never leave the browser they were made
+in. An imported design arrives unsaved, so Save is what adopts it onto that
+device. The file is indented rather than minified: a designer who opens one in a
+text editor should be able to read it.
+
 A saved design is the plot, the planting and the site — not the time of day, the
 season, or where you are standing. The same reasoning as undo: those are ways of
 looking at a design rather than parts of one, and reopening a garden to find the
@@ -196,6 +203,12 @@ silent until they are not:
 - **A design saved by a newer version.** Saves carry a version stamp, and a file
   from the future is refused in words rather than guessed at — guessing is how a
   newer design gets silently truncated to an older shape and then saved back.
+
+An imported file is the first genuinely untrusted input the app accepts: it has
+been off the machine, may have been edited by hand, and may have been written by
+another version. It therefore goes through exactly the same boundary as a stored
+design rather than a second, more trusting path written for the occasion — so
+every guard above applies to it automatically.
 
 ### The site
 
@@ -365,12 +378,17 @@ per-plant page. Cut to keep the focus on the simulation.
 - **Pond still matches nothing.** Houttuynia now answers the bog end of the
   drainage axis, but there is no true aquatic in the palette, so the wettest chip
   remains dimmed.
-- **Saved designs never leave the device.** Projects live in the browser's own
-  storage, which is what lets saving work with no backend at all — but they are
-  per-browser and per-device. They do not follow a designer from laptop to phone,
-  they are gone if site data is cleared, and nothing a tester makes comes back to
-  you. A share link encoding the design in the URL fragment, or export and import
-  of a JSON file, would fix that and still need no backend; neither is built.
+- **Saved projects stay on one device; a file is how they move.** Projects live
+  in the browser's own storage, which is what lets saving work with no backend at
+  all — but they are per-browser and per-device, and they are gone if site data is
+  cleared. Export and import carry a design between machines, and are the only way
+  a tester's garden reaches anyone else. A share link encoding the design in the
+  URL fragment would do the same without the file step, and is not built.
+- **Export does nothing in the artifact build.** A page published as an artifact
+  runs in a sandbox that blocks downloads the page starts itself, so the button
+  reports success and no file arrives. It works on the hosted site and in the
+  single-file build. Nothing in the page can detect the difference, which is why
+  this is written down rather than handled.
 - **UK and north-west Europe.** The solar maths is global, but the plant palette,
   the phenology baselines and the summer-time rule are not.
 
@@ -423,18 +441,18 @@ with a stored design to rename one plant and remove another, and it is now a
 counted message instead of a white screen. The version stamp is in place, with
 the migration seam left open at the one point that will need it.
 
-What remains unbuilt from this line of work is getting designs *off* the device:
-a share link encoding the design in the URL **fragment** (never sent to a server,
-so it works on static hosting), or export and import of a small JSON file.
-Neither needs a backend. Either would also be the first genuinely untrusted input
-the app accepts, and both would come in through the same guarded load boundary
-that already exists.
+Export and import of a JSON file followed, and designs now move between devices.
+What remains unbuilt is the **share link** — the design encoded in the URL
+fragment, never sent to a server, so it still works on static hosting. It would
+need no backend and no file step, and it would arrive through the same guarded
+boundary the file already uses. It is the one route that would get a tester's
+garden back without asking them to find and send an attachment.
 
 ### Publishing it — done
 
 **Live at <https://marekkultys.com/proto-garden-designer/>.** The repository is
 public and GitHub Actions publishes the single-file build on every merge to
-`master`, with the 164 tests as a gate in front of it. Actions is free on public
+`master`, with the 178 tests as a gate in front of it. Actions is free on public
 repositories and a run takes about a minute.
 
 The decision that got it there: **go public rather than pay to stay private.**

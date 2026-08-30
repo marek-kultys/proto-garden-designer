@@ -1556,3 +1556,29 @@ button.on .project-dot {
     display: inline;
   }
 }
+
+.project-transfer {
+  margin-top: 16px;
+}
+
+.project-transfer h3 {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* Reachable by the keyboard and to a screen reader, invisible on screen: the
+   file input is opened by the button beside it, not clicked directly. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

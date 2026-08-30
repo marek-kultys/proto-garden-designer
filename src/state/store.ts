@@ -92,6 +92,51 @@ export function isDirty(s: AppState): boolean {
   return designFingerprint(currentDesign(s)) !== s.savedFingerprint;
 }
 
+/**
+ * Put a design on screen, from wherever it came — storage or an imported file.
+ *
+ * Shared so that opening and importing cannot diverge: any care taken over one
+ * is automatically taken over the other.
+ */
+function applyDesign(
+  s: AppState,
+  name: string,
+  design: Design,
+  projectId: string | null,
+  label: string,
+) {
+  // Fresh instance ids. The ones in the file were minted in another session —
+  // or on another machine entirely, for an imported design — and could collide
+  // with ids this session goes on to create. The seed, which is what makes a
+  // plant look like that particular individual, is carried across untouched.
+  const plants = design.plants.map((p) => ({ ...p, id: newId() }));
+
+  const xs = design.plot.map((p) => p.x);
+  const ys = design.plot.map((p) => p.y);
+  const midY = (Math.min(...ys) + Math.max(...ys)) / 2;
+
+  return {
+    ...pushHistory(s, label),
+    plot: design.plot,
+    plants,
+    site: design.site,
+    selectedId: null,
+    // The sight line and the eye were placed for whatever plot was here before
+    // and can land outside this one — which is how the elevation strip comes up
+    // empty and the 360° view ends up underground. Same repositioning as
+    // drawing a new outline.
+    sightLine: { a: { x: Math.min(...xs), y: midY }, b: { x: Math.max(...xs), y: midY } },
+    observer: {
+      ...s.observer,
+      x: (Math.min(...xs) + Math.max(...xs)) / 2,
+      y: Math.max(...ys) - 0.8,
+    },
+    projectId,
+    projectName: name,
+    savedFingerprint: designFingerprint({ ...design, plants }),
+  };
+}
+
 export type SaveOutcome = { ok: true; name: string } | { ok: false; detail: string };
 export type OpenOutcome =
   | { ok: true; name: string; note: string | null }
@@ -239,6 +284,8 @@ export interface AppState {
   saveProjectAs: (name: string) => SaveOutcome;
   renameProject: (name: string) => void;
   openProject: (id: string) => OpenOutcome;
+  /** Put an already-parsed design on screen, as an unsaved project. */
+  importDesign: (name: string, design: Design) => void;
   deleteSavedProject: (id: string) => void;
   setRenderedFov: (fov: number) => void;
   toggle: (key: 'showShadows' | 'showGrid' | 'showOverlay' | 'playing') => void;
@@ -502,40 +549,17 @@ export const useStore = create<AppState>((set, get) => ({
     const result = readProject(id);
     if (result === null) return { ok: false, detail: 'That design is no longer in this browser.' };
     if (!result.ok) return { ok: false, detail: describeFailure(result.failure) };
+    set((s) => applyDesign(s, result.name, result.design, id, 'Open project'));
+    return { ok: true, name: result.name, note: describeSkipped(result.skipped) };
+  },
 
-    const { design, name } = result;
-    // Fresh instance ids. The ones in the file were minted in another session
-    // and could collide with ids this session goes on to create. The seed —
-    // which is what makes a plant look like that particular individual — is
-    // carried across untouched.
-    const plants = design.plants.map((p) => ({ ...p, id: newId() }));
-
-    const xs = design.plot.map((p) => p.x);
-    const ys = design.plot.map((p) => p.y);
-    const midY = (Math.min(...ys) + Math.max(...ys)) / 2;
-
-    set((s) => ({
-      ...pushHistory(s, 'Open project'),
-      plot: design.plot,
-      plants,
-      site: design.site,
-      selectedId: null,
-      // The sight line and the eye were placed for whatever plot was here
-      // before and can land outside this one — which is how the elevation strip
-      // comes up empty and the 360° view ends up underground. Same repositioning
-      // as drawing a new outline.
-      sightLine: { a: { x: Math.min(...xs), y: midY }, b: { x: Math.max(...xs), y: midY } },
-      observer: {
-        ...s.observer,
-        x: (Math.min(...xs) + Math.max(...xs)) / 2,
-        y: Math.max(...ys) - 0.8,
-      },
-      projectId: id,
-      projectName: name,
-      savedFingerprint: designFingerprint({ ...design, plants }),
-    }));
-
-    return { ok: true, name, note: describeSkipped(result.skipped) };
+  /**
+   * An imported design is not yet saved in this browser, so it arrives with no
+   * project id — Save is what adopts it. Otherwise it is opened exactly as a
+   * stored one is, through the same code, so the two cannot drift apart.
+   */
+  importDesign: (name, design) => {
+    set((s) => applyDesign(s, name, design, null, 'Import design'));
   },
 
   deleteSavedProject: (id) => {
