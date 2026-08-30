@@ -1,9 +1,11 @@
 import { polygonBounds, pointInPolygon } from './geometry';
 import { getSpecies } from './plants';
 import { phaseAt } from './phenology';
-import { sizeAt } from './growth';
+import { plantAge, sizeAt } from './growth';
 import { bearingToCanvas, dayLength, solarPosition } from './sun';
-import type { Phase, PlantInstance, Plot, Site, Species, TimeState } from './types';
+import { casterOf, groundOffsetAt, sweptPolygons } from './structures';
+import { fallTowards, shadowReachOnSlope, terrainOf } from './terrain';
+import type { Phase, PlantInstance, Plot, Site, Species, Structure, TimeState } from './types';
 
 /**
  * How much light a canopy stops.
@@ -80,6 +82,12 @@ export interface ShadeOptions {
  * the shadow direction. Cells inside an ellipse keep only the light that gets
  * through the canopy above them, so overlapping shadows compound the way real
  * ones do.
+ *
+ * Walls and raised beds cast too, and they are the reason this map is worth
+ * looking at on a small plot: a two-metre south boundary wall decides the whole
+ * character of the bed in front of it, and it does so on the shortest day far
+ * more than on the longest. They are swept polygons rather than ellipses, and
+ * opaque rather than dappled.
  */
 export function computeShadeGrid(
   plot: Plot,
@@ -87,6 +95,7 @@ export function computeShadeGrid(
   site: Site,
   time: TimeState,
   calendarYear: number,
+  structures: Structure[] = [],
   opts: ShadeOptions = {},
 ): ShadeGrid {
   const stepMinutes = opts.stepMinutes ?? 15;
@@ -114,6 +123,7 @@ export function computeShadeGrid(
     }
   }
 
+  const terrain = terrainOf(plot, site);
   const day = dayLength(site, time.doy, calendarYear);
   const empty: ShadeGrid = {
     cols,
@@ -133,10 +143,18 @@ export function computeShadeGrid(
     .map((plant) => {
       const species = getSpecies(plant.speciesId);
       const phase = phaseAt(species, time.doy, site);
-      const size = sizeAt(species, time.year);
-      return { plant, size, density: canopyDensity(species, phase) };
+      const size = sizeAt(species, plantAge(plant.plantedAge, time.year));
+      // A plant in a raised bed starts from the top of it, so its shadow both
+      // lengthens and starts further out. Ignoring this would make a bed purely
+      // cosmetic in the one view where it does measurable work.
+      const base = groundOffsetAt(plant, structures);
+      return { plant, size, base, density: canopyDensity(species, phase) };
     })
     .filter((c) => c.density > 0.01);
+
+  const builtCasters = structures
+    .map(casterOf)
+    .filter((c): c is NonNullable<typeof c> => c !== null);
 
   // Midpoint rule over the daylight window: every sample sits strictly inside
   // it, and the sub-intervals sum to the day length exactly. Stepping from
@@ -159,20 +177,33 @@ export function computeShadeGrid(
       continue;
     }
 
-    const reach = 1 / Math.tan((sun.altitude * Math.PI) / 180);
     const angle = bearingToCanvas(sun.azimuth + 180, site.northAngle);
     const ux = Math.cos(angle);
     const uy = Math.sin(angle);
+    /*
+     * How far a shadow travels per metre of height, over this ground.
+     *
+     * On the level it is 1/tan(altitude). Thrown downhill it chases ground that
+     * is falling away beneath it and reaches much further; thrown uphill the
+     * ground rises to meet it and it is cut short. Since the fall is one plane
+     * and the shadow direction is one bearing, this is a single number for the
+     * whole plot at each step of the day — the slope shows up as shadows that
+     * sweep differently morning and evening, which is what it does.
+     */
+    const reach = shadowReachOnSlope(sun.altitude, fallTowards(terrain, ux, uy));
     const vx = -uy;
     const vy = ux;
 
     for (const caster of casters) {
-      const len = Math.min(40, caster.size.height * reach);
+      const len = Math.min(60, caster.size.height * reach);
       const a = caster.size.spread / 2 + len / 2;
       const b = caster.size.spread / 2;
       if (a <= 0 || b <= 0) continue;
-      const cx = caster.plant.x + ux * (len / 2);
-      const cy = caster.plant.y + uy * (len / 2);
+      // The shadow of something standing `base` metres up starts that much
+      // further along the ground before it begins.
+      const lift = Math.min(60, caster.base * reach);
+      const cx = caster.plant.x + ux * (lift + len / 2);
+      const cy = caster.plant.y + uy * (lift + len / 2);
 
       const rad = a + b;
       const c0 = Math.max(0, Math.floor((cx - rad - bounds.minX) / cellSize));
@@ -190,6 +221,43 @@ export function computeShadeGrid(
           const along = (px * ux + py * uy) / a;
           const across = (px * vx + py * vy) / b;
           if (along * along + across * across <= 1) transmit[rowBase + c] *= keep;
+        }
+      }
+    }
+
+    for (const built of builtCasters) {
+      const drop = Math.min(60, built.height * reach);
+      const vx = ux * drop;
+      const vy = uy * drop;
+      const keep = built.transmission;
+
+      for (const foot of built.footprints) {
+        for (const part of sweptPolygons(foot, vx, vy)) {
+          let pminX = Infinity;
+          let pminY = Infinity;
+          let pmaxX = -Infinity;
+          let pmaxY = -Infinity;
+          for (const pt of part) {
+            if (pt.x < pminX) pminX = pt.x;
+            if (pt.y < pminY) pminY = pt.y;
+            if (pt.x > pmaxX) pmaxX = pt.x;
+            if (pt.y > pmaxY) pmaxY = pt.y;
+          }
+          const c0 = Math.max(0, Math.floor((pminX - bounds.minX) / cellSize));
+          const c1 = Math.min(cols - 1, Math.ceil((pmaxX - bounds.minX) / cellSize));
+          const r0 = Math.max(0, Math.floor((pminY - bounds.minY) / cellSize));
+          const r1 = Math.min(rows - 1, Math.ceil((pmaxY - bounds.minY) / cellSize));
+
+          for (let r = r0; r <= r1; r++) {
+            const rowBase = r * cols;
+            const py = bounds.minY + (r + 0.5) * cellSize;
+            for (let c = c0; c <= c1; c++) {
+              const idx = rowBase + c;
+              if (!inside[idx] || transmit[idx] === 0) continue;
+              const px = bounds.minX + (c + 0.5) * cellSize;
+              if (pointInPolygon({ x: px, y: py }, part)) transmit[idx] *= keep;
+            }
+          }
         }
       }
     }

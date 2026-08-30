@@ -1582,3 +1582,316 @@ button.on .project-dot {
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+/* ------------------------------------------------------- walls and beds */
+
+.structures {
+  margin-top: 4px;
+}
+
+.structure-editor {
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--paper);
+}
+
+.structure-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.structure-head span {
+  color: var(--ink-faint);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.structure-editor label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 8px 0 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.structure-editor output {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.structure-editor input[type='range'] {
+  width: 100%;
+  margin: 0;
+}
+
+.range-ends {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2px;
+  font-size: 10.5px;
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.structure-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.structure-actions button {
+  flex: 1;
+  padding: 6px 8px;
+  font-size: 12px;
+}
+
+.structure-actions button.danger {
+  border-color: #d9a8a1;
+  color: #a03a30;
+}
+
+.structure-list {
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.structure-list button {
+  width: 100%;
+  padding: 6px 8px;
+  font-size: 12px;
+  text-align: left;
+}
+
+/* --------------------------------------------------- size when planted */
+
+.planting-size {
+  margin: 2px 0 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.planting-size-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.planting-size .hint {
+  margin: 6px 0 0;
+}
+
+/* ------------------------------------------------- depth of the slice */
+
+.slice-depth {
+  position: absolute;
+  bottom: 6px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 9px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.78);
+  font-size: 11px;
+}
+
+.slice-depth label {
+  color: var(--ink-soft);
+}
+
+.slice-depth input[type='range'] {
+  width: 96px;
+  margin: 0;
+}
+
+.slice-depth output {
+  min-width: 42px;
+  text-align: right;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 900px) {
+  .slice-depth {
+    bottom: 4px;
+    right: 8px;
+    gap: 6px;
+    padding: 2px 7px;
+  }
+
+  .slice-depth input[type='range'] {
+    width: 68px;
+  }
+}
+
+/* ------------------------------------------------ width of the 360 view */
+
+.pano-width {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+
+.pano-width input[type='range'] {
+  width: 78px;
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .pano-width input[type='range'] {
+    width: 56px;
+  }
+}
+
+/* ------------------------------------------ resizing plan against strip */
+
+/*
+ * The divider between the plan and the view below it. Sits just inside the top
+ * edge of the strip and is deliberately taller than it looks, because a 4 px
+ * target is a fair test of anyone's mouse and impossible on a touchscreen.
+ */
+.stage-resize {
+  position: absolute;
+  top: -5px;
+  left: 0;
+  right: 0;
+  height: 14px;
+  z-index: 22;
+  cursor: ns-resize;
+  touch-action: none;
+}
+
+.stage-resize::after {
+  content: '';
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  width: 46px;
+  height: 4px;
+  margin-left: -23px;
+  border-radius: 2px;
+  background: var(--line-strong);
+  opacity: 0.75;
+  transition: opacity 120ms ease, background 120ms ease;
+}
+
+.stage-resize:hover::after {
+  background: var(--accent);
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage-resize::after {
+    transition: none;
+  }
+}
+
+.viewpoint-centre {
+  width: 100%;
+  margin-top: 8px;
+  padding: 7px 10px;
+  font-size: 12px;
+}
+
+.pano-centre {
+  padding: 3px 10px;
+  font-size: 11px;
+}
+
+/*
+ * The 360° control bar has to fit a phone. Adding the Centre button pushed it
+ * past the edge, so on a narrow screen the wordier readout gives way: the field
+ * width is already shown by the slider beside it, and the eye height lives in
+ * the Site panel. Being able to recover a lost viewpoint matters more.
+ */
+@media (max-width: 900px) {
+  .pano-fov {
+    display: none;
+  }
+
+  .pano-controls {
+    gap: 4px;
+  }
+
+  .pano-centre {
+    padding: 3px 8px;
+  }
+}
+
+/* ------------------------------------------------ a climber's plane */
+
+.climber-facing {
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.climber-angle {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 10px 0 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.climber-angle output {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.climber-facing input[type='range'] {
+  width: 100%;
+  margin: 0;
+}
+
+/* ------------------------------------------------------- lie of the land */
+
+.slope {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.slope input[type='range'] {
+  width: 100%;
+  margin: 0;
+}
+
+.slope .chips {
+  margin-top: 4px;
+}

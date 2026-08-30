@@ -16,6 +16,10 @@ export function ElevationStrip({ width, height }: ElevationStripProps) {
   const time = useStore((s) => s.time);
   const sightLine = useStore((s) => s.sightLine);
   const selectedId = useStore((s) => s.selectedId);
+  const structures = useStore((s) => s.structures);
+  const plot = useStore((s) => s.plot);
+  const selectedStructureId = useStore((s) => s.selectedStructureId);
+  const sliceDepth = useStore((s) => s.sliceDepth);
   const { light } = useSun();
 
   useEffect(() => {
@@ -28,14 +32,31 @@ export function ElevationStrip({ width, height }: ElevationStripProps) {
     if (!ctx) return;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     drawElevation(ctx, width, height, {
+      plot,
       plants,
+      structures,
       site,
       time,
       light,
       sightLine,
+      sliceDepth,
       selectedId,
+      selectedStructureId,
     });
-  }, [plants, site, time, light, sightLine, selectedId, width, height]);
+  }, [
+    plot,
+    plants,
+    structures,
+    site,
+    time,
+    light,
+    sightLine,
+    sliceDepth,
+    selectedId,
+    selectedStructureId,
+    width,
+    height,
+  ]);
 
   return (
     <>

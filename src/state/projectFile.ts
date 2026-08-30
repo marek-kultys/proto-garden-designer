@@ -1,5 +1,6 @@
 import { SPECIES_BY_ID } from '../model/plants';
-import type { PlantInstance, Plot, Site, Vec2 } from '../model/types';
+import { clampHeight, clampThickness, minimumPoints } from '../model/structures';
+import type { PlantInstance, Plot, Site, Structure, StructureKind, Vec2 } from '../model/types';
 
 /**
  * The saved form of a design, and the boundary that reads it back.
@@ -37,13 +38,24 @@ export const SCHEMA = 'garden-designer-project';
  * project's life (`soil` became `soilPh`, and soil type, drainage and lifecycle
  * were added), which is the evidence that this will be needed again.
  */
-export const CURRENT_VERSION = 1;
+export const CURRENT_VERSION = 3;
 
-/** What a saved design actually consists of: the plot, the planting, the site. */
+/**
+ * What each version added, so a reader can see what a migration has to do.
+ *
+ *   1  plot, plants, site
+ *   2  walls and raised beds
+ *   3  the age a plant was when it went in
+ */
+const FIRST_VERSION = 1;
+
+/** What a saved design actually consists of. */
 export interface Design {
   plot: Plot;
   plants: PlantInstance[];
   site: Site;
+  /** Walls and raised beds. Added in version 2; absent from version 1 saves. */
+  structures: Structure[];
 }
 
 export interface ProjectFile {
@@ -71,6 +83,8 @@ export interface LoadSuccess {
    * dropped plant. The caller reports the count; it never silently swallows them.
    */
   skipped: string[];
+  /** Walls or beds in the file that were too damaged to rebuild. */
+  droppedStructures: number;
 }
 
 export type LoadResult = LoadSuccess | { ok: false; failure: LoadFailure };
@@ -130,7 +144,95 @@ function parseSite(v: unknown): Site | null {
   // Out-of-range coordinates would put the sun somewhere impossible rather than
   // merely somewhere odd, so they are damage, not a preference.
   if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) return null;
-  return { latitude, longitude, altitude, northAngle, dst: v.dst, label };
+
+  /*
+   * The slope. Absent means level, which is exactly what a design saved before
+   * the ground could tilt meant — so this is read when present and defaulted
+   * when not, without a new schema version. Bumping would make an older build
+   * refuse the whole design rather than quietly ignore two optional numbers.
+   */
+  const fall = finiteNumber(v.slopeFall);
+  const direction = finiteNumber(v.slopeDirection);
+
+  return {
+    latitude,
+    longitude,
+    altitude,
+    northAngle,
+    dst: v.dst,
+    label,
+    slopeFall: fall === null ? 0 : Math.max(0, Math.min(20, fall)),
+    slopeDirection: direction === null ? 180 : ((direction % 360) + 360) % 360,
+  };
+}
+
+function isStructureKind(v: unknown): v is StructureKind {
+  return v === 'wall' || v === 'bed';
+}
+
+/**
+ * Structures are dropped individually rather than failing the whole design.
+ *
+ * The reasoning is the same as for an unknown plant: losing a wall from a
+ * garden you can still open is a far better outcome than losing the garden, and
+ * the app says which happened either way.
+ */
+function parseStructures(v: unknown): { structures: Structure[]; dropped: number } | null {
+  if (v === undefined) return { structures: [], dropped: 0 };
+  if (!Array.isArray(v)) return null;
+
+  const structures: Structure[] = [];
+  const seen = new Set<string>();
+  let dropped = 0;
+
+  for (const raw of v) {
+    if (!isRecord(raw) || !isStructureKind(raw.kind)) {
+      dropped += 1;
+      continue;
+    }
+    const id = nonEmptyString(raw.id);
+    const seed = finiteNumber(raw.seed);
+    const height = finiteNumber(raw.height);
+    const thickness = finiteNumber(raw.thickness);
+    if (id === null || seed === null || height === null || thickness === null) {
+      dropped += 1;
+      continue;
+    }
+
+    if (!Array.isArray(raw.points)) {
+      dropped += 1;
+      continue;
+    }
+    const points: Vec2[] = [];
+    let bad = false;
+    for (const rawPoint of raw.points) {
+      const point = parseVec2(rawPoint);
+      if (point === null) {
+        bad = true;
+        break;
+      }
+      points.push(point);
+    }
+    // Too few points to stand up is not a structure, whatever it claims to be.
+    if (bad || points.length < minimumPoints(raw.kind) || seen.has(id)) {
+      dropped += 1;
+      continue;
+    }
+    seen.add(id);
+
+    structures.push({
+      id,
+      kind: raw.kind,
+      points,
+      // Clamped rather than refused: a height outside the range is a number
+      // that means something, unlike a missing one.
+      height: clampHeight(raw.kind, height),
+      thickness: clampThickness(thickness),
+      seed,
+    });
+  }
+
+  return { structures, dropped };
 }
 
 interface PlantParse {
@@ -155,6 +257,23 @@ function parsePlants(v: unknown): PlantParse | null {
       return null;
     }
 
+    // Versions 1 and 2 knew nothing of a head start, so their plants simply
+    // have no `plantedAge` and were all nursery stock — which is what an absent
+    // field reads as here. Clamped rather than refused: a nonsense age is a
+    // number that still means something, unlike a missing position.
+    const rawAge = finiteNumber(raw.plantedAge);
+    const plantedAge = rawAge === null ? 0 : Math.max(0, Math.min(50, rawAge));
+
+    /*
+     * Which way a climber's plane runs. Deliberately not a new schema version:
+     * an absent facing means "however it was drawn before", which is exactly
+     * what an older file means by leaving it out — and bumping the version
+     * would make an older build refuse the whole design rather than quietly
+     * ignore one optional field.
+     */
+    const rawFacing = finiteNumber(raw.facing);
+    const facing = rawFacing === null ? undefined : ((rawFacing % 180) + 180) % 180;
+
     // The guard this whole file exists for.
     if (!(speciesId in SPECIES_BY_ID)) {
       skipped.push(speciesId);
@@ -166,7 +285,11 @@ function parsePlants(v: unknown): PlantParse | null {
     if (seen.has(id)) continue;
     seen.add(id);
 
-    plants.push({ id, speciesId, x, y, seed });
+    plants.push(
+      facing === undefined
+        ? { id, speciesId, x, y, seed, plantedAge }
+        : { id, speciesId, x, y, seed, plantedAge, facing },
+    );
   }
 
   return { plants, skipped };
@@ -203,12 +326,21 @@ export function parseProjectFile(raw: unknown): LoadResult {
   // is how a newer file gets silently truncated to an older one and saved back.
   if (version > CURRENT_VERSION) return fail({ kind: 'from-the-future', savedVersion: version });
 
-  // Migrations for older versions go here, one step per version, oldest first.
   // Version 1 is the first that ever shipped, so anything below it never
   // existed and is damage rather than history.
-  if (version < CURRENT_VERSION) {
+  if (version < FIRST_VERSION) {
     return fail({ kind: 'malformed', detail: `unknown version ${version}` });
   }
+  //
+  // Migrations live below, in the parsers themselves rather than as a rewriting
+  // pass over the raw object. Version 1 knew nothing of walls and raised beds,
+  // so its files simply have no `structures` key — and `parseStructures` reads
+  // an absent one as "none", which is exactly right. A version 1 design opens
+  // as the garden it always was.
+  //
+  // A future version that *changes* a field rather than adding one will need
+  // more than this; that is the point at which a real step-by-step migration
+  // belongs here, one function per version, oldest first.
 
   const name = nonEmptyString(raw.name);
   if (name === null) return fail({ kind: 'malformed', detail: 'no name' });
@@ -227,12 +359,16 @@ export function parseProjectFile(raw: unknown): LoadResult {
   const parsed = parsePlants(raw.design.plants);
   if (parsed === null) return fail({ kind: 'malformed', detail: 'damaged planting' });
 
+  const built = parseStructures(raw.design.structures);
+  if (built === null) return fail({ kind: 'malformed', detail: 'damaged walls and beds' });
+
   return {
     ok: true,
     name,
     savedAt,
-    design: { plot, plants: parsed.plants, site },
+    design: { plot, plants: parsed.plants, site, structures: built.structures },
     skipped: parsed.skipped,
+    droppedStructures: built.dropped,
   };
 }
 
@@ -247,10 +383,20 @@ export function describeFailure(failure: LoadFailure): string {
 }
 
 /** Wording for what a load could not bring back, or null when nothing was lost. */
-export function describeSkipped(skipped: string[]): string | null {
-  if (skipped.length === 0) return null;
-  const unique = new Set(skipped);
-  const plants = skipped.length === 1 ? '1 plant' : `${skipped.length} plants`;
-  const kinds = unique.size === 1 ? 'it is' : 'they are';
-  return `${plants} could not be restored — ${kinds} no longer in the library.`;
+export function describeSkipped(skipped: string[], droppedStructures = 0): string | null {
+  const parts: string[] = [];
+
+  if (skipped.length > 0) {
+    const unique = new Set(skipped);
+    const plants = skipped.length === 1 ? '1 plant' : `${skipped.length} plants`;
+    const kinds = unique.size === 1 ? 'it is' : 'they are';
+    parts.push(`${plants} could not be restored — ${kinds} no longer in the library.`);
+  }
+
+  if (droppedStructures > 0) {
+    const built = droppedStructures === 1 ? '1 wall or bed' : `${droppedStructures} walls or beds`;
+    parts.push(`${built} could not be rebuilt.`);
+  }
+
+  return parts.length === 0 ? null : parts.join(' ');
 }

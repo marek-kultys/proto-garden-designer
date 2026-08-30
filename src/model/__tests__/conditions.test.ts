@@ -122,6 +122,9 @@ describe('lime and chalk', () => {
       'corylopsis-sinensis',
       'magnolia-black-tulip',
       'hydrangea-quercifolia',
+      // The strictest of the lot: a rhododendron on chalk is not a plant that
+      // sulks, it is a plant that dies.
+      'rhododendron-yakushimanum',
     ]) {
       const s = getSpecies(id);
       expect(s.soilPh, id).not.toContain('alkaline');

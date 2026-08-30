@@ -18,7 +18,7 @@ const PLOT = rectanglePlot(14, 10);
 const YEAR = 2026;
 
 function plant(speciesId: string, x: number, y: number): PlantInstance {
-  return { id: `${speciesId}-${x}-${y}`, speciesId, x, y, seed: 1 };
+  return { id: `${speciesId}-${x}-${y}`, speciesId, x, y, seed: 1, plantedAge: 0 };
 }
 
 /** Average sun hours over the whole plot, ignoring cells outside it. */
@@ -108,5 +108,48 @@ describe('canopy density', () => {
   it('casts nothing at all from a dormant perennial', () => {
     const hosta = getSpecies('hosta-halcyon');
     expect(canopyDensity(hosta, phaseAt(hosta, 10, LONDON))).toBe(0);
+  });
+});
+
+describe('a plant that went in part-grown', () => {
+  const noon = { hour: 12, doy: 172, year: 0 };
+  const totalSun = (plants: PlantInstance[]) => {
+    const grid = computeShadeGrid(PLOT, plants, LONDON, noon, YEAR);
+    let sum = 0;
+    for (const h of grid.hours) if (h >= 0) sum += h;
+    return sum;
+  };
+
+  const birch = (plantedAge: number): PlantInstance => ({
+    id: 'b',
+    speciesId: 'betula-jacquemontii',
+    x: 7,
+    y: 5,
+    seed: 1,
+    plantedAge,
+  });
+
+  /**
+   * The whole point of buying a specimen in: on day one it is already casting
+   * the shadow a whip would take a decade to throw.
+   */
+  it('shades the garden on the day it goes in, as nursery stock does not', () => {
+    expect(totalSun([birch(10)])).toBeLessThan(totalSun([birch(0)]));
+  });
+
+  it('shades the same as an identical plant grown on site for those years', () => {
+    const boughtIn = computeShadeGrid(PLOT, [birch(10)], LONDON, noon, YEAR);
+    const grownOn = computeShadeGrid(
+      PLOT,
+      [birch(0)],
+      LONDON,
+      { ...noon, year: 10 },
+      YEAR,
+    );
+    let a = 0;
+    let b = 0;
+    for (const h of boughtIn.hours) if (h >= 0) a += h;
+    for (const h of grownOn.hours) if (h >= 0) b += h;
+    expect(a).toBeCloseTo(b, 5);
   });
 });

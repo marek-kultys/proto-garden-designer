@@ -211,3 +211,55 @@ describe('what undo covers', () => {
     expect(state().observer.heading).toBe(45);
   });
 });
+
+describe('keeping the viewpoint reachable', () => {
+  /**
+   * The trap this closes: drag the eye off the plan and it disappears under the
+   * view below, where there is nothing left to take hold of. The 360° view then
+   * stays wherever it was abandoned, with no way back.
+   */
+  it('will not let the eye be dragged off the plan', () => {
+    useStore.setState({ plot: rectanglePlot(14, 10) });
+
+    state().moveObserver({ x: 500, y: 500 });
+    const far = state().observer;
+    expect(far.x).toBeLessThan(20);
+    expect(far.y).toBeLessThan(20);
+
+    state().moveObserver({ x: -500, y: -500 });
+    const near = state().observer;
+    expect(near.x).toBeGreaterThan(-10);
+    expect(near.y).toBeGreaterThan(-10);
+  });
+
+  it('still lets you stand a little outside the garden, looking in', () => {
+    useStore.setState({ plot: rectanglePlot(14, 10) });
+    state().moveObserver({ x: 7, y: 11 });
+    // Just beyond the near edge is a real place to stand — from the house.
+    expect(state().observer.y).toBeGreaterThan(10);
+  });
+
+  it('centres the eye on demand, wherever it had got to', () => {
+    useStore.setState({ plot: rectanglePlot(14, 10) });
+    state().moveObserver({ x: 500, y: 500 });
+
+    state().centreObserver();
+
+    expect(state().observer.x).toBeCloseTo(7);
+    expect(state().observer.y).toBeCloseTo(5);
+  });
+
+  it('centres on the plot actually drawn, not a remembered one', () => {
+    useStore.setState({ plot: rectanglePlot(30, 8) });
+    state().centreObserver();
+    expect(state().observer.x).toBeCloseTo(15);
+    expect(state().observer.y).toBeCloseTo(4);
+  });
+
+  it('leaves the direction you are facing alone', () => {
+    useStore.setState({ plot: rectanglePlot(14, 10) });
+    state().setHeading(215);
+    state().centreObserver();
+    expect(state().observer.heading).toBeCloseTo(215);
+  });
+});

@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { SPECIES, TYPE_LABELS } from '../model/plants';
 import { phaseAt } from '../model/phenology';
+import { matureSize } from '../model/growth';
 import { lightingFor } from '../render/palette';
 import { getForm } from '../render/form';
 import { drawPlantElevation } from '../render/plant';
-import { useStore } from '../state/store';
+import { PLACEMENT_AGES, useStore } from '../state/store';
 import type {
   DrainagePref,
   Foliage,
@@ -78,11 +79,11 @@ function PlantThumb({ species }: { species: Species }) {
     const doy = portraitDay(species);
     const phase = phaseAt(species, doy, REFERENCE_SITE);
     drawPlantElevation(
-      { ctx, light: THUMB_LIGHT, pxPerM: (h - 12) / species.matureHeight },
+      { ctx, light: THUMB_LIGHT, pxPerM: (h - 12) / matureSize(species).height },
       species,
       getForm(species, 4242),
       phase,
-      { height: species.matureHeight, spread: species.matureSpread },
+      matureSize(species),
       w / 2,
       h - 6,
       phase.flowerAge,
@@ -251,6 +252,10 @@ export function LibraryPanel({ onStartDrag }: LibraryProps) {
   const [openId, setOpenId] = useState<string | null>(null);
 
   const plants = useStore((s) => s.plants);
+
+  const placementAge = useStore((s) => s.placementAge);
+
+  const setPlacementAge = useStore((s) => s.setPlacementAge);
   const selectSpecies = useStore((s) => s.selectNextOfSpecies);
 
   /** How many of each species are on the plot right now. */
@@ -425,6 +430,28 @@ export function LibraryPanel({ onStartDrag }: LibraryProps) {
         )}
       </p>
 
+      <div className="planting-size">
+        <span className="planting-size-label">Plant as</span>
+        <div className="chips">
+          {PLACEMENT_AGES.map((option) => (
+            <button
+              key={option.years}
+              className={`chip ${placementAge === option.years ? 'on' : ''}`}
+              onClick={() => setPlacementAge(option.years)}
+              aria-pressed={placementAge === option.years}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+        {placementAge > 0 && (
+          <p className="hint">
+            New plants go in with {placementAge} years of growth already made, and stay that much
+            ahead for the life of the design.
+          </p>
+        )}
+      </div>
+
       <div className="cards">
         {grouped.map((group) => (
           <section key={group.type} className="group">
@@ -449,7 +476,7 @@ export function LibraryPanel({ onStartDrag }: LibraryProps) {
                       <div className="common">{s.common}</div>
                       <div className="latin">{s.latin}</div>
                       <div className="meta">
-                        {sizeLabel(s.matureHeight)} × {sizeLabel(s.matureSpread)} ·{' '}
+                        {sizeLabel(matureSize(s).height)} × {sizeLabel(matureSize(s).spread)} ·{' '}
                         {lifecycleLabel(s)}
                       </div>
                     </div>

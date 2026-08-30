@@ -8,10 +8,12 @@ import {
   useRef,
   useState,
 } from 'react';
-import { useStore } from '../state/store';
+import { isDrawingTool, useStore } from '../state/store';
 import { getSpecies } from '../model/plants';
-import { sizeAt } from '../model/growth';
+import { plantAge, sizeAt } from '../model/growth';
 import { computeShadeGrid, shadeBandLabel, type ShadeGrid } from '../model/shade';
+import { coversPoint, describeStructure, segmentsOf } from '../model/structures';
+import { pointToSegment } from '../model/geometry';
 import { polygonBounds } from '../model/geometry';
 import type { Vec2 } from '../model/types';
 import { drawPlan } from '../render/drawPlan';
@@ -27,6 +29,8 @@ export interface PlanApi {
 type DragMode =
   | { kind: 'none' }
   | { kind: 'plant'; id: string; grabX: number; grabY: number }
+  | { kind: 'structure'; id: string; lastX: number; lastY: number }
+  | { kind: 'structure-point'; id: string; index: number }
   | { kind: 'sight'; end: 'a' | 'b' }
   | { kind: 'observer' };
 
@@ -91,6 +95,15 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
         state.site,
         state.plot,
         state.plants.map((p) => [p.speciesId, Math.round(p.x * 20), Math.round(p.y * 20)]),
+        // Height and position both change the shadow, so both belong in the key
+        // — without them, raising a wall would leave the sun map showing the
+        // answer for the old one.
+        state.structures.map((x) => [
+          x.kind,
+          x.height,
+          x.thickness,
+          x.points.map((p) => [Math.round(p.x * 20), Math.round(p.y * 20)]),
+        ]),
       ])
     : null;
 
@@ -101,7 +114,14 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
     }
     const handle = window.setTimeout(() => {
       setShadeGrid(
-        computeShadeGrid(state.plot, state.plants, state.site, state.time, calendarYear),
+        computeShadeGrid(
+          state.plot,
+          state.plants,
+          state.site,
+          state.time,
+          calendarYear,
+          state.structures,
+        ),
       );
     }, 120);
     return () => window.clearTimeout(handle);
@@ -126,12 +146,15 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
       {
         plot: state.plot,
         plants: state.plants,
+        structures: state.structures,
         site: state.site,
         time: state.time,
         calendarYear,
         light,
         selectedId: state.selectedId,
+        selectedStructureId: state.selectedStructureId,
         sightLine: state.sightLine,
+        sliceDepth: state.sliceDepth,
         observer: state.observer,
       },
       {
@@ -143,7 +166,7 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
         showObserver: state.stageView === 'panorama',
         renderedFov: state.renderedFov,
         shadeGrid,
-        draftPolygon: state.tool === 'draw-plot' ? state.draft : null,
+        draftPolygon: isDrawingTool(state.tool) ? state.draft : null,
         draftCursor: state.draftCursor,
       },
     );
@@ -154,7 +177,10 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
       let best: { id: string; d: number } | null = null;
       for (const plant of state.plants) {
         const species = getSpecies(plant.speciesId);
-        const radius = Math.max(sizeAt(species, state.time.year).spread / 2, 10 / viewport.scale);
+        const radius = Math.max(
+          sizeAt(species, plantAge(plant.plantedAge, state.time.year)).spread / 2,
+          10 / viewport.scale,
+        );
         const d = Math.hypot(plant.x - p.x, plant.y - p.y);
         if (d <= radius && (!best || d < best.d)) best = { id: plant.id, d };
       }
@@ -199,11 +225,50 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
     return toPlot(viewport, e.clientX - rect.left, e.clientY - rect.top);
   };
 
+  /**
+   * A corner handle of the selected structure, if the pointer is on one.
+   *
+   * Only the selected structure's corners are grabbable, because only its
+   * handles are drawn — an invisible grab target is worse than none.
+   */
+  const hitStructurePoint = (p: { x: number; y: number }): number | null => {
+    const structure = state.structures.find((x) => x.id === state.selectedStructureId);
+    if (structure === undefined) return null;
+    const grab = 11 / viewport.scale;
+    let best: { index: number; d: number } | null = null;
+    for (let i = 0; i < structure.points.length; i += 1) {
+      const d = Math.hypot(structure.points[i].x - p.x, structure.points[i].y - p.y);
+      if (d <= grab && (best === null || d < best.d)) best = { index: i, d };
+    }
+    return best === null ? null : best.index;
+  };
+
+  /**
+   * The structure under a point, if any.
+   *
+   * A thin wall is hard to hit exactly, so the test is widened to a comfortable
+   * grab distance rather than the true thickness — the same reason a plant is
+   * hit by its canopy and not its stem.
+   */
+  const hitStructure = (p: { x: number; y: number }): string | null => {
+    const grab = 12 / viewport.scale;
+    // Last drawn is on top, so search backwards.
+    for (let i = state.structures.length - 1; i >= 0; i -= 1) {
+      const structure = state.structures[i];
+      if (coversPoint(structure, p)) return structure.id;
+      const reach = Math.max(grab, structure.thickness / 2);
+      for (const seg of segmentsOf(structure)) {
+        if (pointToSegment(p, seg.a, seg.b).dist <= reach) return structure.id;
+      }
+    }
+    return null;
+  };
+
   const onPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const p = localPoint(e);
     setMenu(null);
 
-    if (state.tool === 'draw-plot') {
+    if (isDrawingTool(state.tool)) {
       state.pushDraftPoint(p);
       return;
     }
@@ -223,7 +288,28 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
       }
     }
 
+    // A corner of the selected structure wins over anything under it: you have
+    // already said which thing you are working on by selecting it.
+    const corner = hitStructurePoint(p);
+    if (corner !== null && state.selectedStructureId !== null) {
+      drag.current = { kind: 'structure-point', id: state.selectedStructureId, index: corner };
+      canvasRef.current?.setPointerCapture(e.pointerId);
+      return;
+    }
+
     const id = hitPlant(p);
+    if (id === null) {
+      // Structures are tested only where there is no plant: a shrub standing in
+      // a raised bed should be what you grab, not the bed underneath it.
+      const structureId = hitStructure(p);
+      if (structureId !== null) {
+        state.selectStructure(structureId);
+        drag.current = { kind: 'structure', id: structureId, lastX: p.x, lastY: p.y };
+        canvasRef.current?.setPointerCapture(e.pointerId);
+        return;
+      }
+    }
+
     state.select(id);
     if (id) {
       const plant = state.plants.find((x) => x.id === id)!;
@@ -249,7 +335,7 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
       cancelPress();
     }
 
-    if (state.tool === 'draw-plot') {
+    if (isDrawingTool(state.tool)) {
       state.setDraftCursor(p);
       return;
     }
@@ -267,14 +353,33 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
       state.moveObserver(p);
       return;
     }
+    if (mode.kind === 'structure-point') {
+      state.moveStructurePoint(mode.id, mode.index, p);
+      return;
+    }
+    if (mode.kind === 'structure') {
+      // Moved by how far the pointer went, not to where it is: a wall is a run
+      // of points with no single centre to snap to the cursor.
+      state.moveStructure(mode.id, { x: p.x - mode.lastX, y: p.y - mode.lastY });
+      drag.current = { ...mode, lastX: p.x, lastY: p.y };
+      return;
+    }
 
     // Idle: report what is under the cursor.
+    if (hitStructurePoint(p) !== null) {
+      setHoverInfo('Drag this corner to reshape');
+      return;
+    }
     const id = hitPlant(p);
+    const structureId = id === null ? hitStructure(p) : null;
+    const hoveredStructure = state.structures.find((x) => x.id === structureId);
     if (id) {
       const plant = state.plants.find((x) => x.id === id)!;
       const species = getSpecies(plant.speciesId);
-      const s = sizeAt(species, state.time.year);
+      const s = sizeAt(species, plantAge(plant.plantedAge, state.time.year));
       setHoverInfo(`${species.common} · ${s.height.toFixed(1)} m tall, ${s.spread.toFixed(1)} m across`);
+    } else if (hoveredStructure !== undefined) {
+      setHoverInfo(describeStructure(hoveredStructure));
     } else if (shadeGrid) {
       const hours = sampleShade(shadeGrid, p.x, p.y);
       setHoverInfo(
@@ -296,7 +401,7 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
   };
 
   const onDoubleClick = () => {
-    if (state.tool === 'draw-plot') state.commitDraft();
+    if (isDrawingTool(state.tool)) state.commitDraft();
   };
 
   // Keyboard: finish or abandon a plot outline, delete the selected plant.
@@ -307,12 +412,12 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
 
       if (e.key === 'Escape') {
         if (menu) setMenu(null);
-        else if (state.tool === 'draw-plot') state.cancelDraft();
+        else if (isDrawingTool(state.tool)) state.cancelDraft();
         else state.select(null);
       } else if ((e.key === 'd' || e.key === 'D') && (e.metaKey || e.ctrlKey) && state.selectedId) {
         e.preventDefault();
         state.duplicatePlant(state.selectedId);
-      } else if (e.key === 'Enter' && state.tool === 'draw-plot') {
+      } else if (e.key === 'Enter' && isDrawingTool(state.tool)) {
         state.commitDraft();
       } else if ((e.key === 'Backspace' || e.key === 'Delete') && state.selectedId) {
         e.preventDefault();
@@ -329,7 +434,7 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
     <div className="plan-wrap" ref={wrapRef}>
       <canvas
         ref={canvasRef}
-        className={`plan-canvas ${state.tool === 'draw-plot' ? 'drawing' : ''}`}
+        className={`plan-canvas ${isDrawingTool(state.tool) ? 'drawing' : ''}`}
         style={{ width: size.width, height: size.height }}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
@@ -351,13 +456,15 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
 
       {menu && <PlantMenu menu={menu} onClose={() => setMenu(null)} />}
 
-      {state.tool === 'draw-plot' && (
+      {isDrawingTool(state.tool) && (
         <div className="canvas-hint">
           Click to place corners · <b>Enter</b> or double-click to close · <b>Esc</b> to cancel
         </div>
       )}
 
-      {hoverInfo && state.tool !== 'draw-plot' && <div className="canvas-readout">{hoverInfo}</div>}
+      {hoverInfo && !isDrawingTool(state.tool) && (
+        <div className="canvas-readout">{hoverInfo}</div>
+      )}
 
       {selected && (
         <button className="delete-chip" onClick={() => state.removePlant(selected.id)}>

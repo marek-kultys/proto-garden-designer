@@ -13,6 +13,7 @@ This is a **base template**. Everything outside *Project profile* is meant to ho
 | ---- | ------- | ------- |
 | 30-08-2026 | 0.1 | First generic draft, derived from the SwimCharts `CLAUDE.md` v0.19. Platform, language and domain rules replaced with stack-neutral equivalents; the Apple-specific privacy-manifest and on-device rules generalised into *declared facts* and *runtime observation*; per-project facts fenced into *Project profile*; two practices already visible in my own docs added as rules — record the non-obvious decision, and write down what the model does not know. |
 | 30-08-2026 | 0.2 | Reduce the template to make it more general. |
+| 30-08-2026 | 0.3 | Add rule about backwards compatibility |
 
 Claude must always observe these rules.
 
@@ -61,6 +62,7 @@ Claude must always observe these rules.
 - **Pre-test against frozen real data before testing on the real thing.** Where sample data exists, freeze a copy as a golden fixture, run the logic over it, and assert the outputs match the known-good values. This catches the arithmetic without a device, a browser or a network in the loop.
 - **Before committing anything non-trivial, run the project's verify script and keep it green.** One script, run by one command, that does every device-free check in one pass — type check, unit tests, every build target, and any structural checks. **CI runs the same script** on every push to the integration branches and every pull request, so a red CI is a real regression rather than a difference of environment. If the project has no such script yet, that is the first thing worth building.
 - **Automated checks never replace using it.** Anything involving real hardware, real permissions, real data or the look of the thing stays validated by me on the real target.
+- **Backwards compatibility** The app will be tested and further developed while real garden design work is carried on in it in parallel. Whenever you are making any changes or adding functionality or features, maintain backwards compatibility with the JSON format used in exports and imports, so that I can port old projects into the updated app. Whevever backwards compatibility is not possible, always flag this before build and explore the ways in which it can be maintained.
 
 ## Git and branches
 - **I do all git non-read operations: commit, push, merge, tag, branch.** Read-only git — `status`, `log`, `diff`, `show` — is fine and encouraged.
