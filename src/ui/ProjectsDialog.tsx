@@ -134,15 +134,16 @@ export function ProjectsDialog({ onClose }: { onClose: () => void }) {
     [deleteSavedProject, refresh],
   );
 
-  const doExport = useCallback(() => {
+  const doExport = useCallback(async () => {
     const state = useStore.getState();
     // Exports whatever is on screen, saved or not — the file is a copy of the
     // design you are looking at, not of the last thing written to storage.
-    const result = exportProjectFile(state.projectName, currentDesign(state));
+    const result = await exportProjectFile(state.projectName, currentDesign(state));
     setMessage(
       result.ok
         ? { tone: 'ok', text: `Exported as ${result.filename}.` }
-        : { tone: 'error', text: result.detail },
+        : // Cancelling is a choice, not a fault, so it is not shown in red.
+          { tone: result.detail === 'Export cancelled.' ? 'ok' : 'error', text: result.detail },
     );
   }, []);
 
@@ -154,7 +155,7 @@ export function ProjectsDialog({ onClose }: { onClose: () => void }) {
         return;
       }
       importDesign(result.name, result.design);
-      const lost = describeSkipped(result.skipped);
+      const lost = describeSkipped(result.skipped, result.droppedStructures);
       setMessage({
         tone: lost === null ? 'ok' : 'warn',
         text:
@@ -252,7 +253,7 @@ export function ProjectsDialog({ onClose }: { onClose: () => void }) {
         <div className="project-transfer">
           <h3>Move between devices</h3>
           <div className="project-actions">
-            <button onClick={doExport}>Export file</button>
+            <button onClick={() => void doExport()}>Export file</button>
             <button onClick={() => fileInput.current?.click()}>Import file…</button>
           </div>
           <input

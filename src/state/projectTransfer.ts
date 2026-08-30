@@ -47,17 +47,84 @@ export function serialiseProject(name: string, design: Design, savedAt: Date): s
 export type ExportResult = { ok: true; filename: string } | { ok: false; detail: string };
 
 /**
- * Hand the design to the browser as a download.
+ * Two ways of handing a file to a person, because this app runs in two places.
  *
- * Note the environment limit: a page published as an artifact runs in a sandbox
- * that blocks downloads a page starts itself, so this is inert there and works
- * on an ordinary web page. Nothing here can detect that, which is why it is
- * written down rather than handled.
+ * On an ordinary web page — the hosted site, the single file opened from disk —
+ * a link with a `download` attribute is the way, and works.
+ *
+ * Published as an artifact, the page runs framed in a sandbox that never grants
+ * a page permission to start its own download: that same link is silently inert,
+ * which is worse than failing, because the app would report a file it had not
+ * written. There the host offers `claude.use('downloads')`, which asks the
+ * viewer to confirm and saves on their behalf.
+ *
+ * So: prefer the capability where it exists, fall back to the link where it does
+ * not, and never claim to have saved anything unless one of them said so.
  */
-export function exportProjectFile(name: string, design: Design): ExportResult {
-  const filename = suggestFilename(name);
+interface DownloadsCapability {
+  save: (request: { filename: string; data: string }) => Promise<{ status: string }>;
+}
+
+function looksLikeDownloads(value: unknown): value is DownloadsCapability {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    typeof (value as { save?: unknown }).save === 'function'
+  );
+}
+
+/**
+ * Resolved once and reused.
+ *
+ * Started at module load so the first export does not wait on it, but never
+ * read synchronously: the host resolves this after the first run of the script,
+ * and in an ordinary browser there is no `claude` at all, so it settles to null
+ * immediately rather than after the host's timeout.
+ */
+let downloads: Promise<DownloadsCapability | null> | null = null;
+
+function downloadsCapability(): Promise<DownloadsCapability | null> {
+  if (downloads === null) {
+    downloads = (async () => {
+      try {
+        const host = (window as { claude?: { use?: (name: string) => Promise<unknown> } }).claude;
+        if (host === undefined || typeof host.use !== 'function') return null;
+        const namespace = await host.use('downloads');
+        return looksLikeDownloads(namespace) ? namespace : null;
+      } catch {
+        return null;
+      }
+    })();
+  }
+  return downloads;
+}
+
+/** Warm it up; the result is memoised and any failure is already swallowed. */
+void downloadsCapability();
+
+/** Plain-language wording for why a save did not happen. */
+function describeSaveFailure(error: unknown): string {
+  const code =
+    typeof error === 'object' && error !== null && typeof (error as { code?: unknown }).code === 'string'
+      ? (error as { code: string }).code
+      : 'unavailable';
+
+  switch (code) {
+    case 'declined':
+      // Not a failure of the app. The person was asked and said no.
+      return 'Export cancelled.';
+    case 'rate_limited':
+      return 'A save is already waiting to be confirmed. Try again in a moment.';
+    case 'too_large':
+      return 'That design is too large to export.';
+    default:
+      return 'This page is not allowed to save files.';
+  }
+}
+
+/** The ordinary-web-page route: a link the browser follows. */
+function saveViaLink(filename: string, text: string): ExportResult {
   try {
-    const text = serialiseProject(name, design, new Date());
     const blob = new Blob([text], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -73,6 +140,23 @@ export function exportProjectFile(name: string, design: Design): ExportResult {
   } catch {
     return { ok: false, detail: 'This browser would not save the file.' };
   }
+}
+
+export async function exportProjectFile(name: string, design: Design): Promise<ExportResult> {
+  const filename = suggestFilename(name);
+  const text = serialiseProject(name, design, new Date());
+
+  const host = await downloadsCapability();
+  if (host !== null) {
+    try {
+      await host.save({ filename, data: text });
+      return { ok: true, filename };
+    } catch (error) {
+      return { ok: false, detail: describeSaveFailure(error) };
+    }
+  }
+
+  return saveViaLink(filename, text);
 }
 
 /** Read a chosen file and put it through the ordinary guarded load boundary. */

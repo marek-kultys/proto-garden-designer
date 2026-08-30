@@ -1,29 +1,36 @@
 import { getSpecies } from '../model/plants';
 import { phaseAt } from '../model/phenology';
-import { sizeAt } from '../model/growth';
+import { plantAge, sizeAt } from '../model/growth';
 import { bearingToCanvas, shadowLengthFactor } from '../model/sun';
 import { canopyDensity, type ShadeGrid } from '../model/shade';
 import { polygonBounds } from '../model/geometry';
 import type { Observer } from '../model/panorama';
-import type { PlantInstance, Plot, Site, TimeState, Vec2 } from '../model/types';
+import { groundOffsetAt } from '../model/structures';
+import { groundAt, terrainOf, terrainRange } from '../model/terrain';
+import type { PlantInstance, Plot, Site, Structure, TimeState, Vec2 } from '../model/types';
 import { inkColour, shade, type Lighting } from './palette';
 import { blobPoints, curvePath, roughCurve, roughLine, roughPolygon, subSeed } from './sketch';
 import { getForm } from './form';
 import { canopyOutline, drawPlantPlan } from './plant';
 import { drawShadeOverlay } from './overlay';
+import { drawStructurePlan, drawStructureShadowPlan } from './structure';
 import { drawObserverOnPlan } from './drawPanorama';
 import { niceScaleStep, toScreen, type Viewport } from './viewport';
-import { SIGHT_BAND } from './constants';
+import { sliceHalfWidth } from './constants';
 
 export interface Scene {
   plot: Plot;
   plants: PlantInstance[];
+  structures: Structure[];
+  selectedStructureId: string | null;
   site: Site;
   time: TimeState;
   calendarYear: number;
   light: Lighting;
   selectedId: string | null;
   sightLine: { a: Vec2; b: Vec2 };
+  /** Depth of the elevation's slice, so the band drawn here tells the truth. */
+  sliceDepth: number;
   observer: Observer;
 }
 
@@ -43,6 +50,9 @@ export interface PlanOptions {
 
 const PAPER = '#f7f4ec';
 
+/** Metres a climber stands off its support, for the band it shades. */
+const CLIMBER_SHADOW_DEPTH = 0.45;
+
 export function drawPlan(
   ctx: CanvasRenderingContext2D,
   width: number,
@@ -52,6 +62,7 @@ export function drawPlan(
   opts: PlanOptions,
 ): void {
   const { light, plot, site, time } = scene;
+  const planTerrain = terrainOf(plot, site);
 
   ctx.clearRect(0, 0, width, height);
   // The paper keeps its own colour through the day, dimming only enough at night
@@ -84,18 +95,32 @@ export function drawPlan(
     .map((plant) => {
       const species = getSpecies(plant.speciesId);
       const phase = phaseAt(species, time.doy, site);
-      const size = sizeAt(species, time.year);
+      const size = sizeAt(species, plantAge(plant.plantedAge, time.year));
       const form = getForm(species, plant.seed);
       const screen = toScreen(viewport, plant);
-      return { plant, species, phase, size, form, screen };
+      const base = groundOffsetAt(plant, scene.structures) + groundAt(planTerrain, plant);
+      // A climber follows the fence it was planted against, when that has been
+      // said; otherwise its own sketchy rotation stands in.
+      const facing =
+        plant.facing === undefined ? undefined : (plant.facing * Math.PI) / 180;
+      return { plant, species, phase, size, form, screen, base, facing };
     })
     .sort((a, b) => b.size.spread - a.size.spread);
+
+  // Drawn before the planting: a raised bed is ground that plants stand in, and
+  // a wall seen from above sits behind whatever is growing in front of it.
+  // Shortest first, so where two beds overlap the taller one's surface is the
+  // one you see — the same rule the planting stands on.
+  for (const structure of [...scene.structures].sort((a, b) => a.height - b.height)) {
+    drawStructurePlan(ctx, structure, viewport, light, false);
+  }
 
   if (opts.showShadows && light.altitude > 0.5 && plotPath) {
     // Clipped to the plot: a shadow sprawling across the paper outside the
     // boundary reads as part of the drawing rather than as a consequence of it.
     ctx.save();
     ctx.clip(plotPath);
+    drawStructureShadowPlan(ctx, scene.structures, viewport, light, site);
     drawShadows(ctx, drawables, viewport, light, site);
     ctx.restore();
   }
@@ -112,7 +137,15 @@ export function drawPlan(
       d.screen.y,
       d.phase.flowerAge,
       scene.selectedId === d.plant.id,
+      d.facing,
     );
+  }
+
+  drawContours(ctx, scene, viewport, light, plotPath);
+
+  const selectedStructure = scene.structures.find((x) => x.id === scene.selectedStructureId);
+  if (selectedStructure !== undefined) {
+    drawStructurePlan(ctx, selectedStructure, viewport, light, true);
   }
 
   if (plotPath) {
@@ -126,7 +159,9 @@ export function drawPlan(
     drawDraftPolygon(ctx, viewport, opts.draftPolygon, opts.draftCursor ?? null, light);
   }
 
-  if (opts.showSightLine && hasPlot) drawSightLine(ctx, viewport, scene.sightLine, light);
+  if (opts.showSightLine && hasPlot) {
+    drawSightLine(ctx, viewport, scene.sightLine, light, sliceHalfWidth(scene.sliceDepth));
+  }
   if (opts.showObserver) {
     drawObserverOnPlan(
       ctx,
@@ -199,6 +234,10 @@ type Drawable = {
   size: ReturnType<typeof sizeAt>;
   form: ReturnType<typeof getForm>;
   screen: Vec2;
+  /** Height of the ground under it — non-zero when it stands in a raised bed. */
+  base: number;
+  /** Which way a climber's plane runs, in radians, when it has been chosen. */
+  facing: number | undefined;
 };
 
 /**
@@ -217,6 +256,8 @@ function drawShadows(
   const factor = shadowLengthFactor(light.altitude);
   if (factor <= 0) return;
   const angle = bearingToCanvas(light.azimuth + 180, site.northAngle);
+  const ux = Math.cos(angle);
+  const uy = Math.sin(angle);
 
   ctx.save();
   ctx.filter = `blur(${light.shadowBlur.toFixed(1)}px)`;
@@ -228,12 +269,38 @@ function drawShadows(
     const radius = Math.max(2, (d.size.spread / 2) * viewport.scale);
     const len = Math.min(40, d.size.height * factor) * viewport.scale;
     if (len < 1) continue;
-    const stretch = (radius + len / 2) / radius;
+    // Standing in a raised bed pushes the whole shadow further from the plant,
+    // by the height of the bed — the same reason a wall's shadow starts at its
+    // foot and not at the viewer.
+    const lift = Math.min(40, d.base * factor) * viewport.scale;
 
+    /*
+     * A climber's shadow is a band, not a disc.
+     *
+     * Its spread is how far it has run along its support, not how far it stands
+     * out from it — so once climbers were capped at trellis height and grew
+     * sideways instead, using the canopy outline threw a sixteen-metre circle
+     * of shade across the whole garden from a plant a foot deep.
+     */
+    if (d.species.type === 'climber') {
+      const halfRun = Math.max(2, (d.size.spread / 2) * viewport.scale);
+      const halfDepth = Math.max(1.5, (CLIMBER_SHADOW_DEPTH / 2) * viewport.scale);
+      ctx.save();
+      ctx.translate(d.screen.x + ux * (lift + len / 2), d.screen.y + uy * (lift + len / 2));
+      ctx.rotate(d.facing ?? d.form.rotation);
+      ctx.fillStyle = `rgba(46, 54, 78, ${(light.shadowAlpha * density).toFixed(3)})`;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, halfRun, halfDepth + len / 2, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+      continue;
+    }
+
+    const stretch = (radius + len / 2) / radius;
     ctx.save();
     ctx.translate(d.screen.x, d.screen.y);
     ctx.rotate(angle);
-    ctx.translate(len / 2, 0);
+    ctx.translate(lift + len / 2, 0);
     ctx.scale(stretch, 1);
     ctx.fillStyle = `rgba(46, 54, 78, ${(light.shadowAlpha * density).toFixed(3)})`;
     ctx.fill(curvePath(canopyOutline(d.form, 0, 0, radius), true));
@@ -288,11 +355,78 @@ function drawDraftPolygon(
   ctx.restore();
 }
 
+/**
+ * Contours, which are how a slope is shown on a plan.
+ *
+ * Straight parallel lines here, because the ground is one plane — but drawn and
+ * labelled the way a survey would, so the drawing says what it means rather
+ * than relying on the elevation beside it. Clipped to the plot: contours
+ * sprawling across the paper would read as part of the drawing rather than as
+ * information about it.
+ */
+function drawContours(
+  ctx: CanvasRenderingContext2D,
+  scene: Scene,
+  viewport: Viewport,
+  light: Lighting,
+  plotPath: Path2D | null,
+): void {
+  const terrain = terrainOf(scene.plot, scene.site);
+  if (terrain.gradient === 0 || plotPath === null) return;
+
+  const { low, high } = terrainRange(scene.plot, terrain);
+  const fall = high - low;
+  if (fall < 0.05) return;
+
+  // A round interval that gives a handful of lines rather than a hatch.
+  const step = [0.1, 0.25, 0.5, 1, 2].find((s) => fall / s <= 8) ?? 5;
+
+  ctx.save();
+  ctx.clip(plotPath);
+  ctx.lineWidth = 1;
+  ctx.font = '10px ui-sans-serif, system-ui, sans-serif';
+
+  const b = polygonBounds(scene.plot);
+  const diagonal = Math.hypot(b.maxX - b.minX, b.maxY - b.minY);
+  // Along the contour is across the fall.
+  const ax = -terrain.uy;
+  const ay = terrain.ux;
+
+  const first = Math.ceil(low / step) * step;
+  for (let z = first; z <= high + 1e-9; z += step) {
+    // Distance downhill from the datum at which the ground is at this height.
+    const along = -z / terrain.gradient;
+    const px = terrain.cx + terrain.ux * along;
+    const py = terrain.cy + terrain.uy * along;
+    const from = toScreen(viewport, { x: px - ax * diagonal, y: py - ay * diagonal });
+    const to = toScreen(viewport, { x: px + ax * diagonal, y: py + ay * diagonal });
+
+    const onDatum = Math.abs(z) < 1e-6;
+    ctx.strokeStyle = inkColour(light, onDatum ? 0.32 : 0.18);
+    ctx.setLineDash(onDatum ? [] : [7, 5]);
+    ctx.beginPath();
+    ctx.moveTo(from.x, from.y);
+    ctx.lineTo(to.x, to.y);
+    ctx.stroke();
+
+    ctx.setLineDash([]);
+    ctx.fillStyle = inkColour(light, 0.45);
+    const label = `${z > 0 ? '+' : ''}${z.toFixed(z % 1 === 0 ? 0 : 2)} m`;
+    ctx.save();
+    ctx.translate(to.x, to.y);
+    ctx.rotate(Math.atan2(to.y - from.y, to.x - from.x) + Math.PI);
+    ctx.fillText(label, 8, -3);
+    ctx.restore();
+  }
+  ctx.restore();
+}
+
 function drawSightLine(
   ctx: CanvasRenderingContext2D,
   viewport: Viewport,
   line: { a: Vec2; b: Vec2 },
   light: Lighting,
+  band: number,
 ): void {
   const a = toScreen(viewport, line.a);
   const b = toScreen(viewport, line.b);
@@ -303,8 +437,8 @@ function drawSightLine(
   const dx = b.x - a.x;
   const dy = b.y - a.y;
   const len = Math.hypot(dx, dy) || 1;
-  const nx = (-dy / len) * SIGHT_BAND * viewport.scale;
-  const ny = (dx / len) * SIGHT_BAND * viewport.scale;
+  const nx = (-dy / len) * band * viewport.scale;
+  const ny = (dx / len) * band * viewport.scale;
   ctx.fillStyle = 'rgba(176, 92, 48, 0.05)';
   ctx.beginPath();
   ctx.moveTo(a.x + nx, a.y + ny);

@@ -18,17 +18,20 @@ const SITE: Site = {
   northAngle: 0,
   dst: true,
   label: 'London',
+  slopeFall: 0,
+  slopeDirection: 180,
 };
 
 function design(): Design {
   return {
     plot: rectanglePlot(14, 10),
     plants: [
-      { id: 'a', speciesId: 'betula-jacquemontii', x: 4, y: 3, seed: 12345 },
-      { id: 'b', speciesId: 'acer-osakazuki', x: 9, y: 2.5, seed: 67890 },
-      { id: 'c', speciesId: 'taxus-baccata', x: 11.5, y: 6, seed: 24680 },
+      { id: 'a', speciesId: 'betula-jacquemontii', x: 4, y: 3, seed: 12345, plantedAge: 0 },
+      { id: 'b', speciesId: 'acer-osakazuki', x: 9, y: 2.5, seed: 67890, plantedAge: 0 },
+      { id: 'c', speciesId: 'taxus-baccata', x: 11.5, y: 6, seed: 24680, plantedAge: 0 },
     ],
     site: SITE,
+  structures: [],
   };
 }
 
@@ -67,6 +70,7 @@ describe('round trip', () => {
       x: i % 10,
       y: Math.floor(i / 10),
       seed: i * 7919,
+      plantedAge: 0,
     }));
     const result = parseProjectFile(
       throughJson(makeProjectFile('all', { ...design(), plants }, new Date())),
@@ -95,6 +99,7 @@ describe('a plant that is no longer in the library', () => {
       x: 2,
       y: 2,
       seed: 5,
+      plantedAge: 0,
     });
 
     const result = parseProjectFile(throughJson(makeProjectFile('x', withGhost, new Date())));
@@ -108,9 +113,9 @@ describe('a plant that is no longer in the library', () => {
   it('keeps every other plant when several are missing', () => {
     const d = design();
     d.plants.push(
-      { id: 'g1', speciesId: 'gone-one', x: 1, y: 1, seed: 1 },
-      { id: 'g2', speciesId: 'gone-two', x: 2, y: 2, seed: 2 },
-      { id: 'g3', speciesId: 'gone-one', x: 3, y: 3, seed: 3 },
+      { id: 'g1', speciesId: 'gone-one', x: 1, y: 1, seed: 1, plantedAge: 0 },
+      { id: 'g2', speciesId: 'gone-two', x: 2, y: 2, seed: 2, plantedAge: 0 },
+      { id: 'g3', speciesId: 'gone-one', x: 3, y: 3, seed: 3, plantedAge: 0 },
     );
     const result = parseProjectFile(throughJson(makeProjectFile('x', d, new Date())));
     if (!result.ok) throw new Error('expected a successful load');
@@ -120,7 +125,7 @@ describe('a plant that is no longer in the library', () => {
 
   it('every loaded plant can be looked up without throwing', () => {
     const d = design();
-    d.plants.push({ id: 'g', speciesId: 'not-a-plant', x: 1, y: 1, seed: 1 });
+    d.plants.push({ id: 'g', speciesId: 'not-a-plant', x: 1, y: 1, seed: 1, plantedAge: 0 });
     const result = parseProjectFile(throughJson(makeProjectFile('x', d, new Date())));
     if (!result.ok) throw new Error('expected a successful load');
     for (const plant of result.design.plants) {
@@ -196,7 +201,7 @@ describe('damaged and hostile input', () => {
       ...file,
       design: {
         ...file.design,
-        plants: [{ id: 'a', speciesId: 'betula-jacquemontii', seed: 1 }],
+        plants: [{ id: 'a', speciesId: 'betula-jacquemontii', seed: 1, plantedAge: 0 }],
       },
     };
     expect(parseProjectFile(throughJson(broken)).ok).toBe(false);
@@ -215,6 +220,144 @@ describe('damaged and hostile input', () => {
     if (!result.ok) throw new Error('expected a successful load');
     expect(result.design.plants).toHaveLength(3);
     expect(new Set(result.design.plants.map((p) => p.id)).size).toBe(3);
+  });
+});
+
+describe('opening a design saved before walls existed', () => {
+  /**
+   * Version 1 is a real format that real saves are sitting in. It knew nothing
+   * of walls and raised beds, so its files simply have no `structures` key —
+   * and the promise made when the version stamp was added was that an older
+   * save opens as the garden it always was, rather than being refused.
+   */
+  function version1File() {
+    const file = makeProjectFile('Old garden', design(), new Date('2026-08-30T10:00:00Z'));
+    const raw = JSON.parse(JSON.stringify(file)) as Record<string, unknown>;
+    raw.version = 1;
+    const inner = raw.design as Record<string, unknown>;
+    delete inner.structures;
+    return raw;
+  }
+
+  it('opens, rather than being refused as too old', () => {
+    const result = parseProjectFile(version1File());
+    expect(result.ok).toBe(true);
+  });
+
+  it('keeps every plant and the plot exactly as they were', () => {
+    const result = parseProjectFile(version1File());
+    if (!result.ok) throw new Error('expected a successful load');
+    expect(result.name).toBe('Old garden');
+    expect(result.design.plants).toEqual(design().plants);
+    expect(result.design.plot).toEqual(design().plot);
+  });
+
+  it('arrives with no walls or beds, which is what it always had', () => {
+    const result = parseProjectFile(version1File());
+    if (!result.ok) throw new Error('expected a successful load');
+    expect(result.design.structures).toEqual([]);
+    expect(result.droppedStructures).toBe(0);
+  });
+
+  it('says nothing was lost, because nothing was', () => {
+    const result = parseProjectFile(version1File());
+    if (!result.ok) throw new Error('expected a successful load');
+    expect(describeSkipped(result.skipped, result.droppedStructures)).toBeNull();
+  });
+});
+
+describe('opening a design saved before part-grown planting existed', () => {
+  /**
+   * Version 2 is a real format with real saves in it. Its plants have no
+   * `plantedAge`, and every one of them was nursery stock — which is exactly
+   * what an absent field has to read as.
+   */
+  function version2File() {
+    const file = makeProjectFile('Two garden', design(), new Date('2026-08-30T10:00:00Z'));
+    const raw = JSON.parse(JSON.stringify(file)) as Record<string, unknown>;
+    raw.version = 2;
+    const inner = raw.design as { plants: Record<string, unknown>[] };
+    for (const plant of inner.plants) delete plant.plantedAge;
+    return raw;
+  }
+
+  it('opens rather than being refused', () => {
+    expect(parseProjectFile(version2File()).ok).toBe(true);
+  });
+
+  it('reads every plant in it as nursery stock', () => {
+    const result = parseProjectFile(version2File());
+    if (!result.ok) throw new Error('expected a successful load');
+    expect(result.design.plants.map((p) => p.plantedAge)).toEqual([0, 0, 0]);
+  });
+
+  it('round-trips a part-grown specimen at the current version', () => {
+    const withSpecimen = design();
+    withSpecimen.plants[0] = { ...withSpecimen.plants[0], plantedAge: 10 };
+    const result = parseProjectFile(
+      throughJson(makeProjectFile('x', withSpecimen, new Date())),
+    );
+    if (!result.ok) throw new Error('expected a successful load');
+    expect(result.design.plants[0].plantedAge).toBe(10);
+  });
+
+  it('clamps an absurd age rather than refusing the design', () => {
+    const silly = design();
+    silly.plants[0] = { ...silly.plants[0], plantedAge: 9000 };
+    const result = parseProjectFile(throughJson(makeProjectFile('x', silly, new Date())));
+    if (!result.ok) throw new Error('expected a successful load');
+    expect(result.design.plants[0].plantedAge).toBeLessThanOrEqual(50);
+  });
+});
+
+describe('walls and raised beds in a saved design', () => {
+  const wall = {
+    id: 'w1',
+    kind: 'wall' as const,
+    points: [
+      { x: 0, y: 9 },
+      { x: 14, y: 9 },
+    ],
+    height: 1.8,
+    thickness: 0.22,
+    seed: 4242,
+  };
+
+  it('round-trips unchanged', () => {
+    const withWall = { ...design(), structures: [wall] };
+    const result = parseProjectFile(
+      throughJson(makeProjectFile('x', withWall, new Date())),
+    );
+    if (!result.ok) throw new Error('expected a successful load');
+    expect(result.design.structures).toEqual([wall]);
+  });
+
+  it('drops a damaged one and counts it, keeping the rest of the garden', () => {
+    const withJunk = {
+      ...design(),
+      structures: [wall, { id: 'w2', kind: 'wall', points: [{ x: 1, y: 1 }], height: 2 }],
+    };
+    const result = parseProjectFile(
+      throughJson(makeProjectFile('x', withJunk as never, new Date())),
+    );
+    if (!result.ok) throw new Error('expected a successful load');
+    // Too few points to stand up is not a wall, whatever it claims to be.
+    expect(result.design.structures).toHaveLength(1);
+    expect(result.droppedStructures).toBe(1);
+    expect(result.design.plants).toHaveLength(3);
+  });
+
+  it('clamps an absurd height rather than refusing the design', () => {
+    const silly = { ...design(), structures: [{ ...wall, height: 900 }] };
+    const result = parseProjectFile(throughJson(makeProjectFile('x', silly, new Date())));
+    if (!result.ok) throw new Error('expected a successful load');
+    expect(result.design.structures[0].height).toBeLessThanOrEqual(4);
+  });
+
+  it('reports both losses together when a design has each', () => {
+    const text = describeSkipped(['gone-plant'], 2);
+    expect(text).toContain('1 plant');
+    expect(text).toContain('2 walls or beds');
   });
 });
 

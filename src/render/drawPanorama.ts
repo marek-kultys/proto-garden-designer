@@ -1,6 +1,6 @@
 import { getSpecies } from '../model/plants';
 import { phaseAt } from '../model/phenology';
-import { sizeAt } from '../model/growth';
+import { plantAge, sizeAt } from '../model/growth';
 import { bearingToCanvas } from '../model/sun';
 import { pointInPolygon } from '../model/geometry';
 import {
@@ -13,7 +13,9 @@ import {
   sight,
   type Observer,
 } from '../model/panorama';
-import type { PlantInstance, Plot, Site, TimeState } from '../model/types';
+import { groundOffsetAt, segmentsOf } from '../model/structures';
+import { groundAt, terrainOf } from '../model/terrain';
+import type { PlantInstance, Plot, Site, TimeState, Structure } from '../model/types';
 import { inkColour, shade, type Lighting } from './palette';
 import { getForm } from './form';
 import { drawPlantElevation } from './plant';
@@ -31,12 +33,26 @@ import { roughLine } from './sketch';
 export interface PanoramaScene {
   plot: Plot;
   plants: PlantInstance[];
+  structures: Structure[];
   site: Site;
   time: TimeState;
   light: Lighting;
   observer: Observer;
   selectedId: string | null;
+  selectedStructureId: string | null;
 }
+
+import {
+  drawBedPanorama,
+  drawStructurePanorama,
+  drawStructureTopPanorama,
+  panoramaBeds,
+  panoramaFaces,
+  panoramaTops,
+  type PanoramaBed,
+  type PanoramaFace,
+  type PanoramaTop,
+} from './structure';
 
 const DEG = Math.PI / 180;
 
@@ -55,7 +71,13 @@ export function drawPanorama(
   // Tilting the head moves the horizon rather than the plants: the whole scene
   // is projected from the same eye point either way, so one offset does it.
   const horizonY = height * 0.6 + observer.pitch * pxPerDeg;
-  const eye = eyeElevation(observer);
+  const terrain = terrainOf(scene.plot, site);
+  /*
+   * Standing on a slope, the eye is carried up or down with the ground under
+   * it. Everything else is then measured against that: a plant uphill is nearer
+   * eye level than its height alone suggests, and one downhill further below.
+   */
+  const eye = eyeElevation(observer) + groundAt(terrain, observer);
 
   drawSky(ctx, width, horizonY, light);
   drawGround(ctx, width, height, horizonY, light);
@@ -66,14 +88,83 @@ export function drawPanorama(
   const visible = scene.plants
     .map((plant) => {
       const species = getSpecies(plant.speciesId);
-      const size = sizeAt(species, time.year);
+      const size = sizeAt(species, plantAge(plant.plantedAge, time.year));
       const s = sight(observer, plant, site);
       return { plant, species, size, sighting: s };
     })
     .filter((item) => isInView(item.sighting, item.size.spread, fov))
     .sort((a, b) => b.sighting.distance - a.sighting.distance);
 
-  for (const item of visible) {
+  const faces = panoramaFaces(scene.structures, observer, segmentsOf).sort(
+    (a, b) => b.distance - a.distance,
+  );
+  // The coping of a wall lower than your eye. Beds carry their own soil.
+  const tops = panoramaTops(scene.structures, observer, eye);
+  // Raised beds, each one whole.
+  const beds = panoramaBeds(scene.structures, observer);
+
+  // One depth order across planting and built work: a wall can be in front of
+  // one shrub and behind another, and drawing all the walls first would make
+  // every wall either always in front or always behind.
+  type Item =
+    | { sort: number; kind: 'plant'; value: (typeof visible)[number] }
+    | { sort: number; kind: 'face'; value: PanoramaFace }
+    | { sort: number; kind: 'top'; value: PanoramaTop }
+    | { sort: number; kind: 'bed'; value: PanoramaBed };
+  const ordered: Item[] = [
+    ...visible.map((value) => ({ sort: value.sighting.distance, kind: 'plant' as const, value })),
+    ...faces.map((value) => ({ sort: value.distance, kind: 'face' as const, value })),
+    ...tops.map((value) => ({ sort: value.distance, kind: 'top' as const, value })),
+    ...beds.map((value) => ({ sort: value.distance, kind: 'bed' as const, value })),
+  ].sort((a, b) => b.sort - a.sort);
+
+  const project = (p: { x: number; y: number }) => {
+    const s2 = sight(observer, p, site);
+    return { offset: s2.offset, distance: s2.distance };
+  };
+
+  for (const entry of ordered) {
+    if (entry.kind === 'bed') {
+      drawBedPanorama(ctx, entry.value, {
+        width,
+        horizonY,
+        pxPerDeg,
+        fov,
+        eye,
+        light,
+        selected: scene.selectedStructureId === entry.value.structure.id,
+        project,
+      });
+      continue;
+    }
+    if (entry.kind === 'top') {
+      drawStructureTopPanorama(ctx, entry.value, {
+        width,
+        horizonY,
+        pxPerDeg,
+        fov,
+        eye,
+        light,
+        selected: scene.selectedStructureId === entry.value.structure.id,
+        project,
+      });
+      continue;
+    }
+    if (entry.kind === 'face') {
+      drawStructurePanorama(ctx, entry.value, {
+        width,
+        horizonY,
+        pxPerDeg,
+        fov,
+        eye,
+        light,
+        selected: scene.selectedStructureId === entry.value.structure.id,
+        project,
+      });
+      continue;
+    }
+
+    const item = entry.value;
     const { distance, offset } = item.sighting;
     const phase = phaseAt(item.species, time.doy, site);
     if (phase.dormant) continue;
@@ -83,8 +174,14 @@ export function drawPanorama(
     // Ground and top of the plant as true angles from a 1.6 m eye. Working in
     // angles rather than a flat scale is what puts the base of a near plant
     // below the base of a far one, so the ground reads as receding.
-    const baseAngle = (Math.atan2(eye, distance) * 180) / Math.PI;
-    const topAngle = (Math.atan2(item.size.height - eye, distance) * 180) / Math.PI;
+    // Standing in a raised bed lifts the plant, which lowers the eye relative to
+    // it — the bed is why a border reads as raised from the terrace at all. The
+    // ground it stands on counts the same way.
+    const lift =
+      groundOffsetAt(item.plant, scene.structures) + groundAt(terrain, item.plant);
+    const relativeEye = eye - lift;
+    const baseAngle = (Math.atan2(relativeEye, distance) * 180) / Math.PI;
+    const topAngle = (Math.atan2(item.size.height - relativeEye, distance) * 180) / Math.PI;
     const baseY = horizonY + baseAngle * pxPerDeg;
     const heightPx = (baseAngle + topAngle) * pxPerDeg;
     if (heightPx < 1.5) continue;
@@ -111,7 +208,7 @@ export function drawPanorama(
 
   drawCompass(ctx, width, horizonY, observer, fov, pxPerDeg, light);
 
-  if (visible.length === 0) {
+  if (visible.length === 0 && faces.length === 0 && tops.length === 0 && beds.length === 0) {
     ctx.fillStyle = inkColour(light, 0.6);
     ctx.font = '12px ui-sans-serif, system-ui, sans-serif';
     ctx.textAlign = 'center';

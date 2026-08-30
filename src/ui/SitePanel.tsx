@@ -1,5 +1,8 @@
 import { useCallback, useRef, type ReactNode } from 'react';
 import { LOCATION_PRESETS, useStore } from '../state/store';
+import { StructuresPanel } from './StructuresPanel';
+import { SlopeSection } from './SlopeSection';
+import { ClimberPanel } from './ClimberPanel';
 import { seasonShift } from '../model/phenology';
 import { EYE_PRESETS, GROUND_PRESETS, eyeElevation } from '../model/panorama';
 import { compassLabel, formatHour, useSun } from './useSun';
@@ -96,6 +99,7 @@ function ViewpointSection() {
   const setGroundHeight = useStore((s) => s.setGroundHeight);
   const stageView = useStore((s) => s.stageView);
   const setStageView = useStore((s) => s.setStageView);
+  const centreObserver = useStore((s) => s.centreObserver);
 
   const matchedEye = EYE_PRESETS.find((p) => Math.abs(p.height - observer.eyeHeight) < 0.005);
   const matchedGround = GROUND_PRESETS.find(
@@ -178,6 +182,17 @@ function ViewpointSection() {
           </button>
         )}
       </p>
+
+      <button
+        className="viewpoint-centre"
+        onClick={() => {
+          centreObserver();
+          setStageView('panorama');
+        }}
+        title="Put the eye back in the middle of the plot"
+      >
+        Centre the viewpoint
+      </button>
     </>
   );
 }
@@ -271,6 +286,8 @@ export function SitePanel({ extraTools }: SitePanelProps) {
         Summer time (BST)
       </label>
 
+      <SlopeSection />
+
       <div className="readout">
         <div className="readout-row">
           <span>Sun</span>
@@ -294,6 +311,10 @@ export function SitePanel({ extraTools }: SitePanelProps) {
         </div>
         <div className="readout-note">{shiftText}</div>
       </div>
+
+      <ClimberPanel />
+
+      <StructuresPanel />
 
       <h3>Show</h3>
       <label className="check">
