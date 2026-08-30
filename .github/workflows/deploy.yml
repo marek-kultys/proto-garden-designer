@@ -1,0 +1,84 @@
+# Build the prototype and publish it to GitHub Pages.
+#
+# The site is served at melayerka.com/proto-garden-designer, inherited from the
+# custom domain on the marek-kultys.github.io user site. The path is just the
+# repository name, so renaming the repo moves the URL. The inheritance only
+# holds while this repository has *no* custom domain of its own, so leave the
+# Pages "Custom domain" field blank.
+#
+# Requires Settings -> Pages -> Source: "GitHub Actions". The "Deploy from a
+# branch" mode publishes the repository as-is, and the index.html at the root of
+# this repo is a build template pointing at /src/main.tsx — uncompiled
+# TypeScript, at an absolute path outside the app's folder. It serves a blank
+# page.
+
+name: Deploy to GitHub Pages
+
+on:
+  # Only master, matching the branch flow: work lands on develop, and reaches
+  # master when a version is validated. Deploying off develop would put
+  # half-finished work in front of testers.
+  push:
+    branches: [master]
+  # A manual "Run workflow" button, for publishing without a version bump.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  # Deliberately not cancel-in-progress. Cancelling a half-finished deploy can
+  # leave the live site mid-swap; a queued run costs a minute instead.
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest # A standard runner, which is free on public repos.
+    steps:
+      - uses: actions/checkout@v4
+
+      # Pinned to the LTS rather than tracking latest, so a new Node release
+      # cannot change what testers receive without the version being changed here.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # `ci` rather than `install`: installs exactly what package-lock.json
+      # pins, and will not rewrite the lockfile.
+      - run: npm ci
+
+      # The gate. A failure here stops the job, so a broken build cannot reach
+      # anyone — you find out by email rather than from a gardener.
+      #
+      # This is the device-free half of verification: the 135 model and store
+      # tests. The Playwright checks in scripts/ are deliberately not run here.
+      # They need a browser download, and they currently hardcode a container
+      # path (/opt/pw-browsers/chromium) that does not exist on a runner.
+      - run: npm test
+
+      # SINGLEFILE inlines the JavaScript and CSS into one index.html.
+      #
+      # Two reasons this is the build that gets published rather than the
+      # ordinary one. There are no asset URLs at all, so serving the app from a
+      # sub-path (/proto-garden-designer/) cannot break the way a normal Vite
+      # build would. And it is byte-for-byte the artifact already emailed to
+      # testers, so the hosted version and the sent version are the same thing.
+      - run: SINGLEFILE=1 npm run build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
