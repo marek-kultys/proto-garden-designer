@@ -29,6 +29,10 @@ rather than invented, chosen to span the axes the simulation actually exercises
 — trees, shrubs, conifers, climbers, grasses, ferns, perennials, bulbs and
 annuals.
 
+Designs save as named projects in the browser, so a garden survives closing the
+tab. Nothing is sent anywhere and there is no backend — which also means saved
+designs stay on that device.
+
 The library is filtered by type and by growing conditions — aspect, soil type,
 soil pH and drainage — so a border with dry shade on chalk narrows a hundred and
 thirty-eight plants to the handful that will actually take it.
@@ -41,7 +45,7 @@ does, what was deliberately left out, and the roadmap.
 ```bash
 npm install
 npm run dev        # http://localhost:5173
-npm test           # 135 tests
+npm test           # 164 tests
 npm run build      # production build into dist/
 ```
 
@@ -60,7 +64,9 @@ src/model/    the simulation — sun, growth, phenology, shade, panorama geometr
               and the plant data itself (plants.ts)
 src/render/   canvas drawing — sketchy line work, the light palette, and one
               draw pass per view
-src/state/    a single zustand store; all state is plain and serialisable
+src/state/    a single zustand store; all state is plain and serialisable, plus
+              the save/load boundary (projectFile.ts is pure and browser-free,
+              projectStorage.ts is the only code that touches localStorage)
 src/ui/       React components: the panels, the canvases, the time bar
 scripts/      Playwright checks and screenshot capture
 ```
@@ -120,6 +126,16 @@ cold and grey at exactly the moment it should be going golden.
 planting**, never the current size. If it refitted as plants grew, everything
 would stay the same size on screen and the age slider would appear to do nothing.
 
+**Loading a design filters plants it no longer recognises** —
+[`src/state/projectFile.ts`](src/state/projectFile.ts). `getSpecies` throws on an
+unknown id and there is no error boundary, so a saved design naming a renamed or
+deleted plant would not lose that plant — it would white-screen the app, and keep
+doing it on every reload, because the bad data is still in storage. Until saving
+existed this was impossible: state died with the tab, so the data was always
+exactly as old as the code. Saving is what opens that gap, and every future edit
+to the palette widens it. Unknown plants are dropped at the load boundary and
+counted, so the app reports what it could not restore instead of dying.
+
 **Undo coalesces a drag into one step** —
 [`src/state/store.ts`](src/state/store.ts). Moving a plant fires an update on
 every pointer move, and one undo step per frame would be useless. Rather than
@@ -146,7 +162,7 @@ plan comes from the field actually rendered.
 ## Verification
 
 ```bash
-npm test                                      # 135 tests across 10 files
+npm test                                      # 164 tests across 12 files
 ```
 
 The models are where silent errors hide, so the unit tests check them against

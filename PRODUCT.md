@@ -170,6 +170,33 @@ what they will undo. It covers the design — planting and the plot outline — 
 not the view: scrubbing to April or turning to face west are not edits, and
 including them would bury a deleted border under a scrub of the season slider.
 
+### Saving a design
+
+Designs are saved as named projects, with Save, Save as copy, New, rename,
+Open and Delete. A marker in the header shows when there are unsaved changes,
+and ⌘/Ctrl-S saves over the open design.
+
+A saved design is the plot, the planting and the site — not the time of day, the
+season, or where you are standing. The same reasoning as undo: those are ways of
+looking at a design rather than parts of one, and reopening a garden to find the
+clock wound back to whenever it was saved would be a surprise rather than a
+restoration.
+
+Two failures are handled explicitly rather than left to chance, because both are
+silent until they are not:
+
+- **A plant that is no longer in the library.** Looking a species up throws on an
+  unknown id, and there is no error boundary, so an unfiltered load would not
+  lose one plant — it would white-screen the app, and would do it again on every
+  reload, with the bad data still in storage and no way back through the
+  interface. Unknown plants are dropped at the load boundary and counted, and the
+  app says *"2 plants could not be restored"*. No id has ever been renamed or
+  removed in this project's history, but curating the palette down is an open
+  question above, and that edit is exactly the one this guards against.
+- **A design saved by a newer version.** Saves carry a version stamp, and a file
+  from the future is refused in words rather than guessed at — guessing is how a
+  newer design gets silently truncated to an older shape and then saved back.
+
 ### The site
 
 North set by a draggable dial, latitude and longitude by UK preset (London,
@@ -302,9 +329,6 @@ palette now contains genuinely borderline subjects for it to have something to
 say about — mānuka and pink jasmine at H2–H3, a tree fern that needs wrapping,
 and a dahlia whose tubers will not survive a frost in the ground.
 
-**Save and load.** Closing the tab loses the design. Worth having before any
-unsupervised testing; see the roadmap below.
-
 **A plant info panel.** Cards carry names and dimensions; there is no deeper
 per-plant page. Cut to keep the focus on the simulation.
 
@@ -341,6 +365,12 @@ per-plant page. Cut to keep the focus on the simulation.
 - **Pond still matches nothing.** Houttuynia now answers the bog end of the
   drainage axis, but there is no true aquatic in the palette, so the wettest chip
   remains dimmed.
+- **Saved designs never leave the device.** Projects live in the browser's own
+  storage, which is what lets saving work with no backend at all — but they are
+  per-browser and per-device. They do not follow a designer from laptop to phone,
+  they are gone if site data is cleared, and nothing a tester makes comes back to
+  you. A share link encoding the design in the URL fragment, or export and import
+  of a JSON file, would fix that and still need no backend; neither is built.
 - **UK and north-west Europe.** The solar maths is global, but the plant palette,
   the phenology baselines and the summer-time rule are not.
 
@@ -385,40 +415,26 @@ dogwood stems are flaming orange and the laurustinus is in full flower.
 
 ## Roadmap
 
-### Saving a design as a named project
+### Saving a design as a named project — done
 
-**Effort: about half a day, plus a couple of hours to make loading safe. No
-backend.** The groundwork is done — all state is one plain serialisable object,
-and a design is only the plot, the plants and the site. Named projects held in
-`localStorage`, with New / Save / Save as / Open / Rename / Delete, need no
-network at all.
+Built as described above. Both hazards recorded here before building did turn
+out to be real: the unknown-id crash was reproduced deliberately, by tampering
+with a stored design to rename one plant and remove another, and it is now a
+counted message instead of a white screen. The version stamp is in place, with
+the migration seam left open at the one point that will need it.
 
-Two things will bite if ignored, and both are recorded here so they are not
-rediscovered the hard way:
-
-- **Looking up a species throws on an unknown id.** A saved design naming a plant
-  that was later renamed or removed will fail while rendering and white-screen the
-  app — and, because the bad data is still in storage, it will do it again on
-  reload. Loading has to filter unknown ids and report *"3 plants could not be
-  restored"* instead.
-- **The schema has already drifted once** during this build (`soil` became
-  `soilPh`; soil type, drainage and lifecycle were added). Saves need a version
-  stamp, a migration path forward, and a clear refusal rather than a crash when
-  handed something newer than they understand.
-
-Worth knowing about the shape of this: `localStorage` is per-browser and
-per-device. A gardener's saved designs stay on that gardener's machine — they
-never come back to you, and they are gone if they switch phone or clear site
-data. If collecting what testers make matters, the cheap fix is a share link that
-encodes the design in the URL *fragment* (never sent to a server, so it works on
-static hosting), or export and import of a small JSON file. Neither needs a
-backend either.
+What remains unbuilt from this line of work is getting designs *off* the device:
+a share link encoding the design in the URL **fragment** (never sent to a server,
+so it works on static hosting), or export and import of a small JSON file.
+Neither needs a backend. Either would also be the first genuinely untrusted input
+the app accepts, and both would come in through the same guarded load boundary
+that already exists.
 
 ### Publishing it — done
 
 **Live at <https://marekkultys.com/proto-garden-designer/>.** The repository is
 public and GitHub Actions publishes the single-file build on every merge to
-`master`, with the 135 tests as a gate in front of it. Actions is free on public
+`master`, with the 164 tests as a gate in front of it. Actions is free on public
 repositories and a run takes about a minute.
 
 The decision that got it there: **go public rather than pay to stay private.**
