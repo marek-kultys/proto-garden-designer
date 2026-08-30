@@ -61,6 +61,12 @@ export function drawPlantPlan(
   cy: number,
   seasonT: number,
   selected: boolean,
+  /**
+   * Which way a climber's plane runs, in radians. Only a climber has one, and
+   * only when the person drawing has said where the fence is; otherwise the
+   * instance's own sketchy rotation stands in, exactly as before.
+   */
+  facing?: number,
 ): void {
   const { ctx, light, pxPerM } = dc;
   if (phase.dormant) {
@@ -91,7 +97,7 @@ export function drawPlantPlan(
   } else if (species.habit === 'tussock' || species.habit === 'airy') {
     drawPlanRadiating(dc, species, form, phase, radius, cx, cy, seasonT);
   } else if (species.habit === 'climber') {
-    drawPlanClimber(dc, species, form, phase, radius, cx, cy, seasonT);
+    drawPlanClimber(dc, species, form, phase, radius, cx, cy, seasonT, facing);
   } else if (ROSETTE_HABITS.has(species.habit)) {
     // A fern crown and a delphinium's basal leaves both read from above as
     // leaves radiating from one point, which is what the rosette draw does.
@@ -864,7 +870,16 @@ function drawElevGlobes(
  * five-metre blob in the border where there is really a metre of growth against
  * a wall. The band is oriented by the instance rotation, which stands in for
  * which way the support runs.
+ *
+ * How far it stands off that support is a real measurement, not a proportion of
+ * how far it has run. Taking it as a fraction of the length meant a climber got
+ * deeper as it spread: once climbers were capped at trellis height and their
+ * growth went sideways, a mature clematis came out as an enormous lens filling
+ * the border instead of a band along the fence.
  */
+/** Metres a climber stands out from whatever it is growing on. */
+const CLIMBER_DEPTH = 0.45;
+
 function drawPlanClimber(
   dc: DrawContext,
   species: Species,
@@ -874,17 +889,18 @@ function drawPlanClimber(
   cx: number,
   cy: number,
   seasonT: number,
+  facing?: number,
 ): void {
   const { ctx, light } = dc;
   const cover = phase.leafCover;
   if (cover < 0.04 && phase.flower < 0.04) return;
 
   const halfW = radius;
-  const depth = Math.max(2, radius * 0.4);
+  const depth = Math.max(2, (CLIMBER_DEPTH / 2) * dc.pxPerM);
 
   ctx.save();
   ctx.translate(cx, cy);
-  ctx.rotate(form.rotation);
+  ctx.rotate(facing ?? form.rotation);
 
   ctx.fillStyle = leafFill(species, phase, light, -0.3, 0.55 + 0.35 * cover);
   ctx.beginPath();
@@ -892,8 +908,11 @@ function drawPlanClimber(
   ctx.fill();
 
   for (const clump of form.planClumps) {
-    const cr = clump.r * radius * 1.5 * (0.55 + 0.45 * cover);
-    const pts = blobPoints(clump.ax * halfW * 2, clump.ay * depth * 3, cr, cr * 0.7, clump.wobble, 0);
+    // Sized off how far the plant stands out, not how far it has run. Taken
+    // from the length, a climber that had spread sixteen metres along a fence
+    // grew sixteen-metre leaf clumps and filled the whole border.
+    const cr = clump.r * depth * 2.6 * (0.55 + 0.45 * cover);
+    const pts = blobPoints(clump.ax * halfW * 2, clump.ay * depth * 1.6, cr, cr * 0.7, clump.wobble, 0);
     ctx.fillStyle = leafFill(species, phase, light, clump.tone, 0.5);
     ctx.fill(curvePath(pts, true));
   }
@@ -1130,13 +1149,28 @@ function drawElevClimber(
   });
 
   if (cover > 0.04) {
-    for (const clump of form.elevClumps) {
-      const cr = clump.r * w * 1.35 * (0.55 + 0.45 * cover);
-      const lx = baseX + clump.ax * w * 1.05;
-      const ly = baseY - h * (0.06 + clump.ay * 0.94);
-      const pts = blobPoints(lx, ly, cr, cr * 0.8, clump.wobble, 0);
-      ctx.fillStyle = leafFill(species, phase, light, clump.tone, 0.72);
-      ctx.fill(curvePath(pts, true));
+    /*
+     * The leaf mass is laid along the run in cells about as wide as the sheet
+     * is tall, rather than one set of clumps stretched over the whole width.
+     *
+     * Sizing clumps off the width made a long climber grow enormous leaves;
+     * sizing them off the height alone left a sixteen-metre run covered by a
+     * handful of small blobs with gaps between. Repeating the pattern keeps the
+     * cover even however far it has spread — which is what a fence smothered in
+     * clematis actually looks like.
+     */
+    const cell = Math.max(1, Math.min(w, h * 1.25));
+    const runs = Math.max(1, Math.round(w / cell));
+    for (let run = 0; run < runs; run += 1) {
+      const centre = (run + 0.5) / runs - 0.5;
+      for (const clump of form.elevClumps) {
+        const cr = clump.r * cell * 0.85 * (0.55 + 0.45 * cover);
+        const lx = baseX + (centre + (clump.ax * 0.5) / runs) * w * 1.05;
+        const ly = baseY - h * (0.06 + clump.ay * 0.94);
+        const pts = blobPoints(lx, ly, cr, cr * 0.8, clump.wobble, 0);
+        ctx.fillStyle = leafFill(species, phase, light, clump.tone, 0.72);
+        ctx.fill(curvePath(pts, true));
+      }
     }
     ctx.strokeStyle = inkColour(light, 0.3);
     ctx.lineWidth = 0.7;

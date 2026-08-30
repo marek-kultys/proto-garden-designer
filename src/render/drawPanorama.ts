@@ -14,6 +14,7 @@ import {
   type Observer,
 } from '../model/panorama';
 import { groundOffsetAt, segmentsOf } from '../model/structures';
+import { groundAt, terrainOf } from '../model/terrain';
 import type { PlantInstance, Plot, Site, TimeState, Structure } from '../model/types';
 import { inkColour, shade, type Lighting } from './palette';
 import { getForm } from './form';
@@ -70,7 +71,13 @@ export function drawPanorama(
   // Tilting the head moves the horizon rather than the plants: the whole scene
   // is projected from the same eye point either way, so one offset does it.
   const horizonY = height * 0.6 + observer.pitch * pxPerDeg;
-  const eye = eyeElevation(observer);
+  const terrain = terrainOf(scene.plot, site);
+  /*
+   * Standing on a slope, the eye is carried up or down with the ground under
+   * it. Everything else is then measured against that: a plant uphill is nearer
+   * eye level than its height alone suggests, and one downhill further below.
+   */
+  const eye = eyeElevation(observer) + groundAt(terrain, observer);
 
   drawSky(ctx, width, horizonY, light);
   drawGround(ctx, width, height, horizonY, light);
@@ -168,8 +175,10 @@ export function drawPanorama(
     // angles rather than a flat scale is what puts the base of a near plant
     // below the base of a far one, so the ground reads as receding.
     // Standing in a raised bed lifts the plant, which lowers the eye relative to
-    // it — the bed is why a border reads as raised from the terrace at all.
-    const lift = groundOffsetAt(item.plant, scene.structures);
+    // it — the bed is why a border reads as raised from the terrace at all. The
+    // ground it stands on counts the same way.
+    const lift =
+      groundOffsetAt(item.plant, scene.structures) + groundAt(terrain, item.plant);
     const relativeEye = eye - lift;
     const baseAngle = (Math.atan2(relativeEye, distance) * 180) / Math.PI;
     const topAngle = (Math.atan2(item.size.height - relativeEye, distance) * 180) / Math.PI;

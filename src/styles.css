@@ -1843,3 +1843,55 @@ button.on .project-dot {
     padding: 3px 8px;
   }
 }
+
+/* ------------------------------------------------ a climber's plane */
+
+.climber-facing {
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.climber-angle {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 10px 0 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.climber-angle output {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.climber-facing input[type='range'] {
+  width: 100%;
+  margin: 0;
+}
+
+/* ------------------------------------------------------- lie of the land */
+
+.slope {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.slope input[type='range'] {
+  width: 100%;
+  margin: 0;
+}
+
+.slope .chips {
+  margin-top: 4px;
+}

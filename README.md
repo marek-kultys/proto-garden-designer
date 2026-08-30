@@ -55,7 +55,7 @@ does, what was deliberately left out, and the roadmap.
 ```bash
 npm install
 npm run dev        # http://localhost:5173
-npm test           # 259 tests
+npm test           # 284 tests
 npm run build      # production build into dist/
 ```
 
@@ -99,11 +99,18 @@ sets a colour temperature, from about 1900 K at the horizon to 5800 K high.
 **Growth** — [`src/model/growth.ts`](src/model/growth.ts). A logistic curve from
 nursery stock to mature size, height and spread on separate curves. Clipped
 subjects gain a fixed amount a year and then stop, because somebody is cutting
-them.
+them. Climbers stop rising at trellis height and then run along it as far as their
+own vigour takes them, since there is no wall or pergola here for one to climb,
+and you choose which way that run goes.
 
 **Phenology** — [`src/model/phenology.ts`](src/model/phenology.ts). Day-of-year
 anchors per species, shifted for the site by Hopkins' bioclimatic law — about four
 days later per degree of latitude north and per 120 m of altitude.
+
+**The lie of the land** — [`src/model/terrain.ts`](src/model/terrain.ts). A fall
+across the plot in one direction. Shadows use it: a shadow thrown downhill
+chases ground running away beneath it and reaches further, one thrown uphill is
+cut short, and both come out of one exact expression rather than a fudge.
 
 **Sun and shade** — [`src/model/shade.ts`](src/model/shade.ts). Steps the sun
 across the sky and projects every canopy onto the ground, accumulating light per
@@ -195,7 +202,7 @@ plan comes from the field actually rendered.
 ## Verification
 
 ```bash
-npm test                                      # 259 tests across 16 files
+npm test                                      # 284 tests across 17 files
 ```
 
 The models are where silent errors hide, so the unit tests check them against

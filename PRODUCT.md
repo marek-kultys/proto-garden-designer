@@ -313,6 +313,36 @@ own control bar, because that is where you are standing when you notice the eye
 has gone; the Site panel carries the same button, further from the moment of
 need.
 
+### The lie of the land
+
+A garden can be given a **fall** — so many metres of drop across the plot, in a
+direction — because a garden on a slope is a different garden and everything
+here assumed flat ground at nothing.
+
+Stated as a fall rather than a gradient because that is how a site is measured
+and how a designer says it: *it drops about a metre from the house to the back
+fence*. The gradient is reported back (1 in 7, and so on), since that is the
+number that decides steps and drainage.
+
+It is a single plane. **Dips and mounds are deliberately not here** — they need a
+way to sculpt ground rather than two numbers, and the payoff is in how the
+drawing looks rather than in what it tells you.
+
+What it changes:
+
+- **The elevation** cuts a real profile. Across the fall it is a ramp; along the
+  contour it is level; both are true of the same garden at once.
+- **The 360° view** carries the eye up or down with the ground under it, and
+  every plant with the ground under that — so looking up a slope, the planting
+  steps away above you.
+- **The plan** gets contours at a round interval, labelled, the way a survey
+  would draw them.
+- **The sun and shade map**, which is where it earns its place. A shadow thrown
+  downhill chases ground falling away beneath it and reaches much further; one
+  thrown uphill meets rising ground and is cut short. So the same tree on the
+  same day shades a quite different piece of a sloping garden, and the map says
+  so.
+
 ### The site
 
 North set by a draggable dial, latitude and longitude by UK preset (London,
@@ -485,6 +515,33 @@ per-plant page. Cut to keep the focus on the simulation.
   growing-season convention; six hours of an eight-hour December day is 72% of all
   available light, so the thresholds are capped at a share of daylight and the
   legend says so when that applies.
+- **A climber stops at 2.2 m and then runs as far along as its own vigour
+  says.** There is no house, pergola or boundary wall here, so a climber is
+  drawn against an implied trellis; letting one head for its catalogue height
+  made a clematis go up like a column. Height is therefore bounded by the
+  trellis and width is not — it is the plant's own researched spread, from a
+  metre and a half of fence for Japanese honeysuckle to five for crimson glory
+  vine.
+
+  Two things were tried first and are recorded because both are tempting.
+  Conserving the area, putting all the surplus height into width, is arguably
+  truer of the plant and produced a mountain clematis sixteen metres along and a
+  vine twenty-seven — wider than most gardens and unusable on the drawing.
+  Bounding the width as well flattened every climber to the same size from about
+  year four, exactly when a designer most wants to know which one is the thug.
+
+  Vigour now shows twice: a rampant climber reaches the top of the trellis
+  sooner — eighteen months for a montana against four years for a winter
+  jasmine — and covers more of the fence once it is there. The library card
+  shows the size a plant will actually reach here rather than the catalogue
+  figure.
+- **Which way a climber's plane runs is chosen, not guessed.** A climber is the
+  one plant here with an orientation that matters, since it is a flat thing on a
+  support; the rest are masses that look much the same from any side. Selecting
+  one offers the four compass lines a fence commonly takes, or any angle
+  between. The labels follow the north dial rather than assuming north is up the
+  page. Until it is set, the plant keeps the sketchy rotation it was given when
+  it went in.
 - **A climber still has no wall to climb.** Walls and raised beds now exist, but
   nothing connects a climber to one: a clematis is drawn against its implied
   trellis wherever it is placed, whether or not there is a wall behind it.
@@ -511,6 +568,17 @@ per-plant page. Cut to keep the focus on the simulation.
   them, and are far likelier to fail outright. None of that is modelled, so the
   age option shows the size a specimen is bought at rather than the risk it
   carries.
+- **A slope bounds shadows; it does not compute sunlight on a tilted surface.**
+  The map counts hours of direct sun, and a slope changes those hours by moving
+  shadows about. What it does not model is the other half of the physics: that a
+  south-facing slope receives more energy per square metre than level ground
+  from the very same hours. An empty sloping garden therefore reads exactly like
+  an empty flat one, when in truth it is warmer or colder. That is the larger
+  half of why aspect matters, and it is not here.
+- **Structures stand on the ground under the middle of their run.** A wall
+  crossing a slope is drawn level rather than stepped or raked, which is what a
+  built wall usually does — but a long one on a steep fall will float at one end
+  and bury itself at the other.
 - **A wall is a flat, solid, opaque plane.** No thickness in elevation beyond a
   drawn coping, no openings, no gates, no gaps between boards, and no light
   through or around anything. A close-boarded fence and a brick wall behave
@@ -599,7 +667,7 @@ garden back without asking them to find and send an attachment.
 
 **Live at <https://marekkultys.com/proto-garden-designer/>.** The repository is
 public and GitHub Actions publishes the single-file build on every merge to
-`master`, with the 259 tests as a gate in front of it. Actions is free on public
+`master`, with the 284 tests as a gate in front of it. Actions is free on public
 repositories and a run takes about a minute.
 
 The decision that got it there: **go public rather than pay to stay private.**

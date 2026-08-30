@@ -58,6 +58,8 @@ function storedDesign(overrides: Record<string, unknown> = {}) {
         northAngle: 0,
         dst: true,
         label: 'London',
+        slopeFall: 0,
+        slopeDirection: 180,
       },
       structures: [WALL],
     },

@@ -1,14 +1,14 @@
 import { getSpecies } from '../model/plants';
 import { phaseAt } from '../model/phenology';
-import { plantAge, sizeAt } from '../model/growth';
+import { matureSize, plantAge, sizeAt } from '../model/growth';
 import { shadowLengthFactor } from '../model/sun';
 import { canopyDensity } from '../model/shade';
 import { groundOffsetAt } from '../model/structures';
+import { groundAt, terrainOf } from '../model/terrain';
 import type { PlantInstance, Site, Structure, TimeState, Vec2 } from '../model/types';
 import { inkColour, shade, type Lighting } from './palette';
 import { getForm } from './form';
 import { drawPlantElevation } from './plant';
-import { roughLine } from './sketch';
 import { drawStructureElevation, sliceStructure, type StructureSlice } from './structure';
 import { MIN_ELEVATION_HEIGHT, sliceHalfWidth } from './constants';
 
@@ -29,6 +29,8 @@ import { MIN_ELEVATION_HEIGHT, sliceHalfWidth } from './constants';
  */
 
 export interface ElevationScene {
+  /** Needed for the lie of the land, which is stated across the whole plot. */
+  plot: Vec2[];
   plants: PlantInstance[];
   structures: Structure[];
   site: Site;
@@ -75,6 +77,14 @@ export function drawElevation(
   const { light, sightLine, site, time } = scene;
   // Half either side of the line, which is what the projection compares against.
   const band = sliceHalfWidth(scene.sliceDepth);
+  const terrain = terrainOf(scene.plot, site);
+  /** Where on the sight line a distance along it lands, in plot metres. */
+  const pointAlong = (metres: number) => {
+    const dx = sightLine.b.x - sightLine.a.x;
+    const dy = sightLine.b.y - sightLine.a.y;
+    const len = Math.hypot(dx, dy) || 1;
+    return { x: sightLine.a.x + (dx / len) * metres, y: sightLine.a.y + (dy / len) * metres };
+  };
   const lineLength = Math.max(
     1,
     Math.hypot(sightLine.b.x - sightLine.a.x, sightLine.b.y - sightLine.a.y),
@@ -99,7 +109,7 @@ export function drawElevation(
     const species = getSpecies(p.speciesId);
     // A plant in a raised bed reaches the bed's height higher than its own.
     const base = groundOffsetAt(p, scene.structures);
-    reference = Math.max(reference, (species.matureHeight + base) * 1.06);
+    reference = Math.max(reference, (matureSize(species).height + base) * 1.06);
   }
   // Built things are at their full height from the day they go in, so they
   // count against the same reference — otherwise a 3 m wall is drawn off the
@@ -107,6 +117,8 @@ export function drawElevation(
   for (const structure of scene.structures) {
     reference = Math.max(reference, structure.height * 1.12);
   }
+  // Ground above the datum eats into the same vertical room as a tall plant.
+  for (const p of scene.plot) reference = Math.max(reference, groundAt(terrain, p) * 1.2 + 1);
 
   const marginX = 46;
   const groundY = height - 26;
@@ -115,12 +127,39 @@ export function drawElevation(
   const pxPerM = Math.min(usableW / lineLength, usableH / reference);
   const originX = (width - lineLength * pxPerM) / 2;
 
-  // Ground.
+  /**
+   * Ground, which is only a straight line when the garden is level.
+   *
+   * The profile is sampled along the sight line so a slope reads as the slope
+   * it is: cut across the fall it is a ramp, cut along the contour it is flat,
+   * and both are true of the same garden at once.
+   */
+  const groundYAt = (metres: number) => groundY - groundAt(terrain, pointAlong(metres)) * pxPerM;
+  const profile: Vec2[] = [];
+  const steps = 48;
+  for (let i = 0; i <= steps; i += 1) {
+    const metres = (lineLength * i) / steps;
+    profile.push({ x: originX + metres * pxPerM, y: groundYAt(metres) });
+  }
+
   ctx.fillStyle = shade('#cfc7ac', light, { value: 0.95 });
-  ctx.fillRect(0, groundY, width, height - groundY);
+  ctx.beginPath();
+  // Carried out past both ends, so the ground does not stop where the slice does.
+  ctx.moveTo(0, profile[0].y);
+  for (const p of profile) ctx.lineTo(p.x, p.y);
+  ctx.lineTo(width, profile[profile.length - 1].y);
+  ctx.lineTo(width, height);
+  ctx.lineTo(0, height);
+  ctx.closePath();
+  ctx.fill();
+
   ctx.strokeStyle = inkColour(light, 0.7);
   ctx.lineWidth = 1.5;
-  roughLine(ctx, 0, groundY, width, groundY, 4242, { roughness: 1.4, passes: 1 });
+  ctx.beginPath();
+  ctx.moveTo(0, profile[0].y);
+  for (const p of profile) ctx.lineTo(p.x, p.y);
+  ctx.lineTo(width, profile[profile.length - 1].y);
+  ctx.stroke();
 
   drawHeightRuler(ctx, originX, width, groundY, pxPerM, reference, light);
 
@@ -153,7 +192,8 @@ export function drawElevation(
         ctx,
         entry.value,
         originX,
-        groundY,
+        // A wall stands on the ground under the middle of its run.
+        groundYAt((entry.value.fromAlong + entry.value.toAlong) / 2),
         pxPerM,
         light,
         scene.selectedStructureId === entry.value.structure.id,
@@ -168,8 +208,11 @@ export function drawElevation(
     const size = sizeAt(species, plantAge(item.plant.plantedAge, time.year));
     const form = getForm(species, item.plant.seed);
     const x = originX + item.along * pxPerM;
-    // A raised bed lifts what stands in it, which is the whole point of one.
-    const baseY = groundY - groundOffsetAt(item.plant, scene.structures) * pxPerM;
+    // A raised bed lifts what stands in it, and the ground it sits on may not
+    // be at the datum either.
+    const baseY =
+      groundY -
+      (groundOffsetAt(item.plant, scene.structures) + groundAt(terrain, item.plant)) * pxPerM;
 
     // Distance haze: things further back sit a little further into the light.
     const depth = Math.min(1, Math.abs(item.offset) / band);

@@ -144,7 +144,26 @@ function parseSite(v: unknown): Site | null {
   // Out-of-range coordinates would put the sun somewhere impossible rather than
   // merely somewhere odd, so they are damage, not a preference.
   if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) return null;
-  return { latitude, longitude, altitude, northAngle, dst: v.dst, label };
+
+  /*
+   * The slope. Absent means level, which is exactly what a design saved before
+   * the ground could tilt meant — so this is read when present and defaulted
+   * when not, without a new schema version. Bumping would make an older build
+   * refuse the whole design rather than quietly ignore two optional numbers.
+   */
+  const fall = finiteNumber(v.slopeFall);
+  const direction = finiteNumber(v.slopeDirection);
+
+  return {
+    latitude,
+    longitude,
+    altitude,
+    northAngle,
+    dst: v.dst,
+    label,
+    slopeFall: fall === null ? 0 : Math.max(0, Math.min(20, fall)),
+    slopeDirection: direction === null ? 180 : ((direction % 360) + 360) % 360,
+  };
 }
 
 function isStructureKind(v: unknown): v is StructureKind {
@@ -245,6 +264,16 @@ function parsePlants(v: unknown): PlantParse | null {
     const rawAge = finiteNumber(raw.plantedAge);
     const plantedAge = rawAge === null ? 0 : Math.max(0, Math.min(50, rawAge));
 
+    /*
+     * Which way a climber's plane runs. Deliberately not a new schema version:
+     * an absent facing means "however it was drawn before", which is exactly
+     * what an older file means by leaving it out — and bumping the version
+     * would make an older build refuse the whole design rather than quietly
+     * ignore one optional field.
+     */
+    const rawFacing = finiteNumber(raw.facing);
+    const facing = rawFacing === null ? undefined : ((rawFacing % 180) + 180) % 180;
+
     // The guard this whole file exists for.
     if (!(speciesId in SPECIES_BY_ID)) {
       skipped.push(speciesId);
@@ -256,7 +285,11 @@ function parsePlants(v: unknown): PlantParse | null {
     if (seen.has(id)) continue;
     seen.add(id);
 
-    plants.push({ id, speciesId, x, y, seed, plantedAge });
+    plants.push(
+      facing === undefined
+        ? { id, speciesId, x, y, seed, plantedAge }
+        : { id, speciesId, x, y, seed, plantedAge, facing },
+    );
   }
 
   return { plants, skipped };

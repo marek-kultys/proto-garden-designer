@@ -18,6 +18,8 @@ const SITE: Site = {
   northAngle: 0,
   dst: true,
   label: 'London',
+  slopeFall: 0,
+  slopeDirection: 180,
 };
 
 function design(): Design {

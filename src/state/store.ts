@@ -73,6 +73,9 @@ const DEFAULT_SITE: Site = {
   northAngle: 0,
   dst: true,
   label: 'London',
+  // Level until told otherwise; south is the fall a slope most often has.
+  slopeFall: 0,
+  slopeDirection: 180,
 };
 
 const DEFAULT_PROJECT_NAME = 'Untitled garden';
@@ -314,6 +317,8 @@ export interface AppState {
 
   addPlant: (speciesId: string, at: Vec2) => void;
   setPlacementAge: (years: number) => void;
+  /** Turn a climber's plane to follow the fence it is growing on. */
+  setPlantFacing: (id: string, degrees: number) => void;
   movePlant: (id: string, at: Vec2) => void;
   removePlant: (id: string) => void;
   /** Plant another of the same kind, just off the original. */
@@ -439,6 +444,16 @@ export const useStore = create<AppState>((set, get) => ({
     }),
 
   setPlacementAge: (years) => set({ placementAge: Math.max(0, years) }),
+
+  setPlantFacing: (id, degrees) =>
+    set((s) => ({
+      // Coalesced: turning the dial fires continuously, and one undo step per
+      // degree would bury whatever came before it.
+      ...pushHistory(s, 'Turn climber', `facing:${id}`),
+      // A plane reads the same from either side, so the useful range is a half
+      // turn; anything else is the same plane described twice.
+      plants: s.plants.map((p) => (p.id === id ? { ...p, facing: ((degrees % 180) + 180) % 180 } : p)),
+    })),
 
   movePlant: (id, at) =>
     set((s) => ({

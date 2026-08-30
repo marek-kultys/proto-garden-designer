@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { SPECIES, TYPE_LABELS } from '../model/plants';
 import { phaseAt } from '../model/phenology';
+import { matureSize } from '../model/growth';
 import { lightingFor } from '../render/palette';
 import { getForm } from '../render/form';
 import { drawPlantElevation } from '../render/plant';
@@ -78,11 +79,11 @@ function PlantThumb({ species }: { species: Species }) {
     const doy = portraitDay(species);
     const phase = phaseAt(species, doy, REFERENCE_SITE);
     drawPlantElevation(
-      { ctx, light: THUMB_LIGHT, pxPerM: (h - 12) / species.matureHeight },
+      { ctx, light: THUMB_LIGHT, pxPerM: (h - 12) / matureSize(species).height },
       species,
       getForm(species, 4242),
       phase,
-      { height: species.matureHeight, spread: species.matureSpread },
+      matureSize(species),
       w / 2,
       h - 6,
       phase.flowerAge,
@@ -475,7 +476,7 @@ export function LibraryPanel({ onStartDrag }: LibraryProps) {
                       <div className="common">{s.common}</div>
                       <div className="latin">{s.latin}</div>
                       <div className="meta">
-                        {sizeLabel(s.matureHeight)} × {sizeLabel(s.matureSpread)} ·{' '}
+                        {sizeLabel(matureSize(s).height)} × {sizeLabel(matureSize(s).spread)} ·{' '}
                         {lifecycleLabel(s)}
                       </div>
                     </div>

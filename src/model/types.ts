@@ -183,6 +183,20 @@ export interface PlantInstance {
   /** Stable per-instance randomness so the sketchy linework never shimmers. */
   seed: number;
   /**
+   * Which way a climber's plane runs, in degrees from screen-up.
+   *
+   * A climber is a flat thing on a support, so unlike anything else here it has
+   * an orientation that matters: it follows the fence, wall or trellis it was
+   * planted against, and only the person drawing knows where that runs. A plane
+   * reads the same from either side, so 0 and 180 are the same thing.
+   *
+   * Absent on plants placed before this existed, and on everything that is not
+   * a climber, where it means nothing — the sketchy per-plant rotation is used
+   * instead, exactly as before.
+   */
+  facing?: number;
+
+  /**
    * Years of growth this plant had already made when it went in.
    *
    * Nursery stock is 0. A semi-mature specimen bought in at ten years old is
@@ -237,6 +251,16 @@ export interface Site {
   /** Observe summer time (BST/CEST rules). */
   dst: boolean;
   label: string;
+  /**
+   * Metres the ground falls across the plot. Zero, or absent, is level.
+   *
+   * Stated as a fall rather than a gradient because that is how a site is
+   * measured and how a designer says it: the garden drops a metre and a bit
+   * from the house to the back fence.
+   */
+  slopeFall?: number;
+  /** Compass bearing the ground falls towards. 180 is a fall to the south. */
+  slopeDirection?: number;
 }
 
 export interface TimeState {

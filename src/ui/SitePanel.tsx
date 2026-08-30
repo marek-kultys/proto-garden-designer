@@ -1,6 +1,8 @@
 import { useCallback, useRef, type ReactNode } from 'react';
 import { LOCATION_PRESETS, useStore } from '../state/store';
 import { StructuresPanel } from './StructuresPanel';
+import { SlopeSection } from './SlopeSection';
+import { ClimberPanel } from './ClimberPanel';
 import { seasonShift } from '../model/phenology';
 import { EYE_PRESETS, GROUND_PRESETS, eyeElevation } from '../model/panorama';
 import { compassLabel, formatHour, useSun } from './useSun';
@@ -284,6 +286,8 @@ export function SitePanel({ extraTools }: SitePanelProps) {
         Summer time (BST)
       </label>
 
+      <SlopeSection />
+
       <div className="readout">
         <div className="readout-row">
           <span>Sun</span>
@@ -307,6 +311,8 @@ export function SitePanel({ extraTools }: SitePanelProps) {
         </div>
         <div className="readout-note">{shiftText}</div>
       </div>
+
+      <ClimberPanel />
 
       <StructuresPanel />
 

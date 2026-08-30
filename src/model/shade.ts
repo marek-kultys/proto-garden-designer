@@ -4,6 +4,7 @@ import { phaseAt } from './phenology';
 import { plantAge, sizeAt } from './growth';
 import { bearingToCanvas, dayLength, solarPosition } from './sun';
 import { casterOf, groundOffsetAt, sweptPolygons } from './structures';
+import { fallTowards, shadowReachOnSlope, terrainOf } from './terrain';
 import type { Phase, PlantInstance, Plot, Site, Species, Structure, TimeState } from './types';
 
 /**
@@ -122,6 +123,7 @@ export function computeShadeGrid(
     }
   }
 
+  const terrain = terrainOf(plot, site);
   const day = dayLength(site, time.doy, calendarYear);
   const empty: ShadeGrid = {
     cols,
@@ -175,21 +177,31 @@ export function computeShadeGrid(
       continue;
     }
 
-    const reach = 1 / Math.tan((sun.altitude * Math.PI) / 180);
     const angle = bearingToCanvas(sun.azimuth + 180, site.northAngle);
     const ux = Math.cos(angle);
     const uy = Math.sin(angle);
+    /*
+     * How far a shadow travels per metre of height, over this ground.
+     *
+     * On the level it is 1/tan(altitude). Thrown downhill it chases ground that
+     * is falling away beneath it and reaches much further; thrown uphill the
+     * ground rises to meet it and it is cut short. Since the fall is one plane
+     * and the shadow direction is one bearing, this is a single number for the
+     * whole plot at each step of the day — the slope shows up as shadows that
+     * sweep differently morning and evening, which is what it does.
+     */
+    const reach = shadowReachOnSlope(sun.altitude, fallTowards(terrain, ux, uy));
     const vx = -uy;
     const vy = ux;
 
     for (const caster of casters) {
-      const len = Math.min(40, caster.size.height * reach);
+      const len = Math.min(60, caster.size.height * reach);
       const a = caster.size.spread / 2 + len / 2;
       const b = caster.size.spread / 2;
       if (a <= 0 || b <= 0) continue;
       // The shadow of something standing `base` metres up starts that much
       // further along the ground before it begins.
-      const lift = Math.min(40, caster.base * reach);
+      const lift = Math.min(60, caster.base * reach);
       const cx = caster.plant.x + ux * (lift + len / 2);
       const cy = caster.plant.y + uy * (lift + len / 2);
 
