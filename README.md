@@ -20,11 +20,18 @@ that you can turn and tilt.
 
 ![The 360° view, an evening in June](docs/img/panorama-june-year20.png)
 
+**Live at <https://marekkultys.com/proto-garden-designer/>** — no install, works
+on a phone.
+
 Built to test whether the interaction idea has depth rather than to be a
 comprehensive plant database. A hundred and thirty-eight plants, each researched
 rather than invented, chosen to span the axes the simulation actually exercises
 — trees, shrubs, conifers, climbers, grasses, ferns, perennials, bulbs and
 annuals.
+
+Designs save as named projects in the browser, so a garden survives closing the
+tab, and export/import as a JSON file carries one between machines. Nothing is
+sent anywhere and there is no backend.
 
 The library is filtered by type and by growing conditions — aspect, soil type,
 soil pH and drainage — so a border with dry shade on chalk narrows a hundred and
@@ -38,7 +45,7 @@ does, what was deliberately left out, and the roadmap.
 ```bash
 npm install
 npm run dev        # http://localhost:5173
-npm test           # 135 tests
+npm test           # 178 tests
 npm run build      # production build into dist/
 ```
 
@@ -46,7 +53,7 @@ For something you can email to a tester, or open by double-clicking with no
 server at all:
 
 ```bash
-SINGLEFILE=1 npm run build            # one self-contained dist/index.html, ~250 kB
+SINGLEFILE=1 npm run build            # one self-contained dist/index.html, ~384 kB
 node scripts/check-singlefile.mjs     # confirms it runs from file:// with zero network requests
 ```
 
@@ -57,7 +64,10 @@ src/model/    the simulation — sun, growth, phenology, shade, panorama geometr
               and the plant data itself (plants.ts)
 src/render/   canvas drawing — sketchy line work, the light palette, and one
               draw pass per view
-src/state/    a single zustand store; all state is plain and serialisable
+src/state/    a single zustand store; all state is plain and serialisable, plus
+              the save/load boundary (projectFile.ts is pure and browser-free,
+              projectStorage.ts is the only code that touches localStorage, and
+              projectTransfer.ts exports and imports a design as a file)
 src/ui/       React components: the panels, the canvases, the time bar
 scripts/      Playwright checks and screenshot capture
 ```
@@ -117,6 +127,16 @@ cold and grey at exactly the moment it should be going golden.
 planting**, never the current size. If it refitted as plants grew, everything
 would stay the same size on screen and the age slider would appear to do nothing.
 
+**Loading a design filters plants it no longer recognises** —
+[`src/state/projectFile.ts`](src/state/projectFile.ts). `getSpecies` throws on an
+unknown id and there is no error boundary, so a saved design naming a renamed or
+deleted plant would not lose that plant — it would white-screen the app, and keep
+doing it on every reload, because the bad data is still in storage. Until saving
+existed this was impossible: state died with the tab, so the data was always
+exactly as old as the code. Saving is what opens that gap, and every future edit
+to the palette widens it. Unknown plants are dropped at the load boundary and
+counted, so the app reports what it could not restore instead of dying.
+
 **Undo coalesces a drag into one step** —
 [`src/state/store.ts`](src/state/store.ts). Moving a plant fires an update on
 every pointer move, and one undo step per frame would be useless. Rather than
@@ -143,7 +163,7 @@ plan comes from the field actually rendered.
 ## Verification
 
 ```bash
-npm test                                      # 135 tests across 10 files
+npm test                                      # 178 tests across 13 files
 ```
 
 The models are where silent errors hide, so the unit tests check them against
@@ -182,17 +202,38 @@ the few images in `docs/img/` are committed.
 
 ## Deploying
 
-**Nothing is set up yet.** The single-file build is the easy route when it is
-wanted: `SINGLEFILE=1 npm run build` produces one `dist/index.html` with no
-external requests, so there are no asset URLs and none of the usual sub-path
-trouble on a GitHub Pages project site. A workflow that runs the tests, builds,
-and uploads that one file is roughly an hour's work.
+Live at **<https://marekkultys.com/proto-garden-designer/>**.
 
-One constraint to know first: this repo is private on a personal account. Pages
-from a private repo needs a paid plan, and below Enterprise Cloud the published
-site is public even when the repo is not. [PRODUCT.md](PRODUCT.md#publishing-it)
-sets out the options, including how to keep it genuinely private without a
-backend.
+Merging to `master` publishes it. [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)
+installs, runs the tests, builds, and uploads — and the test step is a gate, so a
+red suite stops the deploy rather than shipping a broken prototype to a tester.
+There is also a manual *Run workflow* button for publishing without a version
+bump. GitHub Actions is free on public repositories, and a run takes about a
+minute.
+
+What gets published is the **single-file** build, not the ordinary one. Two
+reasons, and the first is the one that bites: a normal Vite build writes absolute
+asset paths, which break the moment a site is served from a sub-path like
+`/proto-garden-designer/`. With everything inlined there are no asset paths to
+get wrong. The second is that it is byte-for-byte the file already emailed to
+testers, so the hosted and sent versions cannot drift apart.
+
+The URL comes from the repository name, appended to the custom domain on the
+**user site** (`marek-kultys.github.io`, which serves `marekkultys.com`). Project
+sites inherit that domain only while they have no custom domain of their own, so
+the Pages *Custom domain* field for this repo is deliberately blank. Renaming the
+repo moves the URL.
+
+A domain attached to a *project* repo does not work this way — it serves that one
+repo at its root and nothing beneath it. That is why `melayerka.com`, which is the
+custom domain on the `melayerka_art` repo, has no
+`melayerka.com/proto-garden-designer`. Serving this app from that domain means
+either a subdomain of it or publishing into that repo; see
+[PRODUCT.md](PRODUCT.md#publishing-it).
+
+The Playwright checks are deliberately not run in CI: they need a browser
+download and still carry a hardcoded container path. The 135 model and store
+tests are the device-free half, and they are what the gate runs.
 
 ## Testing with gardeners
 

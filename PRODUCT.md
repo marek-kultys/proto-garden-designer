@@ -170,6 +170,46 @@ what they will undo. It covers the design — planting and the plot outline — 
 not the view: scrubbing to April or turning to face west are not edits, and
 including them would bury a deleted border under a scrub of the season slider.
 
+### Saving a design
+
+Designs are saved as named projects, with Save, Save as copy, New, rename,
+Open and Delete. A marker in the header shows when there are unsaved changes,
+and ⌘/Ctrl-S saves over the open design.
+
+A design can also be **exported to a JSON file and imported back**, which is what
+carries it between machines — laptop to phone, or a tester's garden back to the
+designer — since saved projects otherwise never leave the browser they were made
+in. An imported design arrives unsaved, so Save is what adopts it onto that
+device. The file is indented rather than minified: a designer who opens one in a
+text editor should be able to read it.
+
+A saved design is the plot, the planting and the site — not the time of day, the
+season, or where you are standing. The same reasoning as undo: those are ways of
+looking at a design rather than parts of one, and reopening a garden to find the
+clock wound back to whenever it was saved would be a surprise rather than a
+restoration.
+
+Two failures are handled explicitly rather than left to chance, because both are
+silent until they are not:
+
+- **A plant that is no longer in the library.** Looking a species up throws on an
+  unknown id, and there is no error boundary, so an unfiltered load would not
+  lose one plant — it would white-screen the app, and would do it again on every
+  reload, with the bad data still in storage and no way back through the
+  interface. Unknown plants are dropped at the load boundary and counted, and the
+  app says *"2 plants could not be restored"*. No id has ever been renamed or
+  removed in this project's history, but curating the palette down is an open
+  question above, and that edit is exactly the one this guards against.
+- **A design saved by a newer version.** Saves carry a version stamp, and a file
+  from the future is refused in words rather than guessed at — guessing is how a
+  newer design gets silently truncated to an older shape and then saved back.
+
+An imported file is the first genuinely untrusted input the app accepts: it has
+been off the machine, may have been edited by hand, and may have been written by
+another version. It therefore goes through exactly the same boundary as a stored
+design rather than a second, more trusting path written for the occasion — so
+every guard above applies to it automatically.
+
 ### The site
 
 North set by a draggable dial, latitude and longitude by UK preset (London,
@@ -302,9 +342,6 @@ palette now contains genuinely borderline subjects for it to have something to
 say about — mānuka and pink jasmine at H2–H3, a tree fern that needs wrapping,
 and a dahlia whose tubers will not survive a frost in the ground.
 
-**Save and load.** Closing the tab loses the design. Worth having before any
-unsupervised testing; see the roadmap below.
-
 **A plant info panel.** Cards carry names and dimensions; there is no deeper
 per-plant page. Cut to keep the focus on the simulation.
 
@@ -341,6 +378,17 @@ per-plant page. Cut to keep the focus on the simulation.
 - **Pond still matches nothing.** Houttuynia now answers the bog end of the
   drainage axis, but there is no true aquatic in the palette, so the wettest chip
   remains dimmed.
+- **Saved projects stay on one device; a file is how they move.** Projects live
+  in the browser's own storage, which is what lets saving work with no backend at
+  all — but they are per-browser and per-device, and they are gone if site data is
+  cleared. Export and import carry a design between machines, and are the only way
+  a tester's garden reaches anyone else. A share link encoding the design in the
+  URL fragment would do the same without the file step, and is not built.
+- **Export does nothing in the artifact build.** A page published as an artifact
+  runs in a sandbox that blocks downloads the page starts itself, so the button
+  reports success and no file arrives. It works on the hosted site and in the
+  single-file build. Nothing in the page can detect the difference, which is why
+  this is written down rather than handled.
 - **UK and north-west Europe.** The solar maths is global, but the plant palette,
   the phenology baselines and the summer-time rule are not.
 
@@ -385,62 +433,69 @@ dogwood stems are flaming orange and the laurustinus is in full flower.
 
 ## Roadmap
 
-### Saving a design as a named project
+### Saving a design as a named project — done
 
-**Effort: about half a day, plus a couple of hours to make loading safe. No
-backend.** The groundwork is done — all state is one plain serialisable object,
-and a design is only the plot, the plants and the site. Named projects held in
-`localStorage`, with New / Save / Save as / Open / Rename / Delete, need no
-network at all.
+Built as described above. Both hazards recorded here before building did turn
+out to be real: the unknown-id crash was reproduced deliberately, by tampering
+with a stored design to rename one plant and remove another, and it is now a
+counted message instead of a white screen. The version stamp is in place, with
+the migration seam left open at the one point that will need it.
 
-Two things will bite if ignored, and both are recorded here so they are not
-rediscovered the hard way:
+Export and import of a JSON file followed, and designs now move between devices.
+What remains unbuilt is the **share link** — the design encoded in the URL
+fragment, never sent to a server, so it still works on static hosting. It would
+need no backend and no file step, and it would arrive through the same guarded
+boundary the file already uses. It is the one route that would get a tester's
+garden back without asking them to find and send an attachment.
 
-- **Looking up a species throws on an unknown id.** A saved design naming a plant
-  that was later renamed or removed will fail while rendering and white-screen the
-  app — and, because the bad data is still in storage, it will do it again on
-  reload. Loading has to filter unknown ids and report *"3 plants could not be
-  restored"* instead.
-- **The schema has already drifted once** during this build (`soil` became
-  `soilPh`; soil type, drainage and lifecycle were added). Saves need a version
-  stamp, a migration path forward, and a clear refusal rather than a crash when
-  handed something newer than they understand.
+### Publishing it — done
 
-Worth knowing about the shape of this: `localStorage` is per-browser and
-per-device. A gardener's saved designs stay on that gardener's machine — they
-never come back to you, and they are gone if they switch phone or clear site
-data. If collecting what testers make matters, the cheap fix is a share link that
-encodes the design in the URL *fragment* (never sent to a server, so it works on
-static hosting), or export and import of a small JSON file. Neither needs a
-backend either.
+**Live at <https://marekkultys.com/proto-garden-designer/>.** The repository is
+public and GitHub Actions publishes the single-file build on every merge to
+`master`, with the 178 tests as a gate in front of it. Actions is free on public
+repositories and a run takes about a minute.
 
-### Publishing it
+The decision that got it there: **go public rather than pay to stay private.**
+GitHub Pro does let you publish Pages from a private repository, but the
+published *site* is public regardless — private Pages is an organisation and
+Enterprise Cloud feature, and GitHub's own answer to individuals asking for it is
+that it is not available to them. So Pro would have bought a hidden source tree
+and an open app, which is the wrong half for a prototype whose whole value is in
+what gardeners say after using it.
 
-**Effort: about an hour. No backend.** `SINGLEFILE=1 npm run build` already emits
-a single `dist/index.html` with no external requests at all, so it can be served
-by anything that serves a file — and because there are no asset URLs, the usual
-sub-path problem on GitHub Pages never arises. One workflow does it.
+If it ever does need to be genuinely private, a JavaScript password prompt is
+theatre — the app has already been downloaded before the check runs. What works
+without a backend is **Cloudflare Pages behind Zero Trust Access**: about half an
+hour of clicking, free for a small number of users, per-tester email
+one-time-PIN, revocable, and the repo can go private again. The cost is a URL
+that is not on GitHub.
 
-The constraint to know before choosing where: this repo is private, on a personal
-account. GitHub Pages from a private repo needs a paid plan, and below Enterprise
-Cloud **the published site is public even when the repo is private** — Pages
-access control is an Enterprise feature.
+### Which domain it is served from
 
-### Keeping it private
+The URL is the repository name appended to the custom domain on the **user
+site** — `marek-kultys.github.io`, which serves `marekkultys.com`. Project sites
+inherit that domain automatically, but only while they carry no custom domain of
+their own, so this repo's Pages *Custom domain* field is deliberately left blank.
 
-**A password prompt written in JavaScript is theatre**, because the whole app has
-already been downloaded before the check runs. Two things do work without a
-backend:
+A domain attached to a **project** repo behaves differently, and the difference
+is easy to miss because the DNS looks identical — both cases CNAME to
+`marek-kultys.github.io`. A project-repo domain serves that one repository at its
+root and nothing underneath it. `melayerka.com` is the custom domain on the
+`melayerka_art` repo, which is why `melayerka.com/proto-garden-designer` is a
+404 and always will be while that arrangement holds.
 
-- **Cloudflare Pages behind Zero Trust Access** — about half an hour of clicking
-  and no code. Free for a small number of users, per-tester email one-time-PIN,
-  revocable, and the repo stays private. The cost is that the URL is not
-  `github.io`.
-- **An encrypted build** — the built HTML encrypted at build time and decrypted in
-  the browser from a passphrase. Real cryptography rather than obscurity, and it
-  stays on GitHub Pages — but only while the source repo is private, since
-  otherwise anyone can clone the repo and run it unencrypted. One shared password,
-  no revocation.
+Two ways to serve this app from that domain, if it should live under that name:
+
+- **A subdomain** — `garden.melayerka.com`, one CNAME record at OVH pointing to
+  `marek-kultys.github.io`, then set as this repo's custom domain. Cheap and it
+  cannot disturb the existing site. The cost is that a repo has only one home, so
+  the app *moves* off `marekkultys.com/proto-garden-designer` rather than gaining
+  a second address.
+- **Publishing into the `melayerka_art` repo** — the workflow writes the built
+  file into a folder there, and it is served as an ordinary path of that site.
+  This is the only way to get `melayerka.com/proto-garden-designer` specifically.
+  It costs a cross-repository write, which means a token to manage, and it ties
+  the two projects' deployments together.
 
 ### Further out
 

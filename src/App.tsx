@@ -4,7 +4,8 @@ import { PlanCanvas, type PlanApi } from './ui/PlanCanvas';
 import { StageBottom } from './ui/StageBottom';
 import { SitePanel } from './ui/SitePanel';
 import { TimeBar } from './ui/TimeBar';
-import { useStore } from './state/store';
+import { ProjectsDialog } from './ui/ProjectsDialog';
+import { isDirty, useStore } from './state/store';
 import { getSpecies } from './model/plants';
 import { polygonBounds } from './model/geometry';
 
@@ -36,6 +37,7 @@ export default function App() {
   const planRef = useRef<PlanApi>(null);
   const [drag, setDrag] = useState<DragState | null>(null);
   const [sheet, setSheet] = useState<Sheet>(null);
+  const [showProjects, setShowProjects] = useState(false);
   const narrow = useIsNarrow();
 
   const addPlant = useStore((s) => s.addPlant);
@@ -49,6 +51,9 @@ export default function App() {
   const redo = useStore((s) => s.redo);
   const past = useStore((s) => s.past);
   const future = useStore((s) => s.future);
+  const projectName = useStore((s) => s.projectName);
+  const dirty = useStore(isDirty);
+  const saveProject = useStore((s) => s.saveProject);
 
   const [rect, setRect] = useState({ w: 14, h: 10 });
 
@@ -107,11 +112,17 @@ export default function App() {
       } else if ((key === 'z' && e.shiftKey) || key === 'y') {
         e.preventDefault();
         redo();
+      } else if (key === 's') {
+        e.preventDefault();
+        // Saves straight over the open design; the unsaved marker in the header
+        // clearing is the confirmation. Only a failure is worth interrupting
+        // for, and then the dialog is where it can be explained.
+        if (!saveProject().ok) setShowProjects(true);
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [undo, redo]);
+  }, [undo, redo, saveProject]);
 
   // Escape closes an open sheet before it does anything else.
   useEffect(() => {
@@ -178,6 +189,28 @@ export default function App() {
         </div>
 
         <div className="tools">{plotTools}</div>
+
+        <div className="project-group">
+          <button
+            className={showProjects ? 'on' : ''}
+            onClick={() => setShowProjects((open) => !open)}
+            title={dirty ? `${projectName} — unsaved changes (⌘S to save)` : projectName}
+            aria-label={`Projects — ${projectName}`}
+          >
+            <span className="project-label">{projectName}</span>
+            {/* The phone header has no room for a name: at full width it squeezed
+                the title down to "Ga…". A glyph, sized like undo and redo beside
+                it, is the same trade the rest of that header already makes. */}
+            <span className="project-label-short" aria-hidden="true">
+              ▤
+            </span>
+            {dirty && (
+              <span className="project-dot" aria-label="unsaved changes">
+                •
+              </span>
+            )}
+          </button>
+        </div>
 
         <div className="history-group">
           <button
@@ -248,6 +281,8 @@ export default function App() {
       {narrow && sheet && (
         <button className="sheet-backdrop" onClick={() => setSheet(null)} aria-label="Close panel" />
       )}
+
+      {showProjects && <ProjectsDialog onClose={() => setShowProjects(false)} />}
 
       {drag && drag.moved && (
         <div className="drag-ghost" style={{ left: drag.x, top: drag.y }}>
