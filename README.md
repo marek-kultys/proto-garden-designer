@@ -24,7 +24,7 @@ through a slice of it — five to twenty metres deep, as you choose — and a
 on a phone.
 
 Built to test whether the interaction idea has depth rather than to be a
-comprehensive plant database. A hundred and fifty-two plants, each researched
+comprehensive plant database. A hundred and fifty-five plants, each researched
 rather than invented, chosen to span the axes the simulation actually exercises
 — trees, shrubs, conifers, climbers, grasses, ferns, perennials, bulbs and
 annuals.
@@ -45,7 +45,7 @@ sent anywhere and there is no backend.
 
 The library is filtered by type and by growing conditions — aspect, soil type,
 soil pH and drainage — so a border with dry shade on chalk narrows a hundred and
-fifty-two plants to the handful that will actually take it.
+fifty-five plants to the handful that will actually take it.
 
 📄 **[PRODUCT.md](PRODUCT.md)** — what it is, where the brief came from, what it
 does, what was deliberately left out, and the roadmap.

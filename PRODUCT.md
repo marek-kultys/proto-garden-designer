@@ -57,7 +57,7 @@ A few open questions were settled before building:
 | Which optional extras? | The sun/shade overlay only — soil alerts, save/load and a plant info panel were cut |
 
 Everything after that came from using it: ten plants became thirty and then a
-hundred and fifty-two, plus a phone layout, a 360° view from inside the
+hundred and fifty-five, plus a phone layout, a 360° view from inside the
 garden, adjustable eye height, duplicating a plant in place, undo, and filtering
 the library by growing conditions.
 
@@ -87,7 +87,7 @@ are looking at the same thing and can disagree about something real.
 ## Principles
 
 **Depth over breadth first.** The palette began at ten plants deeply simulated
-rather than a hundred stubs, and grew to a hundred and fifty-two as testing
+rather than a hundred stubs, and grew to a hundred and fifty-five as testing
 demanded specific plants. The rule has not changed: every entry is researched
 rather than invented, and carries a source link. What breadth buys is that a
 designer can look for the plant they actually had in mind; what depth buys is
@@ -129,7 +129,7 @@ terrace or an upstairs window.
 
 ### The plant library
 
-A hundred and fifty-two plants, searchable by common name, Latin name, genus
+A hundred and fifty-five plants, searchable by common name, Latin name, genus
 or family, each card showing both names, mature dimensions, foliage type and a
 sketch thumbnail. Drag onto the plan to place; on a phone, tap to drop one in the
 middle and then drag it into position.
@@ -415,7 +415,7 @@ than ellipses — a solid thing, not a dappled one.
 
 ## The plant palette
 
-A hundred and fifty-two plants, chosen to span the axes the simulation
+A hundred and fifty-five plants, chosen to span the axes the simulation
 exercises — vigorous to slow, evergreen to fully dormant, sun to deep shade, tree
 to groundcover, and now bulb, fern and climber as well.
 
@@ -428,7 +428,7 @@ to groundcover, and now bulb, fern and climber as well.
 | Grasses | 14 | miscanthus, molinia, calamagrostis, stipa, pennisetum, Mexican feather grass, deschampsia |
 | Ferns | 2 | male fern, soft tree fern |
 | Perennials | 51 | hellebore, hosta, epimedium, lungwort, London pride, hollyhock, giant viper's bugloss, euphorbia, geranium, aster, peony, dahlia, delphinium |
-| Bulbs | 9 | snowdrop, cyclamen, narcissus, allium, tree lily |
+| Bulbs | 12 | snowdrop, cyclamen, narcissus, allium, tulips, tree lily |
 | Annuals | 3 | cosmos, love-in-a-mist, marigold |
 
 Several exist to exercise a specific behaviour, and it is worth knowing which,
@@ -455,6 +455,7 @@ than failing loudly:
 | Apple | a grafted tree, where the rootstock and not the variety decides the size |
 | Lungwort | flowers open pink and age blue, so one plant carries both at once |
 | Burnet rose | black hips, which almost no other rose has |
+| Three tulips | a succession inside one genus: a species tulip in mid-April, a Darwin hybrid in late April, a parrot into May |
 
 ### The shapes they are drawn with
 
@@ -620,7 +621,7 @@ The prototype exists to answer questions about the idea, not about the code:
    *what will this look like*. Early signs are that the 360° view is the one that
    makes people stop talking about the drawing and start talking about the garden
    — but that needs testing, not assuming.
-3. **Is a hundred and fifty-two plants the right size?** The palette started
+3. **Is a hundred and fifty-five plants the right size?** The palette started
    at ten on a depth-over-breadth argument and grew four-fold because testing
    kept asking for specific plants. The open question is now the opposite one:
    whether a list this long is harder to work with than a curated short one, and
