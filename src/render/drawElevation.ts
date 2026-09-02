@@ -1,16 +1,15 @@
 import { getSpecies } from '../model/plants';
 import { phaseAt } from '../model/phenology';
 import { matureSize, plantAge, sizeAt } from '../model/growth';
-import { shadowLengthFactor } from '../model/sun';
 import { canopyDensity } from '../model/shade';
 import { baseHeightOf, standingHeightAt } from '../model/structures';
-import { groundAt, terrainOf } from '../model/terrain';
+import { groundAt, shadowCastOnSlope, terrainOf } from '../model/terrain';
 import type { PlantInstance, Site, Structure, TimeState, Vec2 } from '../model/types';
 import { inkColour, shade, type Lighting } from './palette';
 import { getForm } from './form';
 import { drawPlantElevation } from './plant';
 import { drawStructureElevation, sliceStructure, type StructureSlice } from './structure';
-import { MIN_ELEVATION_HEIGHT, sliceHalfWidth } from './constants';
+import { DRAWN_SHADOW_CAP, MIN_ELEVATION_HEIGHT, sliceHalfWidth } from './constants';
 
 /**
  * The side-on strip beneath the plan.
@@ -189,7 +188,18 @@ export function drawElevation(
   drawHeightRuler(ctx, originX, width, groundY, pxPerM, highest, light);
 
   const dc = { ctx, light, pxPerM };
-  const factor = shadowLengthFactor(light.altitude);
+  /*
+   * The same reach the sun map and the plan use, capped for drawing.
+   *
+   * The shadow here is a stylised pool at the plant's foot rather than a true
+   * projection, but its *length* should still answer to the ground: a garden
+   * that shows long shadows on the plan and short ones in the elevation is
+   * telling two stories about one afternoon.
+   */
+  const factor = Math.min(
+    DRAWN_SHADOW_CAP,
+    shadowCastOnSlope(terrain, light.altitude, light.azimuth, site.northAngle).reach,
+  );
 
   const slices: StructureSlice[] = [];
   for (const structure of scene.structures) {

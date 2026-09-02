@@ -1,12 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import {
   fallTowards,
+  shadowCastOnSlope,
   groundAt,
   shadowReachOnSlope,
   terrainOf,
   terrainRange,
 } from '../terrain';
 import { computeShadeGrid } from '../shade';
+import { shadowLengthFactor } from '../sun';
+import { DRAWN_SHADOW_CAP } from '../../render/constants';
 import { rectanglePlot } from '../geometry';
 import type { PlantInstance, Site } from '../types';
 
@@ -163,5 +166,70 @@ describe('what a slope does to the sun map', () => {
     // hours is a few millionths — so the tolerance is set by the storage, not
     // by how much slack the model is being allowed.
     for (const h of grid.hours) expect(h).toBeLessThanOrEqual(grid.maxHours + 1e-4);
+  });
+});
+
+describe('the one shadow cast that map and drawing share', () => {
+  const level = terrainOf(PLOT, site(0));
+  const fallsSouth = terrainOf(PLOT, site(3, 180));
+
+  /**
+   * The fault this closes: the sun map was given the slope while the plan, the
+   * walls and the elevation each kept a flat copy of the same sum, so on a
+   * hillside the overlay and the picture beneath it disagreed about one shadow.
+   */
+  it('gives the same direction the sun map steps shadows along', () => {
+    // Sun in the south at noon, so shadows fall north — up the page.
+    const cast = shadowCastOnSlope(level, 60, 180, 0);
+    expect(cast.uy).toBeLessThan(0);
+    expect(Math.abs(cast.ux)).toBeLessThan(1e-9);
+    expect(Math.hypot(cast.ux, cast.uy)).toBeCloseTo(1, 9);
+  });
+
+  it('matches the flat calculation exactly when the ground is level', () => {
+    for (const altitude of [5, 20, 45, 70]) {
+      expect(shadowCastOnSlope(level, altitude, 180, 0).reach).toBeCloseTo(
+        1 / Math.tan((altitude * Math.PI) / 180),
+        6,
+      );
+    }
+  });
+
+  it('lengthens a shadow thrown downhill and shortens one thrown uphill', () => {
+    const flat = shadowCastOnSlope(level, 30, 180, 0).reach;
+    // Shadows fall north; ground falling north runs away beneath them.
+    const downhill = shadowCastOnSlope(terrainOf(PLOT, site(3, 0)), 30, 180, 0).reach;
+    const uphill = shadowCastOnSlope(fallsSouth, 30, 180, 0).reach;
+    expect(downhill).toBeGreaterThan(flat);
+    expect(uphill).toBeLessThan(flat);
+  });
+
+  it('turns with the north dial, so the slope is read in the right direction', () => {
+    // Same garden, dial turned a quarter: the fall now lies across the shadow.
+    const straightOn = shadowCastOnSlope(fallsSouth, 30, 180, 0).reach;
+    const acrossTheFall = shadowCastOnSlope(fallsSouth, 30, 180, 90).reach;
+    expect(acrossTheFall).not.toBeCloseTo(straightOn, 3);
+  });
+
+  /**
+   * The guarantee that let this change ship: a level garden is drawn exactly as
+   * it was. Capping the shared reach at twelve reproduces the flat calculation
+   * term for term, so nothing moves on the flat gardens already in use.
+   */
+  it('draws a level garden identically to the flat calculation it replaced', () => {
+    for (const altitude of [0.6, 1, 5, 15, 30, 45, 60, 85]) {
+      const drawn = Math.min(DRAWN_SHADOW_CAP, shadowCastOnSlope(level, altitude, 180, 0).reach);
+      expect(drawn).toBeCloseTo(shadowLengthFactor(altitude), 9);
+    }
+  });
+
+  it('never hands a drawing a shadow it cannot cap', () => {
+    for (const fall of [0, 3, 6]) {
+      for (const altitude of [0.5, 5, 30, 80]) {
+        const { reach } = shadowCastOnSlope(terrainOf(PLOT, site(fall, 0)), altitude, 180, 0);
+        expect(Number.isFinite(reach)).toBe(true);
+        expect(reach).toBeGreaterThan(0);
+      }
+    }
   });
 });

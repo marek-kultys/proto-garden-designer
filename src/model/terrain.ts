@@ -105,6 +105,31 @@ export function shadowReachOnSlope(sunAltitudeDegrees: number, fall: number): nu
   return Math.min(60, 1 / closing);
 }
 
+/**
+ * Which way shadows fall, and how far, for this sun over this ground.
+ *
+ * One function so that the sun map and every drawing of a shadow answer from
+ * the same arithmetic. They did not: the map was given the slope while the
+ * plan, the walls and the elevation each kept their own flat copy, so on a
+ * hillside the overlay and the picture beneath it disagreed about the very same
+ * shadow. That is the identical fault PRODUCT.md already records from the first
+ * time walls were added.
+ *
+ * `reach` is metres of shadow per metre of height, unclamped for display — a
+ * caller that draws rather than measures may cap it, and says so where it does.
+ */
+export function shadowCastOnSlope(
+  terrain: Terrain,
+  sunAltitude: number,
+  sunAzimuth: number,
+  northAngle: number,
+): { ux: number; uy: number; reach: number } {
+  const angle = bearingToCanvas(sunAzimuth + 180, northAngle);
+  const ux = Math.cos(angle);
+  const uy = Math.sin(angle);
+  return { ux, uy, reach: shadowReachOnSlope(sunAltitude, fallTowards(terrain, ux, uy)) };
+}
+
 /** Lowest and highest ground in the plot, for a readout. */
 export function terrainRange(plot: Plot, terrain: Terrain): { low: number; high: number } {
   if (terrain.gradient === 0 || plot.length === 0) return { low: 0, high: 0 };

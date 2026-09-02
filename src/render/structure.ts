@@ -1,6 +1,8 @@
 import { footprints, sweptPolygons } from '../model/structures';
+import { shadowCastOnSlope, type Terrain } from '../model/terrain';
+import { DRAWN_SHADOW_CAP } from './constants';
 import { pointInPolygon } from '../model/geometry';
-import { bearingToCanvas, shadowLengthFactor } from '../model/sun';
+import { shadowLengthFactor } from '../model/sun';
 import type { Site, Structure, Vec2 } from '../model/types';
 import { inkColour, shade, type Lighting } from './palette';
 import { roughLine, roughPolygon, subSeed } from './sketch';
@@ -73,12 +75,15 @@ export function drawStructureShadowPlan(
   viewport: Viewport,
   light: Lighting,
   site: Site,
+  terrain: Terrain,
 ): void {
-  const factor = shadowLengthFactor(light.altitude);
-  if (factor <= 0) return;
-  const angle = bearingToCanvas(light.azimuth + 180, site.northAngle);
-  const ux = Math.cos(angle);
-  const uy = Math.sin(angle);
+  if (shadowLengthFactor(light.altitude) <= 0) return;
+  // The same reach the sun map uses, capped for drawing — so a wall's shadow on
+  // the plan lengthens downhill exactly as the overlay says it does.
+  const cast = shadowCastOnSlope(terrain, light.altitude, light.azimuth, site.northAngle);
+  const factor = Math.min(DRAWN_SHADOW_CAP, cast.reach);
+  const ux = cast.ux;
+  const uy = cast.uy;
 
   const path = new Path2D();
   let any = false;
