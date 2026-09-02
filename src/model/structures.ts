@@ -91,6 +91,70 @@ export function footprints(structure: Structure): Vec2[][] {
 }
 
 /**
+ * The middle of the ground a structure covers.
+ *
+ * A built thing sits at one height rather than following every undulation
+ * beneath it, so it needs a single point to take that height from. The middle
+ * of its own run is the honest choice, and it is what the elevation already
+ * assumed.
+ */
+export function footprintCentre(structure: Structure): Vec2 {
+  const pts = structure.points;
+  if (pts.length === 0) return { x: 0, y: 0 };
+  let x = 0;
+  let y = 0;
+  for (const p of pts) {
+    x += p.x;
+    y += p.y;
+  }
+  return { x: x / pts.length, y: y / pts.length };
+}
+
+/** Height of the ground a structure stands on. */
+export function baseHeightOf(structure: Structure, groundAt: (p: Vec2) => number): number {
+  return groundAt(footprintCentre(structure));
+}
+
+/**
+ * The height of a raised bed's soil: level, at its own height above the ground
+ * beneath its middle.
+ *
+ * Level on purpose. The soil in a built box does not slope with the hillside
+ * under it, and a plant anywhere in the bed stands on that one surface — which
+ * is what lets the plant and the bed agree exactly, rather than only near the
+ * middle.
+ */
+export function surfaceHeightOf(structure: Structure, groundAt: (p: Vec2) => number): number {
+  return baseHeightOf(structure, groundAt) + structure.height;
+}
+
+/**
+ * The height of whatever a plant at this point is standing on.
+ *
+ * The single answer the three views share. Before it existed, a plant took its
+ * bed's height plus the ground under its own feet while the bed was drawn from
+ * the ground under its middle — so on any slope the plant floated above the
+ * soil it was supposedly rooted in.
+ *
+ * Where beds overlap the highest soil surface wins, which is the same rule as
+ * "the deepest bed", generalised to ground that is not level.
+ */
+export function standingHeightAt(
+  point: Vec2,
+  structures: Structure[],
+  groundAt: (p: Vec2) => number,
+): number {
+  let surface: number | null = null;
+  for (const structure of structures) {
+    if (structure.kind !== 'bed' || structure.points.length < 3) continue;
+    if (!pointInPolygon(point, structure.points)) continue;
+    const top = surfaceHeightOf(structure, groundAt);
+    if (surface === null || top > surface) surface = top;
+  }
+  return surface === null ? groundAt(point) : surface;
+}
+
+/**
  * How high the ground is under a point, given the beds in the garden.
  *
  * This is what makes a raised bed raise anything: a plant standing in one is

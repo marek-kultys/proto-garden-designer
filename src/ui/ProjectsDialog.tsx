@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { currentDesign, isDirty, useStore } from '../state/store';
 import { listProjects, storageAvailable, type ProjectSummary } from '../state/projectStorage';
 import { exportProjectFile, readProjectFromFile } from '../state/projectTransfer';
-import { describeFailure, describeSkipped } from '../state/projectFile';
+import { describeFailure, describeLosses } from '../state/projectFile';
 
 /**
  * Saving, naming and reopening a design.
@@ -143,7 +143,9 @@ export function ProjectsDialog({ onClose }: { onClose: () => void }) {
       result.ok
         ? { tone: 'ok', text: `Exported as ${result.filename}.` }
         : // Cancelling is a choice, not a fault, so it is not shown in red.
-          { tone: result.detail === 'Export cancelled.' ? 'ok' : 'error', text: result.detail },
+          // Read from the reason rather than from the wording, so rephrasing
+          // the message cannot turn a plain "no" into a red error.
+          { tone: result.reason === 'cancelled' ? 'ok' : 'error', text: result.detail },
     );
   }, []);
 
@@ -155,7 +157,7 @@ export function ProjectsDialog({ onClose }: { onClose: () => void }) {
         return;
       }
       importDesign(result.name, result.design);
-      const lost = describeSkipped(result.skipped, result.droppedStructures);
+      const lost = describeLosses(result);
       setMessage({
         tone: lost === null ? 'ok' : 'warn',
         text:

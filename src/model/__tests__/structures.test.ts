@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
   BED_HEIGHT_RANGE,
+  baseHeightOf,
+  standingHeightAt,
+  surfaceHeightOf,
   DEFAULT_BED_HEIGHT,
   WALL_HEIGHT_RANGE,
   casterOf,
@@ -310,5 +313,83 @@ describe('coversPoint', () => {
     );
     expect(coversPoint(w, { x: 5, y: 5 })).toBe(true);
     expect(coversPoint(w, { x: 5, y: 6 })).toBe(false);
+  });
+});
+
+describe('what a plant is standing on, over ground that is not level', () => {
+  /**
+   * The bug this closes. A plant used to take its bed's height plus the ground
+   * under its own feet, while the bed was drawn from the ground under its
+   * middle — so on a slope the plant hung above its own soil by the height of
+   * the hillside between them. The two must be the same number, asked once.
+   */
+  const slope = (p: { x: number; y: number }) => -0.25 * (p.y - 5.5);
+
+  it('puts a plant on its bed soil exactly, wherever in the bed it stands', () => {
+    const soil = surfaceHeightOf(SQUARE_BED, slope);
+    for (const y of [4.2, 5, 5.5, 6, 6.8]) {
+      expect(standingHeightAt({ x: 6, y }, [SQUARE_BED], slope)).toBeCloseTo(soil, 9);
+    }
+  });
+
+  it('takes the bed soil as level, not following the ground beneath it', () => {
+    const uphill = standingHeightAt({ x: 5, y: 4.1 }, [SQUARE_BED], slope);
+    const downhill = standingHeightAt({ x: 5, y: 6.9 }, [SQUARE_BED], slope);
+    expect(uphill).toBeCloseTo(downhill, 9);
+  });
+
+  it('sits the bed itself on the ground beneath its middle', () => {
+    expect(baseHeightOf(SQUARE_BED, slope)).toBeCloseTo(slope({ x: 6, y: 5.5 }), 9);
+    expect(surfaceHeightOf(SQUARE_BED, slope)).toBeCloseTo(
+      baseHeightOf(SQUARE_BED, slope) + SQUARE_BED.height,
+      9,
+    );
+  });
+
+  it('follows the ground for a plant standing outside any bed', () => {
+    expect(standingHeightAt({ x: 1, y: 9 }, [SQUARE_BED], slope)).toBeCloseTo(
+      slope({ x: 1, y: 9 }),
+      9,
+    );
+  });
+
+  it('is the plain bed height when the garden is level', () => {
+    const level = () => 0;
+    expect(standingHeightAt({ x: 6, y: 5.5 }, [SQUARE_BED], level)).toBeCloseTo(0.4, 9);
+    expect(standingHeightAt({ x: 1, y: 1 }, [SQUARE_BED], level)).toBe(0);
+  });
+
+  it('gives the highest soil where two beds overlap, not merely the deeper one', () => {
+    // On a slope a shallower bed uphill can hold soil above a deeper one below.
+    const deepLow = { ...SQUARE_BED, id: 'low', height: 0.6 };
+    const shallowHigh: Structure = {
+      ...SQUARE_BED,
+      id: 'high',
+      height: 0.3,
+      points: [
+        { x: 4, y: 1 },
+        { x: 8, y: 1 },
+        { x: 8, y: 7 },
+        { x: 4, y: 7 },
+      ],
+    };
+    const both = standingHeightAt({ x: 6, y: 5 }, [deepLow, shallowHigh], slope);
+    expect(both).toBeCloseTo(
+      Math.max(surfaceHeightOf(deepLow, slope), surfaceHeightOf(shallowHigh, slope)),
+      9,
+    );
+    expect(both).toBeCloseTo(surfaceHeightOf(shallowHigh, slope), 9);
+  });
+
+  it('ignores walls, which nothing stands on top of', () => {
+    const w = wall(
+      [
+        { x: 0, y: 5.5 },
+        { x: 14, y: 5.5 },
+      ],
+      2,
+      2,
+    );
+    expect(standingHeightAt({ x: 7, y: 5.5 }, [w], slope)).toBeCloseTo(slope({ x: 7, y: 5.5 }), 9);
   });
 });

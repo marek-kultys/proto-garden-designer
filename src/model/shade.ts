@@ -2,9 +2,9 @@ import { polygonBounds, pointInPolygon } from './geometry';
 import { getSpecies } from './plants';
 import { phaseAt } from './phenology';
 import { plantAge, sizeAt } from './growth';
-import { bearingToCanvas, dayLength, solarPosition } from './sun';
+import { dayLength, solarPosition } from './sun';
 import { casterOf, groundOffsetAt, sweptPolygons } from './structures';
-import { fallTowards, shadowReachOnSlope, terrainOf } from './terrain';
+import { shadowCastOnSlope, terrainOf } from './terrain';
 import type { Phase, PlantInstance, Plot, Site, Species, Structure, TimeState } from './types';
 
 /**
@@ -177,9 +177,9 @@ export function computeShadeGrid(
       continue;
     }
 
-    const angle = bearingToCanvas(sun.azimuth + 180, site.northAngle);
-    const ux = Math.cos(angle);
-    const uy = Math.sin(angle);
+    const cast = shadowCastOnSlope(terrain, sun.altitude, sun.azimuth, site.northAngle);
+    const ux = cast.ux;
+    const uy = cast.uy;
     /*
      * How far a shadow travels per metre of height, over this ground.
      *
@@ -190,7 +190,7 @@ export function computeShadeGrid(
      * whole plot at each step of the day — the slope shows up as shadows that
      * sweep differently morning and evening, which is what it does.
      */
-    const reach = shadowReachOnSlope(sun.altitude, fallTowards(terrain, ux, uy));
+    const reach = cast.reach;
     const vx = -uy;
     const vy = ux;
 

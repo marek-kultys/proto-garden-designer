@@ -303,3 +303,65 @@ describe('reshaping and redrawing after the fact', () => {
     expect(state().structures[0].points).toEqual(BED.points);
   });
 });
+
+describe('renaming a saved project', () => {
+  const read = (id: string) =>
+    JSON.parse(store.raw.get(keyOf(id)) as string) as { name: string; savedAt: string };
+
+  it('keeps the moment it was actually saved, since renaming is not saving', () => {
+    store.raw.set(keyOf('a'), JSON.stringify(storedDesign()));
+    state().openProject('a');
+
+    state().renameProject('Back garden');
+
+    expect(read('a').name).toBe('Back garden');
+    expect(read('a').savedAt).toBe('2026-08-30T10:00:00.000Z');
+    expect(state().projectName).toBe('Back garden');
+  });
+
+  /**
+   * `savedAt` is only guaranteed to be a non-empty string — a garden is worth
+   * keeping even when its metadata is damaged. Rebuilding it through a `Date`
+   * threw `RangeError` on anything unparseable, which took the rename down and
+   * left the header claiming a name the stored file did not have.
+   */
+  it('does not throw when the saved date is not a date at all', () => {
+    store.raw.set(keyOf('b'), JSON.stringify(storedDesign({ savedAt: 'yesterday' })));
+    state().openProject('b');
+
+    expect(() => state().renameProject('Still fine')).not.toThrow();
+    expect(read('b').name).toBe('Still fine');
+    expect(read('b').savedAt).toBe('yesterday');
+    expect(state().projectName).toBe('Still fine');
+  });
+
+  it('leaves the header alone when the rename could not be written', () => {
+    store.raw.set(keyOf('c'), JSON.stringify(storedDesign()));
+    state().openProject('c');
+    const before = state().projectName;
+
+    // A full quota, or storage switched off part way through the session.
+    store.setItem = () => {
+      throw new DOMException('quota', 'QuotaExceededError');
+    };
+
+    state().renameProject('Never recorded');
+
+    expect(state().projectName).toBe(before);
+    expect(read('c').name).toBe('Walled garden');
+  });
+
+  it('renames a design that has never been saved, which has nothing to disagree with', () => {
+    useStore.setState({ projectId: null, projectName: 'Untitled garden' });
+    state().renameProject('Just on screen');
+    expect(state().projectName).toBe('Just on screen');
+  });
+
+  it('ignores an empty name rather than storing one', () => {
+    store.raw.set(keyOf('d'), JSON.stringify(storedDesign()));
+    state().openProject('d');
+    state().renameProject('   ');
+    expect(state().projectName).toBe('Walled garden');
+    expect(read('d').name).toBe('Walled garden');
+  });
+});
