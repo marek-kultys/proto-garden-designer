@@ -80,7 +80,10 @@ describe('the exported file', () => {
     // Node has neither a document nor a `claude` host, which is the same shape
     // of failure as a browser refusing the download: it must come back as a
     // value, not an exception.
-    await expect(exportProjectFile('x', DESIGN)).resolves.toMatchObject({ ok: false });
+    await expect(exportProjectFile('x', DESIGN)).resolves.toMatchObject({
+      ok: false,
+      reason: 'unavailable',
+    });
   });
 
   it('uses the host capability when the page is given one, rather than a link', async () => {
@@ -111,25 +114,57 @@ describe('the exported file', () => {
     vi.unstubAllGlobals();
   });
 
-  it('reports a declined save without claiming to have written a file', async () => {
+  /**
+   * Each of these carries a reason the caller can branch on. The dialog used to
+   * tell a plain "no" from a real fault by comparing the message text against a
+   * literal copied out of the transfer module — so rewording the message, or
+   * adding a full stop, would have started showing a cancelled export in red
+   * with nothing to catch it.
+   */
+  const saveThatFailsWith = async (error: unknown) => {
     vi.stubGlobal('window', {
       claude: {
         use: async () => ({
           save: async () => {
-            throw { code: 'declined', message: 'no' };
+            throw error;
           },
         }),
       },
     });
     vi.resetModules();
     const fresh = await import('../projectTransfer');
-
     const result = await fresh.exportProjectFile('x', DESIGN);
+    vi.unstubAllGlobals();
+    return result;
+  };
+
+  it('reports a declined save as cancelled, not as a fault', async () => {
+    const result = await saveThatFailsWith({ code: 'declined', message: 'no' });
 
     expect(result.ok).toBe(false);
     if (result.ok) return;
+    expect(result.reason).toBe('cancelled');
     expect(result.detail).toMatch(/cancelled/i);
-    vi.unstubAllGlobals();
+  });
+
+  it('tells the other refusals apart from a cancellation', async () => {
+    const busy = await saveThatFailsWith({ code: 'rate_limited', message: 'wait' });
+    const tooBig = await saveThatFailsWith({ code: 'too_large', message: 'big' });
+    const barred = await saveThatFailsWith({ code: 'not_granted', message: 'no' });
+
+    expect(busy.ok || tooBig.ok || barred.ok).toBe(false);
+    if (busy.ok || tooBig.ok || barred.ok) return;
+    expect(busy.reason).toBe('busy');
+    expect(tooBig.reason).toBe('too-large');
+    // An unknown code is treated as the page simply not being allowed to save.
+    expect(barred.reason).toBe('unavailable');
+  });
+
+  it('treats an error carrying no code at all as unavailable', async () => {
+    const result = await saveThatFailsWith(new Error('something else'));
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.reason).toBe('unavailable');
   });
 });
 

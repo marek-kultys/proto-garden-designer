@@ -143,7 +143,9 @@ export function ProjectsDialog({ onClose }: { onClose: () => void }) {
       result.ok
         ? { tone: 'ok', text: `Exported as ${result.filename}.` }
         : // Cancelling is a choice, not a fault, so it is not shown in red.
-          { tone: result.detail === 'Export cancelled.' ? 'ok' : 'error', text: result.detail },
+          // Read from the reason rather than from the wording, so rephrasing
+          // the message cannot turn a plain "no" into a red error.
+          { tone: result.reason === 'cancelled' ? 'ok' : 'error', text: result.detail },
     );
   }, []);
 
