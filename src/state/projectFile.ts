@@ -1,5 +1,6 @@
 import { SPECIES_BY_ID } from '../model/plants';
 import { clampHeight, clampThickness, minimumPoints } from '../model/structures';
+import { clampSlopeFall, normaliseSlopeDirection } from '../model/terrain';
 import type { PlantInstance, Plot, Site, Structure, StructureKind, Vec2 } from '../model/types';
 
 /**
@@ -158,6 +159,10 @@ function parseSite(v: unknown): Site | null {
    * the ground could tilt meant — so this is read when present and defaulted
    * when not, without a new schema version. Bumping would make an older build
    * refuse the whole design rather than quietly ignore two optional numbers.
+   *
+   * Brought into the range the app can show rather than kept as written: a fall
+   * the control cannot reach is one the reading and the drawing will disagree
+   * about for as long as the design is open.
    */
   const fall = finiteNumber(v.slopeFall);
   const direction = finiteNumber(v.slopeDirection);
@@ -169,8 +174,8 @@ function parseSite(v: unknown): Site | null {
     northAngle,
     dst: v.dst,
     label,
-    slopeFall: fall === null ? 0 : Math.max(0, Math.min(20, fall)),
-    slopeDirection: direction === null ? 180 : ((direction % 360) + 360) % 360,
+    slopeFall: fall === null ? 0 : clampSlopeFall(fall),
+    slopeDirection: direction === null ? 180 : normaliseSlopeDirection(direction),
   };
 }
 

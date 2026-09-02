@@ -35,8 +35,35 @@ export interface Terrain {
 
 export const LEVEL: Terrain = { ux: 1, uy: 0, gradient: 0, cx: 0, cy: 0 };
 
-/** Metres of fall a garden may be given across its plot. */
+/**
+ * Metres of fall a garden may be given across its plot.
+ *
+ * Six metres across a plot is already a bank rather than a slope; past that the
+ * drawing stops being a garden drawing. This is the only definition of the
+ * range, and both boundaries that can set a fall — the control and the file
+ * reader — go through the two helpers below.
+ */
 export const SLOPE_FALL_RANGE = { min: 0, max: 6, step: 0.1 };
+
+/**
+ * A fall the app can actually show, from any number at all.
+ *
+ * Needed because three places disagreed about the same figure: the control
+ * stopped at six, the file reader allowed twenty, and the store accepted
+ * anything. A file carrying fifteen therefore drew a fifteen-metre fall while
+ * the slider sat at six — and the first touch of that slider silently rewrote
+ * the garden to match the reading.
+ */
+export function clampSlopeFall(metres: number): number {
+  if (!Number.isFinite(metres)) return 0;
+  return Math.max(SLOPE_FALL_RANGE.min, Math.min(SLOPE_FALL_RANGE.max, metres));
+}
+
+/** A fall direction as a compass bearing in [0, 360). */
+export function normaliseSlopeDirection(degrees: number): number {
+  if (!Number.isFinite(degrees)) return 180;
+  return ((degrees % 360) + 360) % 360;
+}
 
 export function terrainOf(plot: Plot, site: Site): Terrain {
   const fall = site.slopeFall ?? 0;

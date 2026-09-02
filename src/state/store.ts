@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { polygonBounds, rectanglePlot } from '../model/geometry';
 import { DEFAULT_SLICE_DEPTH, SLICE_DEPTH_RANGE } from '../render/constants';
+import { clampSlopeFall, normaliseSlopeDirection } from '../model/terrain';
 import { getSpecies } from '../model/plants';
 import {
   DEFAULT_EYE_HEIGHT,
@@ -580,7 +581,23 @@ export const useStore = create<AppState>((set, get) => ({
     })),
 
   setTime: (patch) => set((s) => ({ time: { ...s.time, ...patch } })),
-  setSite: (patch) => set((s) => ({ site: { ...s.site, ...patch } })),
+  /**
+   * The slope fields are brought into range on the way in.
+   *
+   * Everything else on the site is either free text or a figure with no bound
+   * the app relies on, but a fall the control cannot reach would leave the
+   * slider showing one garden and the drawing showing another — so it is
+   * clamped here as well as at the file boundary, and by the same rule.
+   */
+  setSite: (patch) =>
+    set((s) => {
+      const site = { ...s.site, ...patch };
+      if (patch.slopeFall !== undefined) site.slopeFall = clampSlopeFall(patch.slopeFall);
+      if (patch.slopeDirection !== undefined) {
+        site.slopeDirection = normaliseSlopeDirection(patch.slopeDirection);
+      }
+      return { site };
+    }),
 
   setTool: (tool) => set({ tool, draft: [], draftCursor: null, redrawingId: null }),
   pushDraftPoint: (p) => set((s) => ({ draft: [...s.draft, p] })),

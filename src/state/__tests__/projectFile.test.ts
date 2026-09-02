@@ -407,6 +407,40 @@ describe('walls and raised beds in a saved design', () => {
   });
 });
 
+describe('a slope read from a file', () => {
+  const withSlope = (slope: Record<string, unknown>) => {
+    const file = makeProjectFile('x', design(), new Date());
+    return throughJson({
+      ...file,
+      design: { ...file.design, site: { ...SITE, ...slope } },
+    });
+  };
+
+  /**
+   * A fall the control cannot reach would leave the slider showing one garden
+   * and the drawing showing another, until the first touch of that slider
+   * silently rewrote the design to match the reading.
+   */
+  it('is brought into the range the control can reach', () => {
+    const result = parseProjectFile(withSlope({ slopeFall: 15 }));
+    if (!result.ok) throw new Error('expected a successful load');
+    expect(result.design.site.slopeFall).toBeLessThanOrEqual(6);
+  });
+
+  it('keeps a fall the control could have made, exactly', () => {
+    const result = parseProjectFile(withSlope({ slopeFall: 2.5, slopeDirection: 225 }));
+    if (!result.ok) throw new Error('expected a successful load');
+    expect(result.design.site.slopeFall).toBeCloseTo(2.5, 9);
+    expect(result.design.site.slopeDirection).toBeCloseTo(225, 9);
+  });
+
+  it('reads a design saved before the ground could tilt as level', () => {
+    const result = parseProjectFile(withSlope({}));
+    if (!result.ok) throw new Error('expected a successful load');
+    expect(result.design.site.slopeFall).toBe(0);
+  });
+});
+
 describe('describeLosses', () => {
   it('says nothing when nothing was lost', () => {
     expect(describeLosses({ skipped: [] })).toBeNull();

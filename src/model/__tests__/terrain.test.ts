@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
+  SLOPE_FALL_RANGE,
+  clampSlopeFall,
   fallTowards,
+  normaliseSlopeDirection,
   shadowCastOnSlope,
   groundAt,
   shadowReachOnSlope,
@@ -230,6 +233,45 @@ describe('the one shadow cast that map and drawing share', () => {
         expect(Number.isFinite(reach)).toBe(true);
         expect(reach).toBeGreaterThan(0);
       }
+    }
+  });
+});
+
+describe('one range for the fall, at every boundary', () => {
+  /**
+   * Three places used to disagree about the same figure: the control stopped at
+   * six, the file reader allowed twenty, and the store accepted anything. A
+   * file carrying fifteen drew a fifteen-metre fall while the slider sat at
+   * six, and the first touch of that slider silently rewrote the garden.
+   */
+  it('brings any figure into the range the control can reach', () => {
+    expect(clampSlopeFall(15)).toBe(SLOPE_FALL_RANGE.max);
+    expect(clampSlopeFall(-3)).toBe(SLOPE_FALL_RANGE.min);
+    expect(clampSlopeFall(2.5)).toBe(2.5);
+  });
+
+  it('reads nonsense as level rather than as a slope of nothing-in-particular', () => {
+    // Neither is a figure the ground can be built from, so both mean level —
+    // the same answer, rather than one of them becoming the steepest garden
+    // the app allows.
+    expect(clampSlopeFall(Number.NaN)).toBe(0);
+    expect(clampSlopeFall(Number.POSITIVE_INFINITY)).toBe(0);
+    expect(clampSlopeFall(Number.NEGATIVE_INFINITY)).toBe(0);
+  });
+
+  it('wraps a direction onto the compass', () => {
+    expect(normaliseSlopeDirection(370)).toBeCloseTo(10, 9);
+    expect(normaliseSlopeDirection(-90)).toBeCloseTo(270, 9);
+    expect(normaliseSlopeDirection(180)).toBeCloseTo(180, 9);
+    expect(normaliseSlopeDirection(Number.NaN)).toBe(180);
+  });
+
+  it('never builds ground the control could not have made', () => {
+    // Whatever comes in, the terrain is one the slider can reproduce.
+    for (const fall of [-5, 0, 3, 15, 1e9, Number.NaN, Number.POSITIVE_INFINITY]) {
+      const clamped = clampSlopeFall(fall);
+      expect(clamped).toBeGreaterThanOrEqual(SLOPE_FALL_RANGE.min);
+      expect(clamped).toBeLessThanOrEqual(SLOPE_FALL_RANGE.max);
     }
   });
 });
