@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { currentDesign, isDirty, useStore } from '../state/store';
 import { listProjects, storageAvailable, type ProjectSummary } from '../state/projectStorage';
 import { exportProjectFile, readProjectFromFile } from '../state/projectTransfer';
-import { describeFailure, describeSkipped } from '../state/projectFile';
+import { describeFailure, describeLosses } from '../state/projectFile';
 
 /**
  * Saving, naming and reopening a design.
@@ -155,7 +155,7 @@ export function ProjectsDialog({ onClose }: { onClose: () => void }) {
         return;
       }
       importDesign(result.name, result.design);
-      const lost = describeSkipped(result.skipped, result.droppedStructures);
+      const lost = describeLosses(result);
       setMessage({
         tone: lost === null ? 'ok' : 'warn',
         text:

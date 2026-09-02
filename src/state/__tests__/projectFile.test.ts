@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   CURRENT_VERSION,
   SCHEMA,
-  describeSkipped,
+  describeLosses,
   makeProjectFile,
   parseProjectFile,
   type Design,
@@ -195,16 +195,62 @@ describe('damaged and hostile input', () => {
     expect(parseProjectFile(throughJson(broken)).ok).toBe(false);
   });
 
-  it('refuses a plant missing its position rather than defaulting it to zero', () => {
+  /**
+   * A damaged plant costs that plant, never the garden.
+   *
+   * This used to fail the whole design, while a damaged wall beside it cost
+   * only the wall. Since designs are now exported as hand-editable files and
+   * old ones must keep opening, all-or-nothing was the more damaging policy.
+   */
+  it('drops a plant missing its position, and keeps the rest of the garden', () => {
     const file = makeProjectFile('x', design(), new Date());
     const broken = {
       ...file,
       design: {
         ...file.design,
-        plants: [{ id: 'a', speciesId: 'betula-jacquemontii', seed: 1, plantedAge: 0 }],
+        plants: [
+          ...file.design.plants,
+          { id: 'z', speciesId: 'betula-jacquemontii', seed: 1, plantedAge: 0 },
+        ],
       },
     };
+
+    const result = parseProjectFile(throughJson(broken));
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.design.plants).toHaveLength(3);
+    expect(result.droppedPlants).toBe(1);
+    expect(describeLosses(result)).toMatch(/1 plant could not be rebuilt/);
+  });
+
+  it('drops something that is not a plant record at all, and says so', () => {
+    const file = makeProjectFile('x', design(), new Date());
+    const broken = {
+      ...file,
+      design: { ...file.design, plants: [...file.design.plants, 'not a plant', 42] },
+    };
+
+    const result = parseProjectFile(throughJson(broken));
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.design.plants).toHaveLength(3);
+    expect(result.droppedPlants).toBe(2);
+  });
+
+  it('still refuses a planting that is not a list at all', () => {
+    const file = makeProjectFile('x', design(), new Date());
+    const broken = { ...file, design: { ...file.design, plants: 'everything' } };
+    // Not a damaged plant — a file that is not a design.
     expect(parseProjectFile(throughJson(broken)).ok).toBe(false);
+  });
+
+  it('tells the two kinds of plant loss apart', () => {
+    const text = describeLosses({ skipped: ['gone'], droppedPlants: 2, droppedStructures: 1 });
+    expect(text).toMatch(/no longer in the library/);
+    expect(text).toMatch(/2 plants could not be rebuilt/);
+    expect(text).toMatch(/1 wall or bed could not be rebuilt/);
   });
 
   it('drops a duplicated instance id, which would make the selection ambiguous', () => {
@@ -262,7 +308,7 @@ describe('opening a design saved before walls existed', () => {
   it('says nothing was lost, because nothing was', () => {
     const result = parseProjectFile(version1File());
     if (!result.ok) throw new Error('expected a successful load');
-    expect(describeSkipped(result.skipped, result.droppedStructures)).toBeNull();
+    expect(describeLosses(result)).toBeNull();
   });
 });
 
@@ -355,24 +401,24 @@ describe('walls and raised beds in a saved design', () => {
   });
 
   it('reports both losses together when a design has each', () => {
-    const text = describeSkipped(['gone-plant'], 2);
+    const text = describeLosses({ skipped: ['gone-plant'], droppedStructures: 2 });
     expect(text).toContain('1 plant');
     expect(text).toContain('2 walls or beds');
   });
 });
 
-describe('describeSkipped', () => {
+describe('describeLosses', () => {
   it('says nothing when nothing was lost', () => {
-    expect(describeSkipped([])).toBeNull();
+    expect(describeLosses({ skipped: [] })).toBeNull();
   });
 
   it('counts plants, not kinds', () => {
-    const text = describeSkipped(['a', 'a', 'b']);
+    const text = describeLosses({ skipped: ['a', 'a', 'b'] });
     expect(text).toContain('3 plants');
   });
 
   it('uses the singular for one', () => {
-    const text = describeSkipped(['a']);
+    const text = describeLosses({ skipped: ['a'] });
     expect(text).toContain('1 plant');
     expect(text).not.toContain('1 plants');
   });

@@ -21,7 +21,7 @@ import {
 import type { PlantInstance, Plot, Site, Structure, TimeState, Vec2 } from '../model/types';
 import {
   describeFailure,
-  describeSkipped,
+  describeLosses,
   makeProjectFile,
   renamedProjectFile,
   type Design,
@@ -833,7 +833,7 @@ export const useStore = create<AppState>((set, get) => ({
     return {
       ok: true,
       name: result.name,
-      note: describeSkipped(result.skipped, result.droppedStructures),
+      note: describeLosses(result),
     };
   },
 
