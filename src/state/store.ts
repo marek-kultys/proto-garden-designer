@@ -23,6 +23,7 @@ import {
   describeFailure,
   describeSkipped,
   makeProjectFile,
+  renamedProjectFile,
   type Design,
 } from './projectFile';
 import {
@@ -792,14 +793,36 @@ export const useStore = create<AppState>((set, get) => ({
     const trimmed = name.trim();
     if (trimmed.length === 0) return;
     const s = get();
-    set({ projectName: trimmed });
-    if (s.projectId === null) return;
+
+    // Never saved, so the name lives only on screen and there is nothing that
+    // could disagree with it.
+    if (s.projectId === null) {
+      set({ projectName: trimmed });
+      return;
+    }
+
     // Rewrite the *stored* design under the new name rather than the current
     // one, so renaming cannot quietly save edits the user has not saved yet.
     const stored = readProject(s.projectId);
-    if (stored !== null && stored.ok) {
-      writeProject(s.projectId, makeProjectFile(trimmed, stored.design, new Date(stored.savedAt)));
+    if (stored === null || !stored.ok) {
+      set({ projectName: trimmed });
+      return;
     }
+
+    /*
+     * The header is only changed once the new name has actually been recorded.
+     *
+     * Setting it first and writing afterwards looks harmless and is not: any
+     * failure in between — a full quota, storage switched off, or the
+     * `RangeError` this used to throw rebuilding an unparseable saved date —
+     * left the header showing one name and the saved file holding another,
+     * which is precisely the divergence this function exists to prevent.
+     */
+    const result = writeProject(
+      s.projectId,
+      renamedProjectFile(trimmed, stored.design, stored.savedAt),
+    );
+    if (result.ok) set({ projectName: trimmed });
   },
 
   openProject: (id) => {

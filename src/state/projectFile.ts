@@ -307,6 +307,20 @@ export function makeProjectFile(name: string, design: Design, savedAt: Date): Pr
   };
 }
 
+/**
+ * The same design under a new name, keeping the moment it was actually saved.
+ *
+ * Renaming is not saving, so the timestamp must not move — and it is carried
+ * across as the string it already is rather than rebuilt through a `Date`.
+ * That round trip was a real fault: `savedAt` is only guaranteed here to be a
+ * non-empty string, since a design is worth keeping even when its metadata is
+ * damaged, so `new Date(savedAt).toISOString()` threw `RangeError` on anything
+ * unparseable and took the rename down with it.
+ */
+export function renamedProjectFile(name: string, design: Design, savedAt: string): ProjectFile {
+  return { schema: SCHEMA, version: CURRENT_VERSION, name, savedAt, design };
+}
+
 function fail(failure: LoadFailure): LoadResult {
   return { ok: false, failure };
 }
@@ -345,6 +359,12 @@ export function parseProjectFile(raw: unknown): LoadResult {
   const name = nonEmptyString(raw.name);
   if (name === null) return fail({ kind: 'malformed', detail: 'no name' });
 
+  /*
+   * Checked as a string, not as a date. A garden is worth keeping even when the
+   * moment it was saved is unreadable — the list simply shows the date as
+   * unknown. Callers must therefore treat this as opaque text and never assume
+   * `new Date(savedAt)` is valid.
+   */
   const savedAt = nonEmptyString(raw.savedAt);
   if (savedAt === null) return fail({ kind: 'malformed', detail: 'no saved date' });
 
