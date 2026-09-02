@@ -104,30 +104,52 @@ export function drawElevation(
     (p) => Math.abs(p.offset) <= band && p.along >= -1 && p.along <= lineLength + 1,
   );
 
-  // Vertical reference is the mature height of everything planted, so the view
-  // does not rescale while the age slider moves.
-  let reference = MIN_ELEVATION_HEIGHT;
+  /*
+   * The vertical range the strip has to hold, in metres either side of the
+   * datum — the middle of the plot, which is where the ground is zero.
+   *
+   * Both ends are needed. Sizing to the tallest thing alone was a real fault:
+   * the datum was pinned 26 px off the bottom whatever the garden was doing, so
+   * on any slope the downhill ground — and everything standing on it — was
+   * drawn below the canvas and simply not there.
+   *
+   * Still measured from *mature* sizes, so the view does not rescale as the age
+   * slider moves.
+   */
+  let highest = MIN_ELEVATION_HEIGHT;
+  let lowest = 0;
   for (const p of scene.plants) {
     const species = getSpecies(p.speciesId);
     // A plant reaches its own height above whatever it stands on — a bed's soil,
     // or ground that may itself be well above the datum.
     const base = standingHeightAt(p, scene.structures, ground);
-    reference = Math.max(reference, (matureSize(species).height + base) * 1.06);
+    highest = Math.max(highest, (matureSize(species).height + base) * 1.06);
   }
   // Built things are at their full height from the day they go in, so they
-  // count against the same reference — otherwise a 3 m wall is drawn off the
-  // top of the strip on a garden of low planting.
+  // count against the same range — otherwise a 3 m wall is drawn off the top of
+  // the strip on a garden of low planting.
   for (const structure of scene.structures) {
-    reference = Math.max(reference, (baseHeightOf(structure, ground) + structure.height) * 1.12);
+    highest = Math.max(highest, (baseHeightOf(structure, ground) + structure.height) * 1.12);
   }
-  // Ground above the datum eats into the same vertical room as a tall plant.
-  for (const p of scene.plot) reference = Math.max(reference, groundAt(terrain, p) * 1.2 + 1);
+  // Ground at either end of the fall, which is what used to be missed.
+  for (const p of scene.plot) {
+    const z = groundAt(terrain, p);
+    highest = Math.max(highest, z * 1.2 + 1);
+    lowest = Math.min(lowest, z * 1.2 - 0.2);
+  }
 
   const marginX = 46;
-  const groundY = height - 26;
+  /** Where the lowest ground sits — the bottom of the drawing, less a margin. */
+  const bottomY = height - 26;
   const usableW = width - marginX * 2;
-  const usableH = groundY - 12;
-  const pxPerM = Math.min(usableW / lineLength, usableH / reference);
+  const usableH = bottomY - 12;
+  const pxPerM = Math.min(usableW / lineLength, usableH / (highest - lowest));
+  /**
+   * Screen height of the datum. On level ground `lowest` is zero and this is
+   * the bottom line exactly, as it always was; a fall lifts it by however far
+   * the ground drops below the middle of the plot.
+   */
+  const groundY = bottomY + lowest * pxPerM;
   const originX = (width - lineLength * pxPerM) / 2;
 
   /**
@@ -164,7 +186,7 @@ export function drawElevation(
   ctx.lineTo(width, profile[profile.length - 1].y);
   ctx.stroke();
 
-  drawHeightRuler(ctx, originX, width, groundY, pxPerM, reference, light);
+  drawHeightRuler(ctx, originX, width, groundY, pxPerM, highest, light);
 
   const dc = { ctx, light, pxPerM };
   const factor = shadowLengthFactor(light.altitude);
@@ -259,7 +281,17 @@ export function drawElevation(
     ctx.restore();
   }
 
-  drawEndMarkers(ctx, originX, lineLength * pxPerM, groundY, height, light);
+  drawEndMarkers(
+    ctx,
+    originX,
+    lineLength * pxPerM,
+    // Down to the ground actually under each end, which on a slope is not the
+    // datum — a dashed line stopping in mid-air reads as a fault of its own.
+    groundYAt(0),
+    groundYAt(lineLength),
+    height,
+    light,
+  );
 
   if (inBand.length === 0 && slices.length === 0) {
     ctx.fillStyle = inkColour(light, 0.55);
@@ -309,7 +341,8 @@ function drawEndMarkers(
   ctx: CanvasRenderingContext2D,
   originX: number,
   lineWidth: number,
-  groundY: number,
+  groundYAtA: number,
+  groundYAtB: number,
   height: number,
   light: Lighting,
 ): void {
@@ -317,9 +350,9 @@ function drawEndMarkers(
   ctx.font = 'bold 10px ui-sans-serif, system-ui, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  for (const [x, label] of [
-    [originX, 'A'],
-    [originX + lineWidth, 'B'],
+  for (const [x, label, groundY] of [
+    [originX, 'A', groundYAtA],
+    [originX + lineWidth, 'B', groundYAtB],
   ] as const) {
     ctx.strokeStyle = 'rgba(176, 92, 48, 0.5)';
     ctx.lineWidth = 1;
