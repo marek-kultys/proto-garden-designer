@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { polygonBounds, rectanglePlot } from '../model/geometry';
 import { DEFAULT_SLICE_DEPTH, SLICE_DEPTH_RANGE } from '../render/constants';
+import { clampSlopeFall, normaliseSlopeDirection } from '../model/terrain';
 import { getSpecies } from '../model/plants';
 import {
   DEFAULT_EYE_HEIGHT,
@@ -21,8 +22,9 @@ import {
 import type { PlantInstance, Plot, Site, Structure, TimeState, Vec2 } from '../model/types';
 import {
   describeFailure,
-  describeSkipped,
+  describeLosses,
   makeProjectFile,
+  renamedProjectFile,
   type Design,
 } from './projectFile';
 import {
@@ -579,7 +581,23 @@ export const useStore = create<AppState>((set, get) => ({
     })),
 
   setTime: (patch) => set((s) => ({ time: { ...s.time, ...patch } })),
-  setSite: (patch) => set((s) => ({ site: { ...s.site, ...patch } })),
+  /**
+   * The slope fields are brought into range on the way in.
+   *
+   * Everything else on the site is either free text or a figure with no bound
+   * the app relies on, but a fall the control cannot reach would leave the
+   * slider showing one garden and the drawing showing another — so it is
+   * clamped here as well as at the file boundary, and by the same rule.
+   */
+  setSite: (patch) =>
+    set((s) => {
+      const site = { ...s.site, ...patch };
+      if (patch.slopeFall !== undefined) site.slopeFall = clampSlopeFall(patch.slopeFall);
+      if (patch.slopeDirection !== undefined) {
+        site.slopeDirection = normaliseSlopeDirection(patch.slopeDirection);
+      }
+      return { site };
+    }),
 
   setTool: (tool) => set({ tool, draft: [], draftCursor: null, redrawingId: null }),
   pushDraftPoint: (p) => set((s) => ({ draft: [...s.draft, p] })),
@@ -792,14 +810,36 @@ export const useStore = create<AppState>((set, get) => ({
     const trimmed = name.trim();
     if (trimmed.length === 0) return;
     const s = get();
-    set({ projectName: trimmed });
-    if (s.projectId === null) return;
+
+    // Never saved, so the name lives only on screen and there is nothing that
+    // could disagree with it.
+    if (s.projectId === null) {
+      set({ projectName: trimmed });
+      return;
+    }
+
     // Rewrite the *stored* design under the new name rather than the current
     // one, so renaming cannot quietly save edits the user has not saved yet.
     const stored = readProject(s.projectId);
-    if (stored !== null && stored.ok) {
-      writeProject(s.projectId, makeProjectFile(trimmed, stored.design, new Date(stored.savedAt)));
+    if (stored === null || !stored.ok) {
+      set({ projectName: trimmed });
+      return;
     }
+
+    /*
+     * The header is only changed once the new name has actually been recorded.
+     *
+     * Setting it first and writing afterwards looks harmless and is not: any
+     * failure in between — a full quota, storage switched off, or the
+     * `RangeError` this used to throw rebuilding an unparseable saved date —
+     * left the header showing one name and the saved file holding another,
+     * which is precisely the divergence this function exists to prevent.
+     */
+    const result = writeProject(
+      s.projectId,
+      renamedProjectFile(trimmed, stored.design, stored.savedAt),
+    );
+    if (result.ok) set({ projectName: trimmed });
   },
 
   openProject: (id) => {
@@ -810,7 +850,7 @@ export const useStore = create<AppState>((set, get) => ({
     return {
       ok: true,
       name: result.name,
-      note: describeSkipped(result.skipped, result.droppedStructures),
+      note: describeLosses(result),
     };
   },
 

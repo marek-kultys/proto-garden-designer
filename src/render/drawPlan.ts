@@ -5,8 +5,8 @@ import { bearingToCanvas, shadowLengthFactor } from '../model/sun';
 import { canopyDensity, type ShadeGrid } from '../model/shade';
 import { polygonBounds } from '../model/geometry';
 import type { Observer } from '../model/panorama';
-import { groundOffsetAt } from '../model/structures';
-import { groundAt, terrainOf, terrainRange } from '../model/terrain';
+import { standingHeightAt } from '../model/structures';
+import { groundAt, shadowCastOnSlope, terrainOf, terrainRange, type Terrain } from '../model/terrain';
 import type { PlantInstance, Plot, Site, Structure, TimeState, Vec2 } from '../model/types';
 import { inkColour, shade, type Lighting } from './palette';
 import { blobPoints, curvePath, roughCurve, roughLine, roughPolygon, subSeed } from './sketch';
@@ -16,7 +16,7 @@ import { drawShadeOverlay } from './overlay';
 import { drawStructurePlan, drawStructureShadowPlan } from './structure';
 import { drawObserverOnPlan } from './drawPanorama';
 import { niceScaleStep, toScreen, type Viewport } from './viewport';
-import { sliceHalfWidth } from './constants';
+import { DRAWN_SHADOW_CAP, sliceHalfWidth } from './constants';
 
 export interface Scene {
   plot: Plot;
@@ -98,7 +98,7 @@ export function drawPlan(
       const size = sizeAt(species, plantAge(plant.plantedAge, time.year));
       const form = getForm(species, plant.seed);
       const screen = toScreen(viewport, plant);
-      const base = groundOffsetAt(plant, scene.structures) + groundAt(planTerrain, plant);
+      const base = standingHeightAt(plant, scene.structures, (q) => groundAt(planTerrain, q));
       // A climber follows the fence it was planted against, when that has been
       // said; otherwise its own sketchy rotation stands in.
       const facing =
@@ -120,8 +120,8 @@ export function drawPlan(
     // boundary reads as part of the drawing rather than as a consequence of it.
     ctx.save();
     ctx.clip(plotPath);
-    drawStructureShadowPlan(ctx, scene.structures, viewport, light, site);
-    drawShadows(ctx, drawables, viewport, light, site);
+    drawStructureShadowPlan(ctx, scene.structures, viewport, light, site, planTerrain);
+    drawShadows(ctx, drawables, viewport, light, site, planTerrain);
     ctx.restore();
   }
 
@@ -252,12 +252,17 @@ function drawShadows(
   viewport: Viewport,
   light: Lighting,
   site: Site,
+  terrain: Terrain,
 ): void {
-  const factor = shadowLengthFactor(light.altitude);
-  if (factor <= 0) return;
-  const angle = bearingToCanvas(light.azimuth + 180, site.northAngle);
-  const ux = Math.cos(angle);
-  const uy = Math.sin(angle);
+  // Down at the horizon there is no shadow worth drawing; above that, the same
+  // reach the sun map measures with, capped so one shadow cannot fill the page.
+  if (shadowLengthFactor(light.altitude) <= 0) return;
+  const cast = shadowCastOnSlope(terrain, light.altitude, light.azimuth, site.northAngle);
+  const factor = Math.min(DRAWN_SHADOW_CAP, cast.reach);
+  const ux = cast.ux;
+  const uy = cast.uy;
+  // The same direction, as an angle, for the shadows drawn by rotating a shape.
+  const angle = Math.atan2(uy, ux);
 
   ctx.save();
   ctx.filter = `blur(${light.shadowBlur.toFixed(1)}px)`;

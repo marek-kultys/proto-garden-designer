@@ -1,6 +1,8 @@
 import { footprints, sweptPolygons } from '../model/structures';
+import { shadowCastOnSlope, type Terrain } from '../model/terrain';
+import { DRAWN_SHADOW_CAP } from './constants';
 import { pointInPolygon } from '../model/geometry';
-import { bearingToCanvas, shadowLengthFactor } from '../model/sun';
+import { shadowLengthFactor } from '../model/sun';
 import type { Site, Structure, Vec2 } from '../model/types';
 import { inkColour, shade, type Lighting } from './palette';
 import { roughLine, roughPolygon, subSeed } from './sketch';
@@ -73,12 +75,15 @@ export function drawStructureShadowPlan(
   viewport: Viewport,
   light: Lighting,
   site: Site,
+  terrain: Terrain,
 ): void {
-  const factor = shadowLengthFactor(light.altitude);
-  if (factor <= 0) return;
-  const angle = bearingToCanvas(light.azimuth + 180, site.northAngle);
-  const ux = Math.cos(angle);
-  const uy = Math.sin(angle);
+  if (shadowLengthFactor(light.altitude) <= 0) return;
+  // The same reach the sun map uses, capped for drawing — so a wall's shadow on
+  // the plan lengthens downhill exactly as the overlay says it does.
+  const cast = shadowCastOnSlope(terrain, light.altitude, light.azimuth, site.northAngle);
+  const factor = Math.min(DRAWN_SHADOW_CAP, cast.reach);
+  const ux = cast.ux;
+  const uy = cast.uy;
 
   const path = new Path2D();
   let any = false;
@@ -395,7 +400,9 @@ export function drawBedPanorama(
   bed: PanoramaBed,
   opts: PanoramaFaceOptions,
 ): void {
-  const { width, horizonY, pxPerDeg, fov, eye, light, selected, project } = opts;
+  const { width, horizonY, pxPerDeg, fov, eye, light, selected, project, groundHeight } = opts;
+  // Measured from the ground the bed stands on, not from the datum.
+  const foot = eye - groundHeight;
   const height = bed.structure.height;
   const polygon = bed.polygon;
 
@@ -411,8 +418,8 @@ export function drawBedPanorama(
     const distance = samples[i].distance;
     if (Math.abs(offset) <= fov / 2 + 30) anyInView = true;
     const x = width / 2 + offset * pxPerDeg;
-    tops.push({ x, y: horizonY - ((Math.atan2(height - eye, distance) * 180) / Math.PI) * pxPerDeg });
-    bases.push({ x, y: horizonY + ((Math.atan2(eye, distance) * 180) / Math.PI) * pxPerDeg });
+    tops.push({ x, y: horizonY - ((Math.atan2(height - foot, distance) * 180) / Math.PI) * pxPerDeg });
+    bases.push({ x, y: horizonY + ((Math.atan2(foot, distance) * 180) / Math.PI) * pxPerDeg });
   }
   if (!anyInView) return;
 
@@ -466,8 +473,17 @@ export interface PanoramaFaceOptions {
   horizonY: number;
   pxPerDeg: number;
   fov: number;
-  /** Height of the eye above the ground the structure stands on. */
+  /** Height of the eye above the datum. */
   eye: number;
+  /**
+   * Height of the ground this structure stands on, above the datum.
+   *
+   * Zero on a level garden. Without it a wall or bed was drawn as though the
+   * ground were always flat, while the plants standing in it rose with the
+   * hillside — so on a slope a plant floated above its own bed by exactly the
+   * height of the ground beneath them both.
+   */
+  groundHeight: number;
   light: Lighting;
   selected: boolean;
   /** Where a plot point sits relative to the viewer. */
@@ -517,7 +533,8 @@ export function drawStructurePanorama(
   face: PanoramaFace,
   opts: PanoramaFaceOptions,
 ): void {
-  const { width, horizonY, pxPerDeg, fov, eye, light, selected, project } = opts;
+  const { width, horizonY, pxPerDeg, fov, eye, light, selected, project, groundHeight } = opts;
+  const foot = eye - groundHeight;
   const height = face.structure.height;
 
   const samples: { offset: number; distance: number }[] = [];
@@ -544,8 +561,8 @@ export function drawStructurePanorama(
     if (Math.abs(offset) <= fov / 2 + 30) anyInView = true;
 
     const x = width / 2 + offset * pxPerDeg;
-    const baseAngle = (Math.atan2(eye, distance) * 180) / Math.PI;
-    const topAngle = (Math.atan2(height - eye, distance) * 180) / Math.PI;
+    const baseAngle = (Math.atan2(foot, distance) * 180) / Math.PI;
+    const topAngle = (Math.atan2(height - foot, distance) * 180) / Math.PI;
     bases.push({ x, y: horizonY + baseAngle * pxPerDeg });
     tops.push({ x, y: horizonY - topAngle * pxPerDeg });
   }
@@ -672,7 +689,8 @@ export function drawStructureTopPanorama(
   top: PanoramaTop,
   opts: PanoramaFaceOptions,
 ): void {
-  const { width, horizonY, pxPerDeg, fov, eye, light, selected, project } = opts;
+  const { width, horizonY, pxPerDeg, fov, eye, light, selected, project, groundHeight } = opts;
+  const foot = eye - groundHeight;
   const height = top.structure.height;
   const polygon = top.polygon;
   if (polygon.length < 3) return;
@@ -695,7 +713,7 @@ export function drawStructureTopPanorama(
     if (Math.abs(offset) <= fov / 2 + 30) anyInView = true;
     // height is below the eye by construction, so this angle is negative and
     // the surface lands below the horizon — which is what looking down is.
-    const angle = (Math.atan2(height - eye, samples[i].distance) * 180) / Math.PI;
+    const angle = (Math.atan2(height - foot, samples[i].distance) * 180) / Math.PI;
     outline.push({
       x: width / 2 + offset * pxPerDeg,
       y: horizonY - angle * pxPerDeg,

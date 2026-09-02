@@ -44,7 +44,20 @@ export function serialiseProject(name: string, design: Design, savedAt: Date): s
   return JSON.stringify(makeProjectFile(name, design, savedAt), null, 2);
 }
 
-export type ExportResult = { ok: true; filename: string } | { ok: false; detail: string };
+/**
+ * Why an export did not happen, as something the code can branch on.
+ *
+ * `cancelled` is not a fault: the viewer was asked and said no, and showing
+ * that in red would tell them they had broken something. The caller used to
+ * spot it by comparing the message text against a literal copied from this
+ * file — so rewording the message, or adding a full stop, would silently have
+ * started reporting a plain "no" as an error, with nothing to catch it.
+ */
+export type ExportFailure = 'cancelled' | 'busy' | 'too-large' | 'unavailable';
+
+export type ExportResult =
+  | { ok: true; filename: string }
+  | { ok: false; reason: ExportFailure; detail: string };
 
 /**
  * Two ways of handing a file to a person, because this app runs in two places.
@@ -102,8 +115,8 @@ function downloadsCapability(): Promise<DownloadsCapability | null> {
 /** Warm it up; the result is memoised and any failure is already swallowed. */
 void downloadsCapability();
 
-/** Plain-language wording for why a save did not happen. */
-function describeSaveFailure(error: unknown): string {
+/** Why a save did not happen, and how to say so. */
+function describeSaveFailure(error: unknown): { reason: ExportFailure; detail: string } {
   const code =
     typeof error === 'object' && error !== null && typeof (error as { code?: unknown }).code === 'string'
       ? (error as { code: string }).code
@@ -112,13 +125,16 @@ function describeSaveFailure(error: unknown): string {
   switch (code) {
     case 'declined':
       // Not a failure of the app. The person was asked and said no.
-      return 'Export cancelled.';
+      return { reason: 'cancelled', detail: 'Export cancelled.' };
     case 'rate_limited':
-      return 'A save is already waiting to be confirmed. Try again in a moment.';
+      return {
+        reason: 'busy',
+        detail: 'A save is already waiting to be confirmed. Try again in a moment.',
+      };
     case 'too_large':
-      return 'That design is too large to export.';
+      return { reason: 'too-large', detail: 'That design is too large to export.' };
     default:
-      return 'This page is not allowed to save files.';
+      return { reason: 'unavailable', detail: 'This page is not allowed to save files.' };
   }
 }
 
@@ -138,7 +154,7 @@ function saveViaLink(filename: string, text: string): ExportResult {
     setTimeout(() => URL.revokeObjectURL(url), 0);
     return { ok: true, filename };
   } catch {
-    return { ok: false, detail: 'This browser would not save the file.' };
+    return { ok: false, reason: 'unavailable', detail: 'This browser would not save the file.' };
   }
 }
 
@@ -152,7 +168,7 @@ export async function exportProjectFile(name: string, design: Design): Promise<E
       await host.save({ filename, data: text });
       return { ok: true, filename };
     } catch (error) {
-      return { ok: false, detail: describeSaveFailure(error) };
+      return { ok: false, ...describeSaveFailure(error) };
     }
   }
 

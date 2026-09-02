@@ -13,7 +13,7 @@ import {
   sight,
   type Observer,
 } from '../model/panorama';
-import { groundOffsetAt, segmentsOf } from '../model/structures';
+import { baseHeightOf, segmentsOf, standingHeightAt } from '../model/structures';
 import { groundAt, terrainOf } from '../model/terrain';
 import type { PlantInstance, Plot, Site, TimeState, Structure } from '../model/types';
 import { inkColour, shade, type Lighting } from './palette';
@@ -118,6 +118,9 @@ export function drawPanorama(
     ...beds.map((value) => ({ sort: value.distance, kind: 'bed' as const, value })),
   ].sort((a, b) => b.sort - a.sort);
 
+  /** Height of the ground under any point, for plants and built work alike. */
+  const ground = (p: { x: number; y: number }) => groundAt(terrain, p);
+
   const project = (p: { x: number; y: number }) => {
     const s2 = sight(observer, p, site);
     return { offset: s2.offset, distance: s2.distance };
@@ -131,6 +134,7 @@ export function drawPanorama(
         pxPerDeg,
         fov,
         eye,
+        groundHeight: baseHeightOf(entry.value.structure, ground),
         light,
         selected: scene.selectedStructureId === entry.value.structure.id,
         project,
@@ -144,6 +148,7 @@ export function drawPanorama(
         pxPerDeg,
         fov,
         eye,
+        groundHeight: baseHeightOf(entry.value.structure, ground),
         light,
         selected: scene.selectedStructureId === entry.value.structure.id,
         project,
@@ -157,6 +162,7 @@ export function drawPanorama(
         pxPerDeg,
         fov,
         eye,
+        groundHeight: baseHeightOf(entry.value.structure, ground),
         light,
         selected: scene.selectedStructureId === entry.value.structure.id,
         project,
@@ -174,11 +180,16 @@ export function drawPanorama(
     // Ground and top of the plant as true angles from a 1.6 m eye. Working in
     // angles rather than a flat scale is what puts the base of a near plant
     // below the base of a far one, so the ground reads as receding.
-    // Standing in a raised bed lifts the plant, which lowers the eye relative to
-    // it — the bed is why a border reads as raised from the terrace at all. The
-    // ground it stands on counts the same way.
-    const lift =
-      groundOffsetAt(item.plant, scene.structures) + groundAt(terrain, item.plant);
+    /*
+     * What the plant is standing on: the soil surface of its bed if it is in
+     * one, and otherwise the ground under its feet.
+     *
+     * Asked as one question rather than added up from two, because a bed's soil
+     * is level at its own height above the ground beneath its middle. Taking
+     * the bed's height plus the ground under the *plant* instead is what made a
+     * plant float above its own bed by the height of the hillside under them.
+     */
+    const lift = standingHeightAt(item.plant, scene.structures, ground);
     const relativeEye = eye - lift;
     const baseAngle = (Math.atan2(relativeEye, distance) * 180) / Math.PI;
     const topAngle = (Math.atan2(item.size.height - relativeEye, distance) * 180) / Math.PI;

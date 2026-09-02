@@ -1,5 +1,6 @@
 import { SPECIES_BY_ID } from '../model/plants';
 import { clampHeight, clampThickness, minimumPoints } from '../model/structures';
+import { clampSlopeFall, normaliseSlopeDirection } from '../model/terrain';
 import type { PlantInstance, Plot, Site, Structure, StructureKind, Vec2 } from '../model/types';
 
 /**
@@ -83,6 +84,14 @@ export interface LoadSuccess {
    * dropped plant. The caller reports the count; it never silently swallows them.
    */
   skipped: string[];
+  /**
+   * Plants whose record was damaged past rebuilding — a missing position, say.
+   *
+   * Counted separately from `skipped`, because the two are different losses: a
+   * skipped plant is one the library no longer has, which is a fact about the
+   * palette, while this is a fact about the file.
+   */
+  droppedPlants: number;
   /** Walls or beds in the file that were too damaged to rebuild. */
   droppedStructures: number;
 }
@@ -150,6 +159,10 @@ function parseSite(v: unknown): Site | null {
    * the ground could tilt meant — so this is read when present and defaulted
    * when not, without a new schema version. Bumping would make an older build
    * refuse the whole design rather than quietly ignore two optional numbers.
+   *
+   * Brought into the range the app can show rather than kept as written: a fall
+   * the control cannot reach is one the reading and the drawing will disagree
+   * about for as long as the design is open.
    */
   const fall = finiteNumber(v.slopeFall);
   const direction = finiteNumber(v.slopeDirection);
@@ -161,8 +174,8 @@ function parseSite(v: unknown): Site | null {
     northAngle,
     dst: v.dst,
     label,
-    slopeFall: fall === null ? 0 : Math.max(0, Math.min(20, fall)),
-    slopeDirection: direction === null ? 180 : ((direction % 360) + 360) % 360,
+    slopeFall: fall === null ? 0 : clampSlopeFall(fall),
+    slopeDirection: direction === null ? 180 : normaliseSlopeDirection(direction),
   };
 }
 
@@ -238,23 +251,42 @@ function parseStructures(v: unknown): { structures: Structure[]; dropped: number
 interface PlantParse {
   plants: PlantInstance[];
   skipped: string[];
+  dropped: number;
 }
 
+/**
+ * Plants are dropped one at a time, never all together.
+ *
+ * This used to fail the whole design if any single plant was malformed, while a
+ * malformed wall beside it cost only that wall. The reasoning that applies to a
+ * wall applies with more force here: losing one plant from a garden you can
+ * still open is a far better outcome than losing the garden, and now that
+ * designs are exported as hand-editable files and old ones must keep opening,
+ * all-or-nothing was the more damaging of the two policies.
+ *
+ * A `plants` field that is not an array at all is still a whole-design failure:
+ * that is not a damaged plant, it is a file that is not a design.
+ */
 function parsePlants(v: unknown): PlantParse | null {
   if (!Array.isArray(v)) return null;
   const plants: PlantInstance[] = [];
   const skipped: string[] = [];
   const seen = new Set<string>();
+  let dropped = 0;
 
   for (const raw of v) {
-    if (!isRecord(raw)) return null;
+    if (!isRecord(raw)) {
+      dropped += 1;
+      continue;
+    }
     const id = nonEmptyString(raw.id);
     const speciesId = nonEmptyString(raw.speciesId);
     const x = finiteNumber(raw.x);
     const y = finiteNumber(raw.y);
     const seed = finiteNumber(raw.seed);
     if (id === null || speciesId === null || x === null || y === null || seed === null) {
-      return null;
+      dropped += 1;
+      continue;
     }
 
     // Versions 1 and 2 knew nothing of a head start, so their plants simply
@@ -292,7 +324,7 @@ function parsePlants(v: unknown): PlantParse | null {
     );
   }
 
-  return { plants, skipped };
+  return { plants, skipped, dropped };
 }
 
 // ------------------------------------------------------------------- public
@@ -305,6 +337,20 @@ export function makeProjectFile(name: string, design: Design, savedAt: Date): Pr
     savedAt: savedAt.toISOString(),
     design,
   };
+}
+
+/**
+ * The same design under a new name, keeping the moment it was actually saved.
+ *
+ * Renaming is not saving, so the timestamp must not move — and it is carried
+ * across as the string it already is rather than rebuilt through a `Date`.
+ * That round trip was a real fault: `savedAt` is only guaranteed here to be a
+ * non-empty string, since a design is worth keeping even when its metadata is
+ * damaged, so `new Date(savedAt).toISOString()` threw `RangeError` on anything
+ * unparseable and took the rename down with it.
+ */
+export function renamedProjectFile(name: string, design: Design, savedAt: string): ProjectFile {
+  return { schema: SCHEMA, version: CURRENT_VERSION, name, savedAt, design };
 }
 
 function fail(failure: LoadFailure): LoadResult {
@@ -345,6 +391,12 @@ export function parseProjectFile(raw: unknown): LoadResult {
   const name = nonEmptyString(raw.name);
   if (name === null) return fail({ kind: 'malformed', detail: 'no name' });
 
+  /*
+   * Checked as a string, not as a date. A garden is worth keeping even when the
+   * moment it was saved is unreadable — the list simply shows the date as
+   * unknown. Callers must therefore treat this as opaque text and never assume
+   * `new Date(savedAt)` is valid.
+   */
   const savedAt = nonEmptyString(raw.savedAt);
   if (savedAt === null) return fail({ kind: 'malformed', detail: 'no saved date' });
 
@@ -368,6 +420,7 @@ export function parseProjectFile(raw: unknown): LoadResult {
     savedAt,
     design: { plot, plants: parsed.plants, site, structures: built.structures },
     skipped: parsed.skipped,
+    droppedPlants: parsed.dropped,
     droppedStructures: built.dropped,
   };
 }
@@ -382,15 +435,35 @@ export function describeFailure(failure: LoadFailure): string {
   }
 }
 
-/** Wording for what a load could not bring back, or null when nothing was lost. */
-export function describeSkipped(skipped: string[], droppedStructures = 0): string | null {
+/**
+ * Wording for what a load could not bring back, or null when nothing was lost.
+ *
+ * Takes the whole result rather than a list of counts. A third kind of loss was
+ * added and the two callers both had to be found and changed by hand — which is
+ * exactly how the second kind came to be computed and then not reported at all
+ * for a while. Passing the result means a new category is carried to every
+ * caller for free.
+ */
+export function describeLosses(losses: {
+  skipped: string[];
+  droppedPlants?: number;
+  droppedStructures?: number;
+}): string | null {
   const parts: string[] = [];
+  const { skipped, droppedPlants = 0, droppedStructures = 0 } = losses;
 
   if (skipped.length > 0) {
     const unique = new Set(skipped);
     const plants = skipped.length === 1 ? '1 plant' : `${skipped.length} plants`;
     const kinds = unique.size === 1 ? 'it is' : 'they are';
     parts.push(`${plants} could not be restored — ${kinds} no longer in the library.`);
+  }
+
+  // A different loss from the one above, and worth saying so: this is a damaged
+  // record rather than a plant the library has stopped carrying.
+  if (droppedPlants > 0) {
+    const plants = droppedPlants === 1 ? '1 plant' : `${droppedPlants} plants`;
+    parts.push(`${plants} could not be rebuilt.`);
   }
 
   if (droppedStructures > 0) {
