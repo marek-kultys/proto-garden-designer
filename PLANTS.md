@@ -22,21 +22,22 @@ photographs are copied, and nothing is harvested automatically. See
 
 ---
 
-## In the app now — 155 plants
+## In the app now — 170 plants
 
-128 full, 27 partial.
+145 full, 25 partial.
 
-### Trees (20)
+### Trees (23)
 
 - [x] *Acer palmatum 'Ōsakazuki'* — Japanese maple · **FULL**
 - [x] *Amelanchier lamarckii* — Snowy mespilus · **FULL**
 - [x] *Betula utilis var. jacquemontii* — West Himalayan birch · **FULL**
 - [x] *Carpinus betulus* — Hornbeam hedge · **FULL**
+- [x] *Crataegus monogyna* — Hawthorn hedge · **FULL**
 - [x] *Eucalyptus gunnii* — Cider gum · **FULL**
-- [x] *Fagus sylvatica* — Common beech · **PARTIAL**
-      - Not marked as a clipped subject, so a beech hedge grows into a 25 m tree as the age slider runs.
-- [x] *Fagus sylvatica f. purpurea* — Copper beech · **PARTIAL**
-      - Not marked as a clipped subject, so a copper beech hedge grows into a full tree as the age slider runs.
+- [x] *Fagus sylvatica* — Common beech · **FULL**
+- [x] *Fagus sylvatica* — Beech hedge · **FULL**
+- [x] *Fagus sylvatica f. purpurea* — Copper beech · **FULL**
+- [x] *Fagus sylvatica f. purpurea* — Copper beech hedge · **FULL**
 - [x] *Ilex aquifolium* — English holly · **PARTIAL**
       - Not marked as a clipped subject, so a clipped holly hedge or standard grows into a full tree.
 - [x] *Magnolia 'Black Tulip'* — Magnolia 'Black Tulip' · **FULL**
@@ -52,9 +53,12 @@ photographs are copied, and nothing is harvested automatically. See
 - [x] *Prunus x blireana* — Double pink flowering plum · **FULL**
 - [x] *Sorbus aucuparia* — Rowan · **FULL**
 
-### Shrubs (41)
+### Shrubs (53)
 
+- [x] *Berberis darwinii* — Darwin's barberry · **FULL**
+- [x] *Berberis thunbergii f. atropurpurea* — Purple Japanese barberry · **FULL**
 - [x] *Buxus sempervirens* — Common box · **FULL**
+- [x] *Callicarpa bodinieri var. giraldii 'Profusion'* — Beautyberry · **FULL**
 - [x] *Chimonanthus praecox* — Wintersweet · **FULL**
 - [x] *Choisya ternata 'Sundance'* — Mexican orange blossom · **FULL**
 - [x] *Cistus x argenteus 'Silver Pink'* — Rock rose 'Silver Pink' · **FULL**
@@ -66,6 +70,8 @@ photographs are copied, and nothing is harvested automatically. See
 - [x] *Elaeagnus x submacrophylla* — Oleaster · **PARTIAL**
       - Not marked as a clipped subject, so it reaches full shrub size instead of holding a hedge height.
 - [x] *Erica carnea* — Winter heath · **FULL**
+- [x] *Escallonia 'Apple Blossom'* — Escallonia · **FULL**
+- [x] *Euonymus japonicus 'Green Rocket'* — Japanese spindle · **FULL**
 - [x] *Forsythia x intermedia 'Lynwood Variety'* — Forsythia 'Lynwood Variety' · **FULL**
 - [x] *Garrya elliptica 'James Roof'* — Silk tassel bush 'James Roof' · **FULL**
 - [x] *Griselinia littoralis* — New Zealand broadleaf · **FULL**
@@ -77,12 +83,18 @@ photographs are copied, and nothing is harvested automatically. See
 - [x] *Hydrangea quercifolia* — Oak-leaved hydrangea · **FULL**
 - [x] *Hydrangea serrata* — Mountain hydrangea · **PARTIAL**
       - No winter standing window, so the dried lacecap heads vanish in autumn rather than standing.
+- [x] *Ilex crenata Dark Green ('Icoprins11')* — Japanese holly · **FULL**
 - [x] *Lavandula angustifolia 'Hidcote'* — English lavender · **FULL**
 - [x] *Leptospermum scoparium* — Mānuka · **FULL**
+- [x] *Ligustrum ovalifolium* — Privet hedge · **FULL**
+- [x] *Lonicera nitida 'Baggesen's Gold'* — Shrubby honeysuckle · **FULL**
 - [x] *Mahonia x media 'Charity'* — Mahonia 'Charity' · **FULL**
+- [x] *Osmanthus × burkwoodii* — Burkwood osmanthus · **FULL**
 - [x] *Paeonia x suffruticosa* — Tree peony · **FULL**
 - [x] *Photinia x fraseri 'Red Robin'* — Photinia 'Red Robin' · **PARTIAL**
       - Not marked as a clipped subject, so it reaches full shrub size instead of holding a hedge height.
+- [x] *Pittosporum tenuifolium 'Silver Queen'* — Tawhiwhi · **FULL**
+- [x] *Prunus lusitanica* — Portugal laurel · **FULL**
 - [x] *Pyracantha coccinea* — Firethorn · **FULL**
 - [x] *Rhododendron yakushimanum* — Yakushima rhododendron · **FULL**
 - [x] *Rosa 'Ausland'* — English rose 'Scepter'd Isle' · **FULL**
@@ -96,6 +108,7 @@ photographs are copied, and nothing is harvested automatically. See
 - [x] *Santolina chamaecyparissus* — Cotton lavender · **FULL**
 - [x] *Santolina chamaecyparissus 'Lemon Fizz'* — Cotton lavender 'Lemon Fizz' · **FULL**
 - [x] *Sarcococca confusa* — Christmas box · **FULL**
+- [x] *Sarcococca confusa* — Christmas box edging · **FULL**
 - [x] *Tamarix tetrandra* — Four-stamen tamarisk · **FULL**
 - [x] *Viburnum tinus* — Laurustinus · **PARTIAL**
       - Not marked as a clipped subject, so it reaches full size instead of holding a clipped dome.
@@ -239,22 +252,19 @@ photographs are copied, and nothing is harvested automatically. See
 
 ## Planned
 
-### Batch 1 — Bones (33) · approved, not yet built
+### Batch 1 — Bones · 12 of 33 built
 
 Hedging, clipped and architectural evergreens, conifers, and the missing
 structural trees. The things a design is laid out with before anything flowers.
 
-#### Hedging and clipping (9)
+#### Hedging and clipping — BUILT
 
-- [ ] *Ligustrum ovalifolium* — garden privet · to be marked as clipped
-- [ ] *Crataegus monogyna* — common hawthorn · to be marked as clipped
-- [ ] *Prunus lusitanica* — Portugal laurel · to be marked as clipped
-- [ ] *Ilex crenata* 'Dark Green' — Japanese holly · to be marked as clipped
-- [ ] *Euonymus japonicus* 'Green Rocket' — spindle · to be marked as clipped
-- [ ] *Osmanthus* × *burkwoodii* — Burkwood osmanthus · to be marked as clipped
-- [ ] *Pittosporum tenuifolium* 'Silver Queen' — tawhiwhi · to be marked as clipped
-- [ ] *Lonicera nitida* 'Baggesen's Gold' — shrubby honeysuckle · to be marked as clipped
-- [ ] *Escallonia* 'Apple Blossom' — escallonia · to be marked as clipped
+All twelve of this group are in the app and ticked in the list above: privet,
+hawthorn, Portugal laurel, Japanese holly, *Euonymus* 'Green Rocket', osmanthus,
+pittosporum, *Lonicera nitida*, escallonia, both berberis, and beautyberry.
+Beech, copper beech and sarcococca gained separate clipped-hedge entries
+alongside the existing plants. Clipped subjects in the library went from four to
+eighteen.
 
 #### Architectural evergreens (9)
 
@@ -398,7 +408,6 @@ Offered but not taken into batch 1. Say the word and any of these swaps in.
 - [ ] *Arbutus unedo* — strawberry tree
 - [ ] *Ginkgo biloba* — maidenhair tree
 - [ ] *Corylus maxima* 'Purpurea' — purple filbert
-- [ ] *Berberis darwinii* — Darwin's barberry
 - [ ] *Cotoneaster horizontalis* — wall spray
 - [ ] *Nandina domestica* — heavenly bamboo
 - [ ] *Olea europaea* — olive
@@ -413,8 +422,9 @@ Offered but not taken into batch 1. Say the word and any of these swaps in.
 Drawn from the PARTIAL entries above. Not scheduled — listed so they are not
 forgotten.
 
-- [ ] Mark the six hedging subjects as clipped: beech, copper beech, photinia,
-      elaeagnus, holly, laurustinus.
+- [x] Beech and copper beech — done, as separate clipped hedge entries rather
+      than by converting the trees.
+- [ ] Still unmarked as clipped: photinia, elaeagnus, holly, laurustinus.
 - [ ] Give the two hydrangeas and the hollyhock a winter standing window.
 - [ ] Decide whether dahlias should be marked as tender tubers.
 - [ ] The climber cap at 2.2 m and the missing wall to climb are a design
