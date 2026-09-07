@@ -56,8 +56,8 @@ A few open questions were settled before building:
 | Where in the world? | UK / north-west Europe, London by default, metric throughout |
 | Which optional extras? | The sun/shade overlay only — soil alerts, save/load and a plant info panel were cut |
 
-Everything after that came from using it: ten plants became thirty and then a
-hundred and fifty-five, plus a phone layout, a 360° view from inside the
+Everything after that came from using it: ten plants became thirty, then a
+hundred and fifty-five, then two hundred and seventy, plus a phone layout, a 360° view from inside the
 garden, adjustable eye height, duplicating a plant in place, undo, and filtering
 the library by growing conditions.
 
@@ -88,10 +88,14 @@ are looking at the same thing and can disagree about something real.
 
 **Depth over breadth first.** The palette began at ten plants deeply simulated
 rather than a hundred stubs, and grew to a hundred and fifty-five as testing
-demanded specific plants. The rule has not changed: every entry is researched
-rather than invented, and carries a source link. What breadth buys is that a
-designer can look for the plant they actually had in mind; what depth buys is
-that it behaves correctly when they find it.
+demanded specific plants. It then roughly doubled again, for a different reason:
+a working garden designer read the library as a designer rather than as a tester
+and found it full of holes — almost nothing to clip, two conifers, two ferns, and
+nothing at all for wet ground. That second growth was chosen by asking what gets
+specified, not what the model still needed to be shown. The rule has not changed:
+every entry is researched rather than invented, and carries a source link. What
+breadth buys is that a designer can look for the plant they actually had in mind;
+what depth buys is that it behaves correctly when they find it.
 
 **Real models, not plausible fakes.** The sun is the NOAA solar position
 algorithm, not a sine wave — because a gardener will spot a fake sun immediately,
@@ -129,7 +133,7 @@ terrace or an upstairs window.
 
 ### The plant library
 
-A hundred and fifty-five plants, searchable by common name, Latin name, genus
+Two hundred and seventy plants, searchable by common name, Latin name, genus
 or family, each card showing both names, mature dimensions, foliage type and a
 sketch thumbnail. Drag onto the plan to place; on a phone, tap to drop one in the
 middle and then drag it into position.
@@ -415,21 +419,45 @@ than ellipses — a solid thing, not a dappled one.
 
 ## The plant palette
 
-A hundred and fifty-five plants, chosen to span the axes the simulation
+Two hundred and seventy plants, chosen to span the axes the simulation
 exercises — vigorous to slow, evergreen to fully dormant, sun to deep shade, tree
 to groundcover, and now bulb, fern and climber as well.
 
 | Type | Count | Examples |
 |---|---|---|
-| Trees | 20 | birch, snowy mespilus, Japanese maple, magnolia, crab apple, apple, wild cherry, beech, hornbeam |
-| Shrubs | 41 | hydrangeas, lavender, roses, rhododendron, tamarisk, witch hazel, daphne, cistus, sarcococca, mahonia, box |
-| Conifers | 2 | clipped yew, dwarf mountain pine |
-| Climbers | 10 | clematis (montana, armandii, viticella), ivy, Japanese honeysuckle, passion flower, crimson glory vine, star jasmine, winter jasmine |
-| Grasses | 14 | miscanthus, molinia, calamagrostis, stipa, pennisetum, Mexican feather grass, deschampsia |
-| Ferns | 2 | male fern, soft tree fern |
-| Perennials | 51 | hellebore, hosta, epimedium, lungwort, London pride, hollyhock, giant viper's bugloss, euphorbia, geranium, aster, peony, dahlia, delphinium |
-| Bulbs | 12 | snowdrop, cyclamen, narcissus, allium, tulips, tree lily |
-| Annuals | 3 | cosmos, love-in-a-mist, marigold |
+| Trees | 37 | birch, amelanchier, magnolia, crab apple, cherry, beech, hornbeam, oak, lime, ornamental pear, cercis, parrotia, liquidambar, ginkgo, Chusan palm |
+| Shrubs | 64 | hydrangeas, lavender, roses, rhododendron, box, privet, Portugal laurel, osmanthus, pittosporum, escallonia, berberis, fatsia, camellia, pieris, skimmia, yucca |
+| Conifers | 8 | clipped yew, dwarf mountain pine, Italian cypress, thuja, blue juniper, Lawson cypress, blue Atlas cedar, cryptomeria |
+| Climbers | 18 | clematis, ivy, honeysuckle, passion flower, star jasmine, wisteria, climbing rose, Boston ivy, climbing hydrangea, akebia, campsis, golden hop, sweet pea |
+| Grasses | 23 | miscanthus, molinia, calamagrostis, stipa, pennisetum, hakonechloa, carex, panicum, sesleria, festuca, luzula, umbrella bamboo |
+| Ferns | 7 | male fern, soft tree fern, soft shield fern, hart's tongue, Japanese painted fern, shuttlecock fern, polypody |
+| Perennials | 84 | hellebore, hosta, epimedium, geranium, aster, peony, dahlia, delphinium, Japanese anemone, achillea, astrantia, nepeta, sedum, heuchera, bergenia, astilbe, rodgersia, ligularia, water iris |
+| Bulbs | 21 | snowdrop, cyclamen, narcissus, allium, tulips, crocus, camassia, fritillary, muscari, bluebell, erythronium, colchicum, eremurus |
+| Annuals | 8 | cosmos, love-in-a-mist, marigold, ammi, opium poppy, cerinthe, snapdragon, zinnia |
+
+A hundred and fifteen of those are a deliberate expansion rather than an
+accumulation. The first hundred and fifty-five grew out of testing — plants were
+added because the model needed something to exercise. Read as a working palette
+instead, that list was full of holes: four clipped subjects and no privet,
+hawthorn, laurel or box substitute; two conifers; two ferns; no wisteria, no
+Japanese anemone, no catmint; and nothing whatever for wet ground, so the wettest
+end of the drainage axis matched nothing at all. The expansion was chosen by
+asking what a UK designer actually specifies. Clipped subjects went from four to
+twenty-one, conifers from two to eight, ferns from two to seven, climbers from
+ten to eighteen, and bog and waterside planting exists for the first time.
+
+Some plants now appear twice, as a plant and as a clipped hedge — beech, copper
+beech, sarcococca, field maple. That is deliberate: a 2.5 m hedge and a 20 m
+forest tree are not the same thing to design with, and the growth model treats
+them differently, since a clipped subject climbs to the height it is held at and
+then stops. `PLANTS.md` carries the running checklist of what is in, what is
+queued, and which entries are only partly modelled.
+
+One thing was deliberately left out. A waterlily needs a drawing shape the app
+does not have — twelve plant forms and none of them is flat pads on water — so
+the wet end stops at bog and marginal planting. Adding one would also break the
+check that records that nothing in the library is a pond plant. Both are real
+work, not a data row.
 
 Several exist to exercise a specific behaviour, and it is worth knowing which,
 because each is a case where a naive implementation silently does nothing rather
@@ -621,11 +649,15 @@ The prototype exists to answer questions about the idea, not about the code:
    *what will this look like*. Early signs are that the 360° view is the one that
    makes people stop talking about the drawing and start talking about the garden
    — but that needs testing, not assuming.
-3. **Is a hundred and fifty-five plants the right size?** The palette started
-   at ten on a depth-over-breadth argument and grew four-fold because testing
-   kept asking for specific plants. The open question is now the opposite one:
-   whether a list this long is harder to work with than a curated short one, and
-   whether the filters carry the weight the scrolling no longer does.
+3. **Is two hundred and seventy plants the right size?** The palette started
+   at ten on a depth-over-breadth argument, grew to a hundred and fifty-five
+   because testing kept asking for specific plants, and then to two hundred and
+   seventy because a designer wanted to work in it. The open question is now the
+   opposite one: whether a list this long is harder to work with than a curated
+   short one, and whether the filters carry the weight the scrolling no longer
+   does. At this size the answer matters — six filter axes and a search box are
+   now the only way through, and there is still no filter on size, hardiness or
+   flowering month.
 4. **Is the sun/shade map read as analysis or as decoration?**
 5. **Would this be shown to a client, or is it a designer's private tool?**
 6. **What is the first thing they try to do that it cannot do?**
@@ -733,6 +765,15 @@ not:
 
 ### Further out
 
-Suitability alerts against the soil and aspect data already held; marginals and
-aquatics, so the wet end of the drainage axis means something; more of the plant
-palette, once the interaction has been judged worth deepening.
+Suitability alerts against the soil and aspect data already held. A drawing shape
+for floating aquatics, which is the only thing still standing between the palette
+and a pond — marginals and bog planting now exist, but a waterlily has no form the
+app can draw. Better ways through a library of this size: a filter on size,
+hardiness or flowering month, a sort, or saved groups of plants a designer works
+with repeatedly.
+
+Both of the earlier items here are done. Marginals and bog planting landed with
+the palette expansion, so the wet end of the drainage axis now means something;
+and the palette itself was deepened, which answers "once the interaction has been
+judged worth deepening" in the affirmative — the judgement came from a garden
+designer using it for real work.
