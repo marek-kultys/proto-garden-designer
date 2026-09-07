@@ -24,7 +24,7 @@ through a slice of it — five to twenty metres deep, as you choose — and a
 on a phone.
 
 Built to test whether the interaction idea has depth rather than to be a
-comprehensive plant database. A hundred and seventy plants, each researched
+comprehensive plant database. Two hundred and seventy plants, each researched
 rather than invented, chosen to span the axes the simulation actually exercises
 — trees, shrubs, conifers, climbers, grasses, ferns, perennials, bulbs and
 annuals.

@@ -5,7 +5,7 @@ import { SPECIES } from '../plants';
  * A sweep over every entry in the palette, checking the things that are easy to
  * get wrong by hand and impossible to see afterwards.
  *
- * The plant data is a hundred and seventy hand-authored records of around
+ * The plant data is two hundred and seventy hand-authored records of around
  * thirty fields each, and TypeScript only guarantees that a number is a number.
  * A day-of-year of 400, a mature size smaller than the planted size, or a leaf
  * fall before bud burst all typecheck perfectly and then produce a plant that
