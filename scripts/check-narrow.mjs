@@ -1,6 +1,22 @@
+/**
+ * Does the layout scroll sideways on a narrow screen?
+ *
+ *   node scripts/check-narrow.mjs [file] [outDir]
+ *
+ * Same reason as check-singlefile: the output path was one container's scratch
+ * directory, so this could not run anywhere else.
+ */
 import { chromium } from 'playwright';
-const file = process.argv[2];
-const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
+import { mkdir } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
+
+const repo = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const file = process.argv[2] ?? resolve(repo, 'dist/index.html');
+const outDir = process.argv[3] ?? 'screenshots';
+await mkdir(outDir, { recursive: true });
+
+const browser = await chromium.launch();
 for (const [w, h, label] of [[820, 1180, 'tablet-portrait'], [1440, 900, 'desktop']]) {
   const page = await browser.newPage({ viewport: { width: w, height: h }, deviceScaleFactor: 2 });
   await page.goto(`file://${file}`);
@@ -13,7 +29,7 @@ for (const [w, h, label] of [[820, 1180, 'tablet-portrait'], [1440, 900, 'deskto
   });
   await page.waitForTimeout(400);
   const m = await page.evaluate(() => ({ scrollW: document.documentElement.scrollWidth, clientW: document.documentElement.clientWidth }));
-  await page.screenshot({ path: `/tmp/claude-0/-home-user-proto-garden-designer/ef2f318f-8222-51b3-900b-0e787fb0cb36/scratchpad/narrow-${label}.png`, fullPage: label === 'tablet-portrait' });
+  await page.screenshot({ path: `${outDir}/narrow-${label}.png`, fullPage: label === 'tablet-portrait' });
   console.log(`${label} ${w}x${h}: scrollW=${m.scrollW} clientW=${m.clientW} -> ${m.scrollW > m.clientW ? 'SIDEWAYS SCROLL' : 'ok'}`);
   await page.close();
 }

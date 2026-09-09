@@ -18,7 +18,7 @@ const check = (ok, label, detail = '') => {
   if (!ok) failures.push(label);
 };
 
-const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
+const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1440, height: 960 } });
 const errors = [];
 page.on('pageerror', (e) => errors.push(String(e)));

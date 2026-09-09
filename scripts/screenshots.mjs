@@ -69,7 +69,7 @@ const SHOTS = [
 
 await mkdir(outDir, { recursive: true });
 
-const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
+const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1500, height: 1000 }, deviceScaleFactor: 2 });
 
 const errors = [];

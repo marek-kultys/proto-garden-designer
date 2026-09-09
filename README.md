@@ -270,9 +270,37 @@ custom domain on the `melayerka_art` repo, has no
 either a subdomain of it or publishing into that repo; see
 [PRODUCT.md](PRODUCT.md#publishing-it).
 
-The Playwright checks are deliberately not run in CI: they need a browser
-download and still carry a hardcoded container path. The 135 model and store
-tests are the device-free half, and they are what the gate runs.
+The Playwright checks are deliberately not run in CI, because they need a browser
+download the gate should not pay for on every push. The model and store tests are
+the device-free half, and they are what the gate runs.
+
+They do run locally. Install the browser once with `npx playwright install
+chromium`, then either point a check at a built file:
+
+```
+SINGLEFILE=1 npm run build
+node scripts/check-singlefile.mjs          # runs, and reaches nothing
+node scripts/check-narrow.mjs              # no sideways scroll
+```
+
+or serve the build and point the rest at it:
+
+```
+npm run build && npm run preview           # http://localhost:4173
+node scripts/check-habits.mjs              # every plant shape draws as itself
+node scripts/check-editing.mjs
+node scripts/check-mobile.mjs
+node scripts/check-panorama.mjs
+```
+
+Each takes `[url|file] [outDir]` and writes to `screenshots/`, which is ignored.
+`readme-images.mjs` defaults to `docs/img` and will overwrite the images in this
+file, so give it an output directory unless that is what you want.
+
+These used to name one container's absolute paths — the browser at
+`/opt/pw-browsers`, the build under `/home/user` — so none of them would start
+anywhere else, including on the machine the app is built on. Paths now resolve
+against the script's own location, and Playwright finds its own browser.
 
 ## Testing with gardeners
 
