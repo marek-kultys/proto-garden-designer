@@ -701,8 +701,8 @@ garden back without asking them to find and send an attachment.
 
 **Live at <https://marekkultys.com/proto-garden-designer/>.** The repository is
 public and GitHub Actions publishes the single-file build on every merge to
-`master`, with the 284 tests as a gate in front of it. Actions is free on public
-repositories and a run takes about a minute.
+`master`, with the model and store tests as a gate in front of it. Actions is
+free on public repositories and a run takes about a minute.
 
 The decision that got it there: **go public rather than pay to stay private.**
 GitHub Pro does let you publish Pages from a private repository, but the

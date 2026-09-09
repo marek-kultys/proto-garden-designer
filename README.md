@@ -44,8 +44,9 @@ tab, and export/import as a JSON file carries one between machines. Nothing is
 sent anywhere and there is no backend.
 
 The library is filtered by type and by growing conditions — aspect, soil type,
-soil pH and drainage — so a border with dry shade on chalk narrows a hundred and
-fifty-five plants to the handful that will actually take it.
+soil pH, drainage, foliage, size and hardiness — so a border with dry shade on
+chalk narrows two hundred and seventy plants to the few dozen that will actually
+take it.
 
 📄 **[PRODUCT.md](PRODUCT.md)** — what it is, where the brief came from, what it
 does, what was deliberately left out, and the roadmap.
@@ -63,7 +64,7 @@ For something you can email to a tester, or open by double-clicking with no
 server at all:
 
 ```bash
-SINGLEFILE=1 npm run build            # one self-contained dist/index.html, ~384 kB
+SINGLEFILE=1 npm run build            # one self-contained dist/index.html, ~575 kB
 node scripts/check-singlefile.mjs     # confirms it runs from file:// with zero network requests
 ```
 
