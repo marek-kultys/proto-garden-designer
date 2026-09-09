@@ -73,7 +73,9 @@ node scripts/check-singlefile.mjs     # confirms it runs from file:// with zero 
 ```
 src/model/    the simulation — sun, growth, phenology, shade, panorama geometry,
               walls and raised beds (structures.ts), and the plant data itself
-              (plants.ts)
+              (plants/, one file per type, stitched back together by plants/index.ts
+              in the order given by plants/order.ts — which is what numbers them
+              in PLANTS.md, so it is kept even though nothing else reads it)
 src/render/   canvas drawing — sketchy line work, the light palette, and one
               draw pass per view
 src/state/    a single zustand store; all state is plain and serialisable, plus
