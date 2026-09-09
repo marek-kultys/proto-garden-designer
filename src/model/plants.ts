@@ -10927,6 +10927,22 @@ export function getSpecies(id: string): Species {
   return s;
 }
 
+/**
+ * An RHS hardiness rating as a number, for comparing one against another.
+ *
+ * The field is a string because that is how the ratings are written and shown —
+ * but "will this survive my winter" is a threshold question, not an equality
+ * one. Asking for H5 has to include the H6 and H7 plants, which are hardier
+ * still; matching H5 exactly would hide precisely the plants that are safest.
+ *
+ * Anything that does not parse returns 0, so a damaged record falls out of a
+ * "hardy to at least" filter rather than being promised as tough.
+ */
+export function hardinessRating(species: Species): number {
+  const match = /^H(\d)$/.exec(species.hardiness.trim());
+  return match ? Number(match[1]) : 0;
+}
+
 export const TYPE_LABELS: Record<Species['type'], string> = {
   tree: 'Trees',
   shrub: 'Shrubs',

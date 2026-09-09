@@ -1,6 +1,6 @@
 import { getSpecies } from '../model/plants';
-import { phaseAt } from '../model/phenology';
-import { matureSize, plantAge, sizeAt } from '../model/growth';
+import { plantState } from '../model/plantState';
+import { matureSize } from '../model/growth';
 import { canopyDensity } from '../model/shade';
 import { baseHeightOf, standingHeightAt } from '../model/structures';
 import { groundAt, shadowCastOnSlope, terrainOf } from '../model/terrain';
@@ -240,9 +240,7 @@ export function drawElevation(
     }
 
     const item = entry.value;
-    const species = getSpecies(item.plant.speciesId);
-    const phase = phaseAt(species, time.doy, site);
-    const size = sizeAt(species, plantAge(item.plant.plantedAge, time.year));
+    const { species, phase, size } = plantState(item.plant, time, site);
     const form = getForm(species, item.plant.seed);
     const x = originX + item.along * pxPerM;
     // What the plant stands on: its bed's level soil surface if it is in one,

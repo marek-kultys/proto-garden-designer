@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { SPECIES } from '../plants';
+import { SPECIES, hardinessRating } from '../plants';
 
 /**
  * A sweep over every entry in the palette, checking the things that are easy to
@@ -55,5 +55,41 @@ describe('every entry in the palette', () => {
       expect(s.genus.length, s.common).toBeGreaterThan(2);
       expect(s.family, s.common).toMatch(/aceae$/);
     }
+  });
+});
+
+/**
+ * "Will it survive my winter" is a threshold question. The filter that asks it
+ * compares ratings as numbers, so the parse has to be right for every record —
+ * and has to fail closed, since a plant wrongly promised as hardy is the one
+ * mistake here that kills something.
+ */
+describe('hardiness as a number', () => {
+  it('reads every rating in the library', () => {
+    for (const s of SPECIES) {
+      const n = hardinessRating(s);
+      expect(n).toBeGreaterThanOrEqual(1);
+      expect(n).toBeLessThanOrEqual(7);
+      expect(`H${n}`).toBe(s.hardiness);
+    }
+  });
+
+  it('orders the ratings, so a threshold can include everything hardier', () => {
+    const atLeast = (n: number) => SPECIES.filter((s) => hardinessRating(s) >= n).length;
+    // Each step down the scale can only ever widen the list.
+    expect(atLeast(7)).toBeLessThanOrEqual(atLeast(6));
+    expect(atLeast(6)).toBeLessThanOrEqual(atLeast(5));
+    expect(atLeast(5)).toBeLessThanOrEqual(atLeast(4));
+    expect(atLeast(1)).toBe(SPECIES.length);
+    // And asking for H5 must not hide the plants that are hardier still.
+    const h5 = SPECIES.filter((s) => hardinessRating(s) >= 5);
+    expect(h5.some((s) => s.hardiness === 'H7')).toBe(true);
+  });
+
+  it('fails closed on a rating it cannot read', () => {
+    const damaged = { ...SPECIES[0], hardiness: 'quite tough' };
+    expect(hardinessRating(damaged)).toBe(0);
+    // Zero is below every threshold, so it drops out rather than being promised.
+    expect(hardinessRating(damaged) >= 4).toBe(false);
   });
 });

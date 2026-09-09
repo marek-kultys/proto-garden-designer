@@ -655,9 +655,10 @@ The prototype exists to answer questions about the idea, not about the code:
    seventy because a designer wanted to work in it. The open question is now the
    opposite one: whether a list this long is harder to work with than a curated
    short one, and whether the filters carry the weight the scrolling no longer
-   does. At this size the answer matters — six filter axes and a search box are
-   now the only way through, and there is still no filter on size, hardiness or
-   flowering month.
+   does. At this size the answer matters — eight filter axes and a search box are
+   now the only way through. Size and hardiness were added once the palette
+   passed two hundred; flowering month, a sort, and saved groups of plants a
+   designer returns to are still missing.
 4. **Is the sun/shade map read as analysis or as decoration?**
 5. **Would this be shown to a client, or is it a designer's private tool?**
 6. **What is the first thing they try to do that it cannot do?**
@@ -768,9 +769,9 @@ not:
 Suitability alerts against the soil and aspect data already held. A drawing shape
 for floating aquatics, which is the only thing still standing between the palette
 and a pond — marginals and bog planting now exist, but a waterlily has no form the
-app can draw. Better ways through a library of this size: a filter on size,
-hardiness or flowering month, a sort, or saved groups of plants a designer works
-with repeatedly.
+app can draw. More ways through a library of this size: filtering by size and by
+hardiness now exists, so what is left is flowering month, a sort, and saved groups
+of plants a designer returns to.
 
 Both of the earlier items here are done. Marginals and bog planting landed with
 the palette expansion, so the wet end of the drainage axis now means something;

@@ -1,6 +1,4 @@
-import { getSpecies } from '../model/plants';
-import { phaseAt } from '../model/phenology';
-import { plantAge, sizeAt } from '../model/growth';
+import { plantState } from '../model/plantState';
 import { bearingToCanvas } from '../model/sun';
 import { pointInPolygon } from '../model/geometry';
 import {
@@ -87,10 +85,9 @@ export function drawPanorama(
   // Far to near, so a nearby shrub genuinely hides the tree behind it.
   const visible = scene.plants
     .map((plant) => {
-      const species = getSpecies(plant.speciesId);
-      const size = sizeAt(species, plantAge(plant.plantedAge, time.year));
+      const state = plantState(plant, time, site);
       const s = sight(observer, plant, site);
-      return { plant, species, size, sighting: s };
+      return { plant, ...state, sighting: s };
     })
     .filter((item) => isInView(item.sighting, item.size.spread, fov))
     .sort((a, b) => b.sighting.distance - a.sighting.distance);
@@ -172,7 +169,7 @@ export function drawPanorama(
 
     const item = entry.value;
     const { distance, offset } = item.sighting;
-    const phase = phaseAt(item.species, time.doy, site);
+    const { phase } = item;
     if (phase.dormant) continue;
 
     const x = width / 2 + offset * pxPerDeg;
