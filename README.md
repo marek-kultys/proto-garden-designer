@@ -55,7 +55,7 @@ does, what was deliberately left out, and the roadmap.
 ```bash
 npm install
 npm run dev        # http://localhost:5173
-npm test           # 284 tests
+npm run verify     # the gate: types, tests, and both build targets
 npm run build      # production build into dist/
 ```
 
@@ -201,9 +201,30 @@ plan comes from the field actually rendered.
 
 ## Verification
 
+One command, run before committing anything non-trivial:
+
 ```bash
-npm test                                      # 284 tests across 17 files
+npm run verify
 ```
+
+It runs every check that needs no browser and no person — the types compile, the
+model and store tests pass, and both build targets still build — and reports each
+stage separately:
+
+```
+  ok   types — 1.8s
+  ok   tests — 1.3s
+  ok   build — 2.0s
+  ok   single file — 2.0s
+
+all 4 stages passed — 7.2s
+```
+
+Every stage runs even after one fails. When a change breaks two things at once,
+being told both beats fixing one and rerunning to find the other. A failing stage
+prints its own output and the script exits non-zero, so CI can use it unchanged.
+
+`npm test` on its own is still there for the tight loop while writing a model.
 
 The models are where silent errors hide, so the unit tests check them against
 published figures rather than against themselves: London solar noon altitude and
@@ -237,7 +258,11 @@ node scripts/check-artifact.mjs dist/artifact.html
 ```
 
 `screenshots/` is gitignored — it holds the sweep you look through by eye. Only
-the few images in `docs/img/` are committed.
+the few images in `docs/img/` are committed, which is why `readme-images.mjs` is
+the one to give an output directory unless you mean to replace them.
+
+Each check takes `[url|file] [outDir]`, and needs the browser installed once with
+`npx playwright install chromium`.
 
 ## Deploying
 
@@ -275,27 +300,7 @@ download the gate should not pay for on every push. The model and store tests ar
 the device-free half, and they are what the gate runs.
 
 They do run locally. Install the browser once with `npx playwright install
-chromium`, then either point a check at a built file:
-
-```
-SINGLEFILE=1 npm run build
-node scripts/check-singlefile.mjs          # runs, and reaches nothing
-node scripts/check-narrow.mjs              # no sideways scroll
-```
-
-or serve the build and point the rest at it:
-
-```
-npm run build && npm run preview           # http://localhost:4173
-node scripts/check-habits.mjs              # every plant shape draws as itself
-node scripts/check-editing.mjs
-node scripts/check-mobile.mjs
-node scripts/check-panorama.mjs
-```
-
-Each takes `[url|file] [outDir]` and writes to `screenshots/`, which is ignored.
-`readme-images.mjs` defaults to `docs/img` and will overwrite the images in this
-file, so give it an output directory unless that is what you want.
+chromium`; the commands are under [Verification](#verification) above.
 
 These used to name one container's absolute paths — the browser at
 `/opt/pw-browsers`, the build under `/home/user` — so none of them would start
