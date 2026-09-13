@@ -1,6 +1,6 @@
 import { getSpecies } from '../model/plants';
-import { phaseAt } from '../model/phenology';
-import { matureSize, plantAge, sizeAt } from '../model/growth';
+import { plantState } from '../model/plantState';
+import { matureSize } from '../model/growth';
 import { canopyDensity } from '../model/shade';
 import { baseHeightOf, standingHeightAt } from '../model/structures';
 import { groundAt, shadowCastOnSlope, terrainOf } from '../model/terrain';
@@ -201,11 +201,9 @@ export function drawElevation(
     shadowCastOnSlope(terrain, light.altitude, light.azimuth, site.northAngle).reach,
   );
 
-  const slices: StructureSlice[] = [];
-  for (const structure of scene.structures) {
-    const slice = sliceStructure(structure, sightLine.a, sightLine.b, band);
-    if (slice !== null) slices.push(slice);
-  }
+  const slices: StructureSlice[] = scene.structures.flatMap((structure) =>
+    sliceStructure(structure, sightLine.a, sightLine.b, band),
+  );
 
   // Back to front, so nearer things overlap those behind them — planting and
   // built work in one order, since a wall can be in front of one shrub and
@@ -240,9 +238,7 @@ export function drawElevation(
     }
 
     const item = entry.value;
-    const species = getSpecies(item.plant.speciesId);
-    const phase = phaseAt(species, time.doy, site);
-    const size = sizeAt(species, plantAge(item.plant.plantedAge, time.year));
+    const { species, phase, size } = plantState(item.plant, time, site);
     const form = getForm(species, item.plant.seed);
     const x = originX + item.along * pxPerM;
     // What the plant stands on: its bed's level soil surface if it is in one,

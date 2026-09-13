@@ -57,7 +57,7 @@ A few open questions were settled before building:
 | Which optional extras? | The sun/shade overlay only — soil alerts, save/load and a plant info panel were cut |
 
 Everything after that came from using it: ten plants became thirty, then a
-hundred and fifty-five, then two hundred and seventy, plus a phone layout, a 360° view from inside the
+hundred and fifty-five, then two hundred and seventy-four, plus a phone layout, a 360° view from inside the
 garden, adjustable eye height, duplicating a plant in place, undo, and filtering
 the library by growing conditions.
 
@@ -133,7 +133,7 @@ terrace or an upstairs window.
 
 ### The plant library
 
-Two hundred and seventy plants, searchable by common name, Latin name, genus
+Two hundred and seventy-four plants, searchable by common name, Latin name, genus
 or family, each card showing both names, mature dimensions, foliage type and a
 sketch thumbnail. Drag onto the plan to place; on a phone, tap to drop one in the
 middle and then drag it into position.
@@ -419,13 +419,13 @@ than ellipses — a solid thing, not a dappled one.
 
 ## The plant palette
 
-Two hundred and seventy plants, chosen to span the axes the simulation
+Two hundred and seventy-four plants, chosen to span the axes the simulation
 exercises — vigorous to slow, evergreen to fully dormant, sun to deep shade, tree
 to groundcover, and now bulb, fern and climber as well.
 
 | Type | Count | Examples |
 |---|---|---|
-| Trees | 37 | birch, amelanchier, magnolia, crab apple, cherry, beech, hornbeam, oak, lime, ornamental pear, cercis, parrotia, liquidambar, ginkgo, Chusan palm |
+| Trees | 41 | birch, amelanchier, magnolia, crab apple, cherry, beech, hornbeam, oak, lime, ornamental pear, cercis, parrotia, liquidambar, ginkgo, Chusan palm; and pleached, umbrella, fan and cordon trained trees |
 | Shrubs | 64 | hydrangeas, lavender, roses, rhododendron, box, privet, Portugal laurel, osmanthus, pittosporum, escallonia, berberis, fatsia, camellia, pieris, skimmia, yucca |
 | Conifers | 8 | clipped yew, dwarf mountain pine, Italian cypress, thuja, blue juniper, Lawson cypress, blue Atlas cedar, cryptomeria |
 | Climbers | 18 | clematis, ivy, honeysuckle, passion flower, star jasmine, wisteria, climbing rose, Boston ivy, climbing hydrangea, akebia, campsis, golden hop, sweet pea |
@@ -454,7 +454,7 @@ then stops. `PLANTS.md` carries the running checklist of what is in, what is
 queued, and which entries are only partly modelled.
 
 One thing was deliberately left out. A waterlily needs a drawing shape the app
-does not have — twelve plant forms and none of them is flat pads on water — so
+does not have — sixteen plant forms and none of them is flat pads on water — so
 the wet end stops at bog and marginal planting. Adding one would also break the
 check that records that nothing in the library is a pond plant. Both are real
 work, not a data row.
@@ -487,17 +487,32 @@ than failing loudly:
 
 ### The shapes they are drawn with
 
-Twelve plant forms, because a plant drawn in the wrong shape is worse than not
+Sixteen plant forms, because a plant drawn in the wrong shape is worse than not
 drawn: a rounded crown, a multi-stem, a clipped column, a dense mound, a grass
 tussock, a leafy clump, see-through airy stems, an allium globe, a flower spire
-over basal leaves, a fern shuttlecock, a tree fern on its trunk, and a climber
-drawn as a sheet of leaf on a trellis rather than a mass on a trunk.
+over basal leaves, a fern shuttlecock, a tree fern on its trunk, a climber drawn
+as a sheet of leaf on a trellis rather than a mass on a trunk — and four trained
+trees: pleached, umbrella, fan and cordon.
 
 The climber is the one worth explaining. Its recorded spread is *how wide a face
 it covers*, not how far it stands off its support — so it is drawn in plan as a
 shallow band rather than a disc, and in elevation against a faint trellis. Without
 that trellis a clematis reads as a small multi-stemmed tree, which is exactly what
 a mass of leaf on stems looks like.
+
+The trained trees are forms, not species — any of several trees can be grown
+each way — so each is one entry named for its shape, with its seasons borrowed
+from the tree most often trained that way: a pleached tree leafs and colours like
+hornbeam, an umbrella like lime, a fan like a Morello cherry and a cordon like an
+apple. They are clipped subjects, bought part-trained and held at their trained
+size, so none grows on into the tree it is modelled on. Their heads are drawn as
+one crisp clipped shape and their fruit on their own framework, rather than as a
+free-grown crown: a crown's blossom is spread across the upper half of the plant,
+which on a fan would have put the cherries in the air between the ribs. The clear
+stem of a pleached or umbrella tree is a fixed height in metres, not a share of
+the plant, because it is sold at that height and does not grow. The pleached tree,
+the fan and the cordon are flat, so like a climber they are drawn as a shallow
+band in plan and can be turned to lie along a wall, a row of wires or a screen.
 
 ---
 
@@ -613,6 +628,24 @@ per-plant page. Cut to keep the focus on the simulation.
   through or around anything. A close-boarded fence and a brick wall behave
   identically, and a slatted screen — which a designer would reach for precisely
   because it filters rather than blocks — cannot be represented at all.
+- **In the elevation, each straight run of a wall has one depth.** That is
+  exact for a run parallel to the A–B line and for one crossing it end on, which
+  covers a fence along the edges of a plot seen square on. A run lying at a slant
+  to the line is still drawn at the depth of its middle, so a plant standing near
+  one end of a long slanting run can be drawn on the wrong side of it. Cutting
+  runs into short pieces would sort them exactly, but draws a vertical stroke at
+  every joint along an unbroken wall; the 360° view has none of this, and is the
+  one to trust for a slanting fence. Until September 2026 the whole wall had one
+  depth — the average of its corners — which put a fence traced round a plot's
+  edges in front of every plant between the A–B line and the back fence.
+- **A tree trained flat is drawn face-on in the elevation and 360° view.** A
+  pleached tree, a fan or a cordon turns on the plan, but side-on views always
+  show it at its full width, as they do a climber — so a row of pleached trees
+  seen end-on looks like a screen rather than a line of narrow stems. Its shadow
+  is the ordinary round one, the same in the drawing and on the sun map, which
+  overstates what something flat against a wall throws. A flat shadow would be
+  right, but climbers already draw one while the sun map shades a disc, and the
+  two should be put right together rather than the disagreement spread.
 - **A shape can be reshaped but not re-pointed.** Corners can be dragged and the
   whole outline can be drawn again, but there is no way to add a corner to an
   existing shape or take one away. Turning a four-sided bed into a six-sided one
@@ -649,15 +682,16 @@ The prototype exists to answer questions about the idea, not about the code:
    *what will this look like*. Early signs are that the 360° view is the one that
    makes people stop talking about the drawing and start talking about the garden
    — but that needs testing, not assuming.
-3. **Is two hundred and seventy plants the right size?** The palette started
+3. **Is two hundred and seventy-four plants the right size?** The palette started
    at ten on a depth-over-breadth argument, grew to a hundred and fifty-five
    because testing kept asking for specific plants, and then to two hundred and
    seventy because a designer wanted to work in it. The open question is now the
    opposite one: whether a list this long is harder to work with than a curated
    short one, and whether the filters carry the weight the scrolling no longer
-   does. At this size the answer matters — six filter axes and a search box are
-   now the only way through, and there is still no filter on size, hardiness or
-   flowering month.
+   does. At this size the answer matters — eight filter axes and a search box are
+   now the only way through. Size and hardiness were added once the palette
+   passed two hundred; flowering month, a sort, and saved groups of plants a
+   designer returns to are still missing.
 4. **Is the sun/shade map read as analysis or as decoration?**
 5. **Would this be shown to a client, or is it a designer's private tool?**
 6. **What is the first thing they try to do that it cannot do?**
@@ -700,8 +734,8 @@ garden back without asking them to find and send an attachment.
 
 **Live at <https://marekkultys.com/proto-garden-designer/>.** The repository is
 public and GitHub Actions publishes the single-file build on every merge to
-`master`, with the 284 tests as a gate in front of it. Actions is free on public
-repositories and a run takes about a minute.
+`master`, with the model and store tests as a gate in front of it. Actions is
+free on public repositories and a run takes about a minute.
 
 The decision that got it there: **go public rather than pay to stay private.**
 GitHub Pro does let you publish Pages from a private repository, but the
@@ -768,9 +802,9 @@ not:
 Suitability alerts against the soil and aspect data already held. A drawing shape
 for floating aquatics, which is the only thing still standing between the palette
 and a pond — marginals and bog planting now exist, but a waterlily has no form the
-app can draw. Better ways through a library of this size: a filter on size,
-hardiness or flowering month, a sort, or saved groups of plants a designer works
-with repeatedly.
+app can draw. More ways through a library of this size: filtering by size and by
+hardiness now exists, so what is left is flowering month, a sort, and saved groups
+of plants a designer returns to.
 
 Both of the earlier items here are done. Marginals and bog planting landed with
 the palette expansion, so the wet end of the drainage axis now means something;

@@ -1,4 +1,4 @@
-import { getSpecies } from '../model/plants';
+import { getSpecies, isTrainedFlat } from '../model/plants';
 import { matureSize } from '../model/growth';
 import { useStore } from '../state/store';
 
@@ -70,7 +70,11 @@ export function ClimberPanel() {
   if (plant === undefined) return null;
 
   const species = getSpecies(plant.speciesId);
-  if (species.type !== 'climber') return null;
+  // Anything grown flat has a direction to set: climbers, and trees trained to a
+  // wall, to wires or to a frame.
+  if (!isTrainedFlat(species)) return null;
+  const climber = species.type === 'climber';
+  const size = matureSize(species);
 
   // Until it has been said, the plant keeps the sketchy rotation it was given
   // when it went in, and the dial has nothing to point at.
@@ -78,10 +82,19 @@ export function ClimberPanel() {
 
   return (
     <section className="climber-facing">
-      <h3>Climber</h3>
+      <h3>{climber ? 'Climber' : 'Trained flat'}</h3>
       <p className="hint">
-        {species.common} covers about {matureSize(species).height.toFixed(1)} m by{' '}
-        {matureSize(species).spread.toFixed(1)} m of fence. Set which way its support runs.
+        {climber ? (
+          <>
+            {species.common} covers about {size.height.toFixed(1)} m by {size.spread.toFixed(1)} m
+            of fence. Set which way its support runs.
+          </>
+        ) : (
+          <>
+            {species.common} is trained flat, about {size.height.toFixed(1)} m high and{' '}
+            {size.spread.toFixed(1)} m across. Set which way its wall, wires or row runs.
+          </>
+        )}
       </p>
 
       <div className="chips">

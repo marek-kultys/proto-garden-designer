@@ -1,13 +1,21 @@
 import { getSpecies } from '../model/plants';
-import { phaseAt } from '../model/phenology';
-import { plantAge, sizeAt } from '../model/growth';
+import { plantState } from '../model/plantState';
 import { bearingToCanvas, shadowLengthFactor } from '../model/sun';
 import { canopyDensity, type ShadeGrid } from '../model/shade';
 import { polygonBounds } from '../model/geometry';
 import type { Observer } from '../model/panorama';
 import { standingHeightAt } from '../model/structures';
 import { groundAt, shadowCastOnSlope, terrainOf, terrainRange, type Terrain } from '../model/terrain';
-import type { PlantInstance, Plot, Site, Structure, TimeState, Vec2 } from '../model/types';
+import type {
+  Phase,
+  PlantInstance,
+  PlantSize,
+  Plot,
+  Site,
+  Structure,
+  TimeState,
+  Vec2,
+} from '../model/types';
 import { inkColour, shade, type Lighting } from './palette';
 import { blobPoints, curvePath, roughCurve, roughLine, roughPolygon, subSeed } from './sketch';
 import { getForm } from './form';
@@ -93,9 +101,7 @@ export function drawPlan(
   // Plants, with the widest drawn first so small things stay visible on top.
   const drawables = scene.plants
     .map((plant) => {
-      const species = getSpecies(plant.speciesId);
-      const phase = phaseAt(species, time.doy, site);
-      const size = sizeAt(species, plantAge(plant.plantedAge, time.year));
+      const { species, phase, size } = plantState(plant, time, site);
       const form = getForm(species, plant.seed);
       const screen = toScreen(viewport, plant);
       const base = standingHeightAt(plant, scene.structures, (q) => groundAt(planTerrain, q));
@@ -230,8 +236,8 @@ function drawGrid(
 type Drawable = {
   plant: PlantInstance;
   species: ReturnType<typeof getSpecies>;
-  phase: ReturnType<typeof phaseAt>;
-  size: ReturnType<typeof sizeAt>;
+  phase: Phase;
+  size: PlantSize;
   form: ReturnType<typeof getForm>;
   screen: Vec2;
   /** Height of the ground under it — non-zero when it stands in a raised bed. */

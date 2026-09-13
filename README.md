@@ -24,7 +24,7 @@ through a slice of it — five to twenty metres deep, as you choose — and a
 on a phone.
 
 Built to test whether the interaction idea has depth rather than to be a
-comprehensive plant database. Two hundred and seventy plants, each researched
+comprehensive plant database. Two hundred and seventy-four plants, each researched
 rather than invented, chosen to span the axes the simulation actually exercises
 — trees, shrubs, conifers, climbers, grasses, ferns, perennials, bulbs and
 annuals.
@@ -44,8 +44,9 @@ tab, and export/import as a JSON file carries one between machines. Nothing is
 sent anywhere and there is no backend.
 
 The library is filtered by type and by growing conditions — aspect, soil type,
-soil pH and drainage — so a border with dry shade on chalk narrows a hundred and
-fifty-five plants to the handful that will actually take it.
+soil pH, drainage, foliage, size and hardiness — so a border with dry shade on
+chalk narrows two hundred and seventy-four plants to the few dozen that will actually
+take it.
 
 📄 **[PRODUCT.md](PRODUCT.md)** — what it is, where the brief came from, what it
 does, what was deliberately left out, and the roadmap.
@@ -55,7 +56,7 @@ does, what was deliberately left out, and the roadmap.
 ```bash
 npm install
 npm run dev        # http://localhost:5173
-npm test           # 284 tests
+npm run verify     # the gate: types, tests, and both build targets
 npm run build      # production build into dist/
 ```
 
@@ -63,7 +64,7 @@ For something you can email to a tester, or open by double-clicking with no
 server at all:
 
 ```bash
-SINGLEFILE=1 npm run build            # one self-contained dist/index.html, ~384 kB
+SINGLEFILE=1 npm run build            # one self-contained dist/index.html, ~575 kB
 node scripts/check-singlefile.mjs     # confirms it runs from file:// with zero network requests
 ```
 
@@ -72,7 +73,9 @@ node scripts/check-singlefile.mjs     # confirms it runs from file:// with zero 
 ```
 src/model/    the simulation — sun, growth, phenology, shade, panorama geometry,
               walls and raised beds (structures.ts), and the plant data itself
-              (plants.ts)
+              (plants/, one file per type, stitched back together by plants/index.ts
+              in the order given by plants/order.ts — which is what numbers them
+              in PLANTS.md, so it is kept even though nothing else reads it)
 src/render/   canvas drawing — sketchy line work, the light palette, and one
               draw pass per view
 src/state/    a single zustand store; all state is plain and serialisable, plus
@@ -183,13 +186,22 @@ have pointer handlers announce when a gesture begins and ends — easy to get wr
 easy to forget in a new handler — consecutive edits carrying the same key within
 600 ms fold into one entry.
 
-**Twelve plant shapes, not one.** `src/render/form.ts` builds a skeleton per
+**Sixteen plant shapes, not one.** `src/render/form.ts` builds a skeleton per
 habit and `src/render/plant.ts` draws it in both plan and elevation — a tree, a
 clipped column, a grass tussock, a fern shuttlecock, a tree fern on its trunk, a
-flower spire over basal leaves, a climber as a sheet of leaf on a trellis. A
-plant whose habit has no draw path does not fail loudly; it falls through to the
-generic tree and renders a clematis as a small shrub, which is why a test asserts
-that every habit is used and a browser check screenshots one of each.
+flower spire over basal leaves, a climber as a sheet of leaf on a trellis, and
+four trained trees. A plant whose habit has no draw path does not fail loudly; it
+falls through to the generic tree and renders a clematis as a small shrub, which
+is why a test asserts that every habit is used and a browser check screenshots
+one of each. TypeScript will not catch it either: the elevation `switch` has a
+`default`, so a new habit compiles cleanly and draws wrongly.
+
+The trained trees keep their skeleton in `form.trained`, apart from the fields a
+free-grown crown uses. Those fields are read with offsets that suit a crown —
+flowers are pushed into the upper half and widened — so reusing them put a fan's
+cherries in the air between its ribs; and `form.flowers` is overwritten for every
+plant after its shape is built. Everything in `form.trained` is a literal
+position, which is what lets a test check that fruit sits on the framework.
 
 The 360° view is worth one more note: it is a **cylindrical** projection, mapping
 angle linearly to pixels, not a flat perspective plane. A pinhole projection
@@ -201,9 +213,30 @@ plan comes from the field actually rendered.
 
 ## Verification
 
+One command, run before committing anything non-trivial:
+
 ```bash
-npm test                                      # 284 tests across 17 files
+npm run verify
 ```
+
+It runs every check that needs no browser and no person — the types compile, the
+model and store tests pass, and both build targets still build — and reports each
+stage separately:
+
+```
+  ok   types — 1.8s
+  ok   tests — 1.3s
+  ok   build — 2.0s
+  ok   single file — 2.0s
+
+all 4 stages passed — 7.2s
+```
+
+Every stage runs even after one fails. When a change breaks two things at once,
+being told both beats fixing one and rerunning to find the other. A failing stage
+prints its own output and the script exits non-zero, so CI can use it unchanged.
+
+`npm test` on its own is still there for the tight loop while writing a model.
 
 The models are where silent errors hide, so the unit tests check them against
 published figures rather than against themselves: London solar noon altitude and
@@ -237,7 +270,11 @@ node scripts/check-artifact.mjs dist/artifact.html
 ```
 
 `screenshots/` is gitignored — it holds the sweep you look through by eye. Only
-the few images in `docs/img/` are committed.
+the few images in `docs/img/` are committed, which is why `readme-images.mjs` is
+the one to give an output directory unless you mean to replace them.
+
+Each check takes `[url|file] [outDir]`, and needs the browser installed once with
+`npx playwright install chromium`.
 
 ## Deploying
 
@@ -270,9 +307,17 @@ custom domain on the `melayerka_art` repo, has no
 either a subdomain of it or publishing into that repo; see
 [PRODUCT.md](PRODUCT.md#publishing-it).
 
-The Playwright checks are deliberately not run in CI: they need a browser
-download and still carry a hardcoded container path. The 135 model and store
-tests are the device-free half, and they are what the gate runs.
+The Playwright checks are deliberately not run in CI, because they need a browser
+download the gate should not pay for on every push. The model and store tests are
+the device-free half, and they are what the gate runs.
+
+They do run locally. Install the browser once with `npx playwright install
+chromium`; the commands are under [Verification](#verification) above.
+
+These used to name one container's absolute paths — the browser at
+`/opt/pw-browsers`, the build under `/home/user` — so none of them would start
+anywhere else, including on the machine the app is built on. Paths now resolve
+against the script's own location, and Playwright finds its own browser.
 
 ## Testing with gardeners
 

@@ -451,7 +451,7 @@ export const useStore = create<AppState>((set, get) => ({
     set((s) => ({
       // Coalesced: turning the dial fires continuously, and one undo step per
       // degree would bury whatever came before it.
-      ...pushHistory(s, 'Turn climber', `facing:${id}`),
+      ...pushHistory(s, 'Turn plant', `facing:${id}`),
       // A plane reads the same from either side, so the useful range is a half
       // turn; anything else is the same plane described twice.
       plants: s.plants.map((p) => (p.id === id ? { ...p, facing: ((degrees % 180) + 180) % 180 } : p)),

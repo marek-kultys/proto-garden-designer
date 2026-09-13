@@ -18,7 +18,7 @@ const check = (ok, label, detail = '') => {
   if (!ok) failures.push(label);
 };
 
-const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
+const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1440, height: 960 } });
 const errors = [];
 page.on('pageerror', (e) => errors.push(String(e)));
@@ -36,6 +36,10 @@ const NEW_HABITS = [
   ['delphinium-elatum', 'spire', 7.6, 5.0],
   ['digitalis-purpurea', 'spire', 9.2, 5.2],
   ['betula-jacquemontii', 'round', 12.0, 2.4],
+  ['pleached-tree', 'pleached', 3.5, 8.2],
+  ['umbrella-tree', 'umbrella', 6.5, 8.2],
+  ['fan-trained-tree', 'fan', 9.5, 8.6],
+  ['cordon-tree', 'cordon', 12.4, 8.6],
 ];
 
 await page.evaluate((plants) => {

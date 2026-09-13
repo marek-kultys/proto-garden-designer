@@ -54,10 +54,15 @@ jobs:
       # The gate. A failure here stops the job, so a broken build cannot reach
       # anyone — you find out by email rather than from a gardener.
       #
-      # This is the device-free half of verification: the 135 model and store
-      # tests. The Playwright checks in scripts/ are deliberately not run here.
-      # They need a browser download, and they currently hardcode a container
-      # path (/opt/pw-browsers/chromium) that does not exist on a runner.
+      # This is the device-free half of verification: the model and store tests.
+      # The Playwright checks in scripts/ are deliberately not run here, because
+      # they need a browser download the gate should not pay for on every push.
+      # They do run anywhere now — they used to name a container path that
+      # existed on no runner and on no laptop — so see the README for them.
+      #
+      # `npm run verify` covers this step plus the type check and both build
+      # targets, which is what a local pre-commit run should use. This job still
+      # calls the pieces separately so that a failure names the stage it broke.
       - run: npm test
 
       # SINGLEFILE inlines the JavaScript and CSS into one index.html.

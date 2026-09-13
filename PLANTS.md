@@ -8,7 +8,7 @@ but not built — nothing gets added until Mela says so, batch by batch.
 
 Every plant has a number, so any of them can be named in one word.
 
-- `001`–`270` are plants in the app. The number is the order the plant
+- `001`–`274` are plants in the app. The number is the order the plant
   was added to the library, so **it never changes** — new plants take the next
   number up, and nothing already numbered shifts underneath it.
 - `P001` upwards are plants not yet built. A P-number is temporary: when the
@@ -32,11 +32,11 @@ photographs are copied, and nothing is harvested automatically. See
 
 ---
 
-## In the app now — 270 plants
+## In the app now — 274 plants
 
-236 full, 34 partial.
+237 full, 37 partial.
 
-### Trees (37)
+### Trees (41)
 
 - [x] `268` *Acer campestre* — Field maple · **FULL**
 - [x] `003` *Acer palmatum 'Ōsakazuki'* — Japanese maple · **FULL**
@@ -44,6 +44,8 @@ photographs are copied, and nothing is harvested automatically. See
 - [x] `262` *Arbutus unedo* — Strawberry tree · **FULL**
 - [x] `001` *Betula utilis var. jacquemontii* — West Himalayan birch · **FULL**
 - [x] `097` *Carpinus betulus* — Hornbeam hedge · **FULL**
+- [x] `271` *Carpinus betulus* — Pleached tree · **PARTIAL**
+      - Drawn face-on in the elevation and 360° view whichever way it is turned, and throws a round shadow rather than a flat one.
 - [x] `189` *Cercis canadensis 'Forest Pansy'* — Eastern redbud · **FULL**
 - [x] `193` *Cornus kousa var. chinensis* — Chinese dogwood · **FULL**
 - [x] `157` *Crataegus monogyna* — Hawthorn hedge · **FULL**
@@ -61,6 +63,8 @@ photographs are copied, and nothing is harvested automatically. See
 - [x] `012` *Magnolia × soulangeana* — Saucer magnolia · **FULL**
 - [x] `013` *Malus 'Evereste'* — Crab apple · **FULL**
 - [x] `091` *Malus 'Red Sentinel'* — Crab apple 'Red Sentinel' · **FULL**
+- [x] `274` *Malus domestica* — Cordon-trained tree · **PARTIAL**
+      - Drawn face-on in the elevation and 360° view whichever way it is turned, and throws a round shadow rather than a flat one.
 - [x] `143` *Malus domestica 'Sunset'* — Apple · **FULL**
 - [x] `092` *Malus x zumi 'Golden Hornet'* — Crab apple 'Golden Hornet' · **FULL**
 - [x] `267` *Olea europaea* — Olive · **FULL**
@@ -68,6 +72,8 @@ photographs are copied, and nothing is harvested automatically. See
 - [x] `094` *Prunus avium* — Wild cherry · **FULL**
 - [x] `194` *Prunus cerasifera 'Nigra'* — Purple-leaf cherry plum · **FULL**
 - [x] `095` *Prunus cerasus* — Morello cherry · **FULL**
+- [x] `273` *Prunus cerasus 'Morello'* — Fan-trained tree · **PARTIAL**
+      - Drawn face-on in the elevation and 360° view whichever way it is turned, and throws a round shadow as wide as it is — which overstates the shadow of something flat against a wall.
 - [x] `096` *Prunus domestica 'Merryweather'* — Damson 'Merryweather' · **FULL**
 - [x] `014` *Prunus serrula* — Tibetan cherry · **FULL**
 - [x] `093` *Prunus x blireana* — Double pink flowering plum · **FULL**
@@ -75,6 +81,7 @@ photographs are copied, and nothing is harvested automatically. See
 - [x] `186` *Quercus robur* — English oak · **FULL**
 - [x] `015` *Sorbus aucuparia* — Rowan · **FULL**
 - [x] `187` *Tilia cordata* — Small-leaved lime · **FULL**
+- [x] `272` *Tilia cordata* — Umbrella-trained tree · **FULL**
 - [x] `177` *Trachycarpus fortunei* — Chusan palm · **FULL**
 
 ### Shrubs (64)
@@ -378,7 +385,7 @@ Only one plant from the original plan is not in the app.
 Left out deliberately, and it needs a decision plus a piece of drawing work, not
 a data row:
 
-1. **There is no shape for it.** The app can draw twelve plant forms and none of
+1. **There is no shape for it.** The app can draw sixteen plant forms and none of
    them is flat pads floating on water. Forcing it into an existing form would
    draw a mound of leaves standing up out of dry ground.
 2. **It turns a check red.** A test deliberately records that nothing in the

@@ -16,7 +16,7 @@ const url = process.argv[2] ?? 'http://localhost:4173';
 const outDir = process.argv[3] ?? 'screenshots';
 await mkdir(outDir, { recursive: true });
 
-const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
+const browser = await chromium.launch();
 const failures = [];
 const check = (ok, label, detail = '') => {
   console.log(`${ok ? '  ok  ' : ' FAIL '} ${label}${detail ? ` — ${detail}` : ''}`);
