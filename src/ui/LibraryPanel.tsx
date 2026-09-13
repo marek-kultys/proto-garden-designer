@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { SPECIES, TYPE_LABELS } from '../model/plants';
+import { SPECIES, TYPE_LABELS, hardinessRating } from '../model/plants';
 import { phaseAt } from '../model/phenology';
 import { matureSize } from '../model/growth';
 import { lightingFor } from '../render/palette';
@@ -10,6 +10,7 @@ import type {
   DrainagePref,
   Foliage,
   PlantType,
+  SizeClass,
   SoilPh,
   SoilType,
   Species,
@@ -152,6 +153,44 @@ const DRAINAGE: { id: DrainagePref | 'all'; label: string }[] = [
   { id: 'pond', label: 'Pond' },
 ];
 
+/**
+ * Smallest first. The three classes overlap in real height — a "small" plant may
+ * reach two metres and a "medium" one starts below one — so this sorts by the
+ * kind of thing it is rather than by a measurement. The height on each card is
+ * the precise answer.
+ */
+const SIZES: { id: SizeClass | 'all'; label: string }[] = [
+  { id: 'all', label: 'Any' },
+  { id: 'small', label: 'Small' },
+  { id: 'medium', label: 'Medium' },
+  { id: 'large', label: 'Large' },
+];
+
+/**
+ * A threshold, not an exact match: picking H5 shows everything hardy to H5 *or
+ * better*, because a hardier plant is a safer answer to "will this survive
+ * here", never a wrong one. Every other row on this panel narrows by equality;
+ * this one cannot, and the caption says "hardy to" so the difference reads.
+ */
+const HARDINESS: { id: 'all' | 'H4' | 'H5' | 'H6' | 'H7'; label: string }[] = [
+  { id: 'all', label: 'Any' },
+  { id: 'H4', label: 'H4+' },
+  { id: 'H5', label: 'H5+' },
+  { id: 'H6', label: 'H6+' },
+  { id: 'H7', label: 'H7' },
+];
+
+/** The eight ways the library can be narrowed. */
+type Axis =
+  | 'type'
+  | 'sun'
+  | 'soilPh'
+  | 'soilType'
+  | 'drainage'
+  | 'foliage'
+  | 'size'
+  | 'hardiness';
+
 export const SUN_LABELS: Record<SunPref, string> = {
   full: 'full sun',
   dappled: 'dappled shade',
@@ -247,6 +286,8 @@ export function LibraryPanel({ onStartDrag }: LibraryProps) {
   const [soilPh, setSoilPh] = useState<SoilPh | 'all'>('all');
   const [soilType, setSoilType] = useState<SoilType | 'all'>('all');
   const [drainage, setDrainage] = useState<DrainagePref | 'all'>('all');
+  const [size, setSize] = useState<SizeClass | 'all'>('all');
+  const [hardiness, setHardiness] = useState<'all' | 'H4' | 'H5' | 'H6' | 'H7'>('all');
   const [plantedOnly, setPlantedOnly] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [openId, setOpenId] = useState<string | null>(null);
@@ -275,13 +316,15 @@ export function LibraryPanel({ onStartDrag }: LibraryProps) {
       if (soilPh !== 'all' && !s.soilPh.includes(soilPh)) return false;
       if (soilType !== 'all' && !s.soilType.includes(soilType)) return false;
       if (drainage !== 'all' && !s.drainage.includes(drainage)) return false;
+      if (size !== 'all' && s.sizeClass !== size) return false;
+      if (hardiness !== 'all' && hardinessRating(s) < Number(hardiness.slice(1))) return false;
       if (!q) return true;
       return [s.common, s.latin, s.genus, s.family, s.flowerColour, s.foliageColour]
         .join(' ')
         .toLowerCase()
         .includes(q);
     });
-  }, [query, type, foliage, sun, soilPh, soilType, drainage, plantedOnly, counts]);
+  }, [query, type, foliage, sun, soilPh, soilType, drainage, size, hardiness, plantedOnly, counts]);
 
   const grouped = useMemo(() => {
     return TYPE_ORDER.map((t) => ({
@@ -294,7 +337,9 @@ export function LibraryPanel({ onStartDrag }: LibraryProps) {
   const distinctPlanted = counts.size;
   // How many of the secondary axes are narrowing the list, so the disclosure can
   // say so without being opened.
-  const activeConditions = [sun, soilPh, soilType, drainage, foliage].filter((v) => v !== 'all').length;
+  const activeConditions = [sun, soilPh, soilType, drainage, foliage, size, hardiness].filter(
+    (v) => v !== 'all',
+  ).length;
   const filtered = activeConditions > 0 || type !== 'all' || plantedOnly || query.trim() !== '';
 
   const clearFilters = () => {
@@ -305,6 +350,8 @@ export function LibraryPanel({ onStartDrag }: LibraryProps) {
     setSoilPh('all');
     setSoilType('all');
     setDrainage('all');
+    setSize('all');
+    setHardiness('all');
     setPlantedOnly(false);
   };
 
@@ -313,17 +360,28 @@ export function LibraryPanel({ onStartDrag }: LibraryProps) {
    * set. Chips that would empty the list are dimmed rather than hidden — with
    * bog and pond in the drainage row and no marginals in the palette, a tab
    * that silently returns nothing reads as a bug.
+   *
+   * A row does not count against itself. Without `except`, picking Small made
+   * Medium and Large report nothing — they were being asked how many plants are
+   * medium *and* small — so both dimmed, saying the library had no medium plants
+   * when switching to Medium would have shown a hundred and thirty-eight. The
+   * question a chip answers is "how many if I picked this instead", so its own
+   * axis has to be left out of the count.
    */
-  const countIf = (predicate: (s: Species) => boolean) =>
+  const countIf = (predicate: (s: Species) => boolean, except?: Axis) =>
     SPECIES.filter(
       (s) =>
         predicate(s) &&
-        (type === 'all' || s.type === type) &&
-        (sun === 'all' || s.sun.includes(sun)) &&
-        (soilPh === 'all' || s.soilPh.includes(soilPh)) &&
-        (soilType === 'all' || s.soilType.includes(soilType)) &&
-        (drainage === 'all' || s.drainage.includes(drainage)) &&
-        (foliage === 'all' || s.foliage === foliage),
+        (except === 'type' || type === 'all' || s.type === type) &&
+        (except === 'sun' || sun === 'all' || s.sun.includes(sun)) &&
+        (except === 'soilPh' || soilPh === 'all' || s.soilPh.includes(soilPh)) &&
+        (except === 'soilType' || soilType === 'all' || s.soilType.includes(soilType)) &&
+        (except === 'drainage' || drainage === 'all' || s.drainage.includes(drainage)) &&
+        (except === 'foliage' || foliage === 'all' || s.foliage === foliage) &&
+        (except === 'size' || size === 'all' || s.sizeClass === size) &&
+        (except === 'hardiness' ||
+          hardiness === 'all' ||
+          hardinessRating(s) >= Number(hardiness.slice(1))),
     ).length;
 
   return (
@@ -386,35 +444,53 @@ export function LibraryPanel({ onStartDrag }: LibraryProps) {
               options={SUN}
               value={sun}
               onPick={setSun}
-              countFor={(id) => (id === 'all' ? 1 : countIf((s) => s.sun.includes(id)))}
+              countFor={(id) => (id === 'all' ? 1 : countIf((s) => s.sun.includes(id), 'sun'))}
             />
             <FilterRow
               caption="Soil type"
               options={SOIL_TYPE}
               value={soilType}
               onPick={setSoilType}
-              countFor={(id) => (id === 'all' ? 1 : countIf((s) => s.soilType.includes(id)))}
+              countFor={(id) => (id === 'all' ? 1 : countIf((s) => s.soilType.includes(id), 'soilType'))}
             />
             <FilterRow
               caption="Soil pH"
               options={SOIL_PH}
               value={soilPh}
               onPick={setSoilPh}
-              countFor={(id) => (id === 'all' ? 1 : countIf((s) => s.soilPh.includes(id)))}
+              countFor={(id) => (id === 'all' ? 1 : countIf((s) => s.soilPh.includes(id), 'soilPh'))}
             />
             <FilterRow
               caption="Drainage"
               options={DRAINAGE}
               value={drainage}
               onPick={setDrainage}
-              countFor={(id) => (id === 'all' ? 1 : countIf((s) => s.drainage.includes(id)))}
+              countFor={(id) => (id === 'all' ? 1 : countIf((s) => s.drainage.includes(id), 'drainage'))}
             />
             <FilterRow
               caption="Foliage"
               options={FOLIAGE}
               value={foliage}
               onPick={setFoliage}
-              countFor={(id) => (id === 'all' ? 1 : countIf((s) => s.foliage === id))}
+              countFor={(id) => (id === 'all' ? 1 : countIf((s) => s.foliage === id, 'foliage'))}
+            />
+            <FilterRow
+              caption="Size"
+              options={SIZES}
+              value={size}
+              onPick={setSize}
+              countFor={(id) => (id === 'all' ? 1 : countIf((s) => s.sizeClass === id, 'size'))}
+            />
+            <FilterRow
+              caption="Hardy to"
+              options={HARDINESS}
+              value={hardiness}
+              onPick={setHardiness}
+              countFor={(id) =>
+                id === 'all'
+                  ? 1
+                  : countIf((s) => hardinessRating(s) >= Number(id.slice(1)), 'hardiness')
+              }
             />
           </>
         )}

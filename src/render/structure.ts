@@ -1,4 +1,4 @@
-import { footprints, sweptPolygons } from '../model/structures';
+import { footprints, segmentsOf, sweptPolygons } from '../model/structures';
 import { shadowCastOnSlope, type Terrain } from '../model/terrain';
 import { DRAWN_SHADOW_CAP } from './constants';
 import { pointInPolygon } from '../model/geometry';
@@ -196,33 +196,108 @@ export interface StructureSlice {
 }
 
 /**
- * Where a structure crosses the elevation's slice, if it does.
+ * Where a structure crosses the elevation's slice.
  *
  * A wall running across the sight line appears as a short block; one running
  * along it appears as a long low run. Both are true, and both are what a
  * designer means by "the wall in that view".
+ *
+ * A wall comes back as one slice per straight run, each at its own depth. It
+ * used to come back as a single slice at the average depth of its corners,
+ * which is right for one straight run and badly wrong for a fence traced round
+ * the edge of a plot: a run along the back and a run down each side averaged
+ * out to a full-width panel standing in the middle of the view, in front of
+ * every plant between the sight line and the back fence. The 360° view never
+ * had this fault, because it has always taken walls a run at a time.
+ *
+ * Each run is clipped to the slice rather than judged by its corners, so a long
+ * wall with one end inside the band and one far outside draws the part of it
+ * that is actually there — not a sliver at the one corner that happened to be.
+ *
+ * A run stays one slice rather than being chopped into short pieces, even
+ * though pieces would sort more exactly against plants when a run lies at a
+ * slant to the sight line. Every slice is drawn with its own end lines, so
+ * pieces would put a vertical stroke at every joint along an unbroken wall.
+ * Corners are the only joints a wall really has, and so the only ones drawn.
+ *
+ * A raised bed is still one slice, at the middle of its corners: it is a solid
+ * mass of soil, and slicing it run by run would draw four thin walls with
+ * nothing between them.
  */
 export function sliceStructure(
   structure: Structure,
   a: Vec2,
   b: Vec2,
   band: number,
-): StructureSlice | null {
+): StructureSlice[] {
   const dx = b.x - a.x;
   const dy = b.y - a.y;
   const len = Math.hypot(dx, dy) || 1;
   const ux = dx / len;
   const uy = dy / len;
-
-  const projected = structure.points.map((p) => {
+  const project = (p: Vec2): Projected => {
     const px = p.x - a.x;
     const py = p.y - a.y;
     return { along: px * ux + py * uy, offset: px * -uy + py * ux };
-  });
+  };
 
+  if (structure.kind === 'bed') {
+    const bed = sliceBed(structure, structure.points.map(project), band);
+    return bed === null ? [] : [bed];
+  }
+
+  const half = structure.thickness / 2;
+  const slices: StructureSlice[] = [];
+  for (const run of segmentsOf(structure)) {
+    const inside = clipToBand(project(run.a), project(run.b), band);
+    if (inside === null) continue;
+    slices.push({
+      structure,
+      fromAlong: Math.min(inside.from.along, inside.to.along) - half,
+      toAlong: Math.max(inside.from.along, inside.to.along) + half,
+      offset: (inside.from.offset + inside.to.offset) / 2,
+    });
+  }
+  return slices;
+}
+
+interface Projected {
+  along: number;
+  offset: number;
+}
+
+/** The part of a run that lies within `band` of the sight line, if any. */
+function clipToBand(
+  p: Projected,
+  q: Projected,
+  band: number,
+): { from: Projected; to: Projected } | null {
+  const rise = q.offset - p.offset;
+  let t0 = 0;
+  let t1 = 1;
+  if (Math.abs(rise) < 1e-9) {
+    // Parallel to the sight line: all in, or all out.
+    if (Math.abs(p.offset) > band) return null;
+  } else {
+    const ta = (-band - p.offset) / rise;
+    const tb = (band - p.offset) / rise;
+    t0 = Math.max(0, Math.min(ta, tb));
+    t1 = Math.min(1, Math.max(ta, tb));
+    // Missing the band, or only grazing its edge at a single point.
+    if (t1 - t0 < 1e-9) return null;
+  }
+  const at = (t: number): Projected => ({
+    along: p.along + (q.along - p.along) * t,
+    offset: p.offset + rise * t,
+  });
+  return { from: at(t0), to: at(t1) };
+}
+
+/** A raised bed, taken whole — unchanged from before walls were sliced by run. */
+function sliceBed(structure: Structure, projected: Projected[], band: number): StructureSlice | null {
   const near = projected.filter((p) => Math.abs(p.offset) <= band);
   if (near.length === 0) {
-    // A run may cross the band without either end sitting inside it.
+    // A bed may cross the band without any corner sitting inside it.
     const crossing = projected.some(
       (p, i) => i > 0 && Math.sign(p.offset) !== Math.sign(projected[i - 1].offset),
     );
@@ -235,13 +310,11 @@ export function sliceStructure(
       offset: projected.reduce((t, p) => t + p.offset, 0) / projected.length,
     };
   }
-
   const alongs = near.map((p) => p.along);
-  const half = structure.kind === 'wall' ? structure.thickness / 2 : 0;
   return {
     structure,
-    fromAlong: Math.min(...alongs) - half,
-    toAlong: Math.max(...alongs) + half,
+    fromAlong: Math.min(...alongs),
+    toAlong: Math.max(...alongs),
     offset: near.reduce((t, p) => t + p.offset, 0) / near.length,
   };
 }

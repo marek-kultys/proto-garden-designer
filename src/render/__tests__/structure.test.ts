@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { panoramaBeds, panoramaFaces, panoramaTops } from '../structure';
+import { panoramaBeds, panoramaFaces, panoramaTops, sliceStructure } from '../structure';
 import { segmentsOf } from '../../model/structures';
 import type { Structure } from '../../model/types';
 
@@ -197,5 +197,113 @@ describe('walls, which are open on both sides', () => {
 
   it('draws nothing for a wall with no height', () => {
     expect(panoramaFaces([wall(0)], OBSERVER, segmentsOf)).toHaveLength(0);
+  });
+});
+
+/**
+ * Walls in the elevation strip.
+ *
+ * The elevation looks across a sight line from A to B and draws what stands
+ * within a band either side of it, back to front. Everything turns on the depth
+ * each thing is given, because that is the only thing the drawing order uses.
+ *
+ * A wall used to be given one depth — the average of its corners. For a single
+ * straight run that is the right answer. For a fence traced round the edge of a
+ * plot it was badly wrong: the run along the back and the runs down each side
+ * averaged out to a full-width panel standing in the middle of the view, and
+ * every plant between the sight line and the back fence was drawn behind it. A
+ * designer previewing a boundary fence saw their planting vanish.
+ *
+ * Here the sight line runs west to east across the middle of a 14 × 10 plot, so
+ * a point's depth is simply how far south of the line it is. Positive is behind.
+ */
+describe('walls in the elevation, run by run', () => {
+  const A = { x: 0.5, y: 5 };
+  const B = { x: 13.5, y: 5 };
+  const WIDE = 10;
+
+  const wall = (points: { x: number; y: number }[]): Structure => ({
+    id: 'w',
+    kind: 'wall',
+    points,
+    height: 1.8,
+    thickness: 0.2,
+    seed: 3,
+  });
+
+  /** A fence down the west side, along the back, and up the east side. */
+  const U_FENCE = wall([
+    { x: 0.2, y: 0.2 },
+    { x: 0.2, y: 9.8 },
+    { x: 13.8, y: 9.8 },
+    { x: 13.8, y: 0.2 },
+  ]);
+
+  it('gives each run of a fence its own depth, instead of one for the whole fence', () => {
+    const slices = sliceStructure(U_FENCE, A, B, WIDE);
+    expect(slices).toHaveLength(3);
+
+    const back = slices.find((sl) => sl.toAlong - sl.fromAlong > 10);
+    expect(back).toBeDefined();
+    // The back run is where the back fence actually is — not the middle of the view.
+    expect(back?.offset).toBeCloseTo(4.8, 9);
+  });
+
+  /**
+   * The fault itself, put the way the designer met it: a shrub planted between
+   * the sight line and the back fence must be drawn in front of that fence.
+   * Drawing is back to front, so it is enough that the fence is deeper.
+   */
+  it('puts a plant in front of the back fence, where it is planted', () => {
+    const plantDepth = 3; // three metres behind the line, still well short of the fence
+    const back = sliceStructure(U_FENCE, A, B, WIDE).find((sl) => sl.toAlong - sl.fromAlong > 10);
+    expect(back?.offset ?? -Infinity).toBeGreaterThan(plantDepth);
+  });
+
+  it('still puts a wall in front of a plant that is behind it', () => {
+    const inFront = sliceStructure(wall([{ x: 1, y: 6.5 }, { x: 13, y: 6.5 }]), A, B, WIDE);
+    expect(inFront).toHaveLength(1);
+    expect(inFront[0].offset).toBeCloseTo(1.5, 9);
+    expect(inFront[0].offset).toBeLessThan(3);
+  });
+
+  it('draws a single straight run as one slice at its own depth, as it always did', () => {
+    const [back] = sliceStructure(wall([{ x: 0.2, y: 9.8 }, { x: 13.8, y: 9.8 }]), A, B, WIDE);
+    expect(back.offset).toBeCloseTo(4.8, 9);
+    // Its full length, plus half its thickness at each end.
+    expect(back.fromAlong).toBeCloseTo(0.2 - 0.5 - 0.1, 9);
+    expect(back.toAlong).toBeCloseTo(13.8 - 0.5 + 0.1, 9);
+  });
+
+  it('shows a run crossing the view as a post, seen end on', () => {
+    const [side] = sliceStructure(wall([{ x: 0.2, y: 0.2 }, { x: 0.2, y: 9.8 }]), A, B, WIDE);
+    // No length along the line — only the wall's own thickness.
+    expect(side.toAlong - side.fromAlong).toBeCloseTo(0.2, 9);
+  });
+
+  it('draws nothing of a run that lies wholly outside the band', () => {
+    expect(sliceStructure(wall([{ x: 0.2, y: 9.8 }, { x: 13.8, y: 9.8 }]), A, B, 2.5)).toEqual([]);
+  });
+
+  /**
+   * A run with one end inside the band and the other far outside used to be
+   * judged by its corners alone, and came back as a sliver at the one corner
+   * that was inside. The part of the wall actually crossing the band vanished.
+   */
+  it('keeps the part of a run inside the band, rather than a sliver at one corner', () => {
+    // Slanting from 1 m behind the line to 9 m behind it, across the whole plot.
+    const slant = wall([{ x: 1, y: 6 }, { x: 13, y: 14 }]);
+    const [piece] = sliceStructure(slant, A, B, 3);
+    // The band ends 3 m behind the line, which this run reaches a quarter of the
+    // way along: y = 8 at x = 4. That part is kept, from x = 1 to x = 4.
+    expect(piece.fromAlong).toBeCloseTo(1 - 0.5 - 0.1, 9);
+    expect(piece.toAlong).toBeCloseTo(4 - 0.5 + 0.1, 9);
+    expect(piece.offset).toBeCloseTo(2, 9); // midway between 1 m and 3 m
+  });
+
+  it('keeps a raised bed as one solid slice, which is what stops it drawing hollow', () => {
+    const slices = sliceStructure(bed(0.4), A, B, WIDE);
+    expect(slices).toHaveLength(1);
+    expect(slices[0].structure.kind).toBe('bed');
   });
 });

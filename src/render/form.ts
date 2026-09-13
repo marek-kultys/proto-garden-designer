@@ -50,6 +50,32 @@ export interface Stem {
   seed: number;
 }
 
+/**
+ * The framework of a trained tree, for the elevation.
+ *
+ * Kept apart from `branches`, `elevClumps` and `flowers` on purpose. Those are
+ * placed for a free-grown crown and are read by the tree drawing with its own
+ * offsets — flowers, for instance, are pushed into the upper half and widened —
+ * so a fan's blossom put there would float in the air beside its ribs rather
+ * than sit on them. And `flowers` is overwritten for every plant once its shape
+ * is built, for the plan view. Everything here is literal: x is a fraction of
+ * the plant's width, centred on its stem; y is a fraction of the height of the
+ * part it belongs to — the whole plant for a fan or a cordon, the trained head
+ * above the clear stem for a pleached or umbrella tree.
+ */
+export interface TrainedForm {
+  branches: Branch[];
+  leaves: Clump[];
+  /** Where blossom and then fruit sit, on the framework. */
+  buds: { ax: number; ay: number; r: number; seed: number }[];
+}
+
+/** A fan's short leg, below its lowest ribs, as a fraction of its height. */
+export const FAN_LEG = 0.12;
+
+/** A cordon's single stem, bottom to top, in the same fractions as `TrainedForm`. */
+export const CORDON_STEM = { x0: -0.42, y0: 0, x1: 0.42, y1: 0.97 };
+
 export interface PlantForm {
   seed: number;
   /** Wobble profile for the plan-view canopy outline. */
@@ -63,6 +89,8 @@ export interface PlantForm {
   trunkFraction: number;
   trunks: { ax: number; lean: number }[];
   rotation: number;
+  /** Only for the trained habits. */
+  trained?: TrainedForm;
 }
 
 function wobbleProfile(rng: () => number, n: number, amount: number): number[] {
@@ -139,6 +167,163 @@ function makeStems(rng: () => number, count: number): Stem[] {
     bend: (rng() - 0.5) * 0.35,
     seed: Math.floor(rng() * 1e9),
   }));
+}
+
+/** A leaf clump at a literal position, for a trained framework. */
+function leafAt(rng: () => number, ax: number, ay: number, r: number): Clump {
+  return {
+    ax,
+    ay,
+    r,
+    tone: rng() * 2 - 1,
+    wobble: wobbleProfile(rng, 9, 0.22),
+    seed: Math.floor(rng() * 1e9),
+    depth: rng(),
+  };
+}
+
+/** Points along a straight run from (x0, y0) to (x1, y1), with a little scatter. */
+function along(
+  rng: () => number,
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+  count: number,
+  from: number,
+  scatter: number,
+): { x: number; y: number; t: number }[] {
+  return Array.from({ length: count }, (_, i) => {
+    const t = from + ((1 - from) * (i + 0.5)) / count;
+    return {
+      x: x0 + (x1 - x0) * t + (rng() - 0.5) * scatter,
+      y: y0 + (y1 - y0) * t + (rng() - 0.5) * scatter,
+      t,
+    };
+  });
+}
+
+/**
+ * Pleached: tiers of branches tied along a frame, out from a central leader.
+ * In the head's own fractions, so the tiers stay on the panel however the clear
+ * stem compares with the head as the tree fills out.
+ */
+function pleachedFramework(rng: () => number): TrainedForm {
+  const branches: Branch[] = [{ x0: 0, y0: 0, x1: 0, y1: 0.98, bend: 0, depth: 0 }];
+  for (const tier of [0.12, 0.42, 0.72, 0.95]) {
+    for (const side of [-1, 1]) {
+      branches.push({
+        x0: 0,
+        y0: tier,
+        x1: side * (0.46 + rng() * 0.03),
+        y1: tier + (rng() - 0.5) * 0.04,
+        bend: (rng() - 0.5) * 0.04,
+        depth: 1,
+      });
+    }
+  }
+  const buds = Array.from({ length: 16 }, () => ({
+    ax: (rng() - 0.5) * 0.86,
+    ay: 0.1 + rng() * 0.85,
+    r: 0.014 + rng() * 0.012,
+    seed: Math.floor(rng() * 1e9),
+  }));
+  return { branches, leaves: [], buds };
+}
+
+/**
+ * Umbrella: spokes run out level from the top of the stem to the edge of the
+ * frame. Seen side-on, the ones running towards or away from you look short.
+ */
+function umbrellaFramework(rng: () => number): TrainedForm {
+  const spokes = 8;
+  const branches: Branch[] = Array.from({ length: spokes }, (_, i) => {
+    const bearing = (i / spokes) * Math.PI * 2 + rng() * 0.2;
+    return {
+      x0: 0,
+      y0: 0.05,
+      x1: Math.cos(bearing) * (0.46 + rng() * 0.03),
+      y1: 0.18 + rng() * 0.12,
+      bend: (rng() - 0.5) * 0.04,
+      depth: 0,
+    };
+  });
+  const buds = Array.from({ length: 18 }, () => ({
+    ax: (rng() - 0.5) * 0.9,
+    ay: 0.35 + rng() * 0.6,
+    r: 0.009 + rng() * 0.008,
+    seed: Math.floor(rng() * 1e9),
+  }));
+  return { branches, leaves: [], buds };
+}
+
+/**
+ * Fan: ribs spread from the top of a short leg to the edge of a half-ellipse,
+ * the lowest nearly level, each carrying short side shoots. Leaves and fruit
+ * follow the ribs, because on a fan that is the only place they can be.
+ */
+function fanFramework(rng: () => number): TrainedForm {
+  const ribs = 9;
+  const branches: Branch[] = [];
+  const leaves: Clump[] = [];
+  const buds: TrainedForm['buds'] = [];
+  for (let i = 0; i < ribs; i++) {
+    const angle = (Math.PI * (18 + (144 * i) / (ribs - 1))) / 180 + (rng() - 0.5) * 0.05;
+    const x1 = Math.cos(angle) * 0.49;
+    const y1 = FAN_LEG + Math.sin(angle) * (1 - FAN_LEG) * 0.97;
+    branches.push({ x0: 0, y0: FAN_LEG, x1, y1, bend: (rng() - 0.5) * 0.03, depth: 0 });
+
+    for (const p of along(rng, 0, FAN_LEG, x1, y1, 3, 0.3, 0)) {
+      const turn = (rng() < 0.5 ? -1 : 1) * (0.35 + rng() * 0.2);
+      const len = 0.06 + rng() * 0.05;
+      branches.push({
+        x0: p.x,
+        y0: p.y,
+        x1: p.x + Math.cos(angle + turn) * len,
+        y1: p.y + Math.sin(angle + turn) * len * 1.4,
+        bend: 0,
+        depth: 1,
+      });
+    }
+    for (const p of along(rng, 0, FAN_LEG, x1, y1, 6, 0.18, 0.035)) {
+      leaves.push(leafAt(rng, p.x, p.y, 0.028 + rng() * 0.018));
+    }
+    for (const p of along(rng, 0, FAN_LEG, x1, y1, 4, 0.25, 0.03)) {
+      buds.push({ ax: p.x, ay: p.y, r: 0.007 + rng() * 0.005, seed: Math.floor(rng() * 1e9) });
+    }
+  }
+  leaves.sort((a, b) => a.depth - b.depth);
+  return { branches, leaves, buds };
+}
+
+/**
+ * Cordon: one stem at a slant, fruiting spurs alternating off it. The stem is
+ * drawn from `CORDON_STEM`; these are the spurs, leaves and fruit along it.
+ */
+function cordonFramework(rng: () => number): TrainedForm {
+  const { x0, y0, x1, y1 } = CORDON_STEM;
+  const dx = x1 - x0;
+  const dy = y1 - y0;
+  const len = Math.hypot(dx, dy);
+  // Square to the stem, allowing for the drawing being taller than it is wide.
+  const px = -dy / len;
+  const py = dx / len;
+  const branches: Branch[] = [];
+  const leaves: Clump[] = [];
+  const buds: TrainedForm['buds'] = [];
+  along(rng, x0, y0, x1, y1, 11, 0.06, 0).forEach((p, i) => {
+    const side = i % 2 === 0 ? 1 : -1;
+    const reach = 0.06 + rng() * 0.04;
+    const tip = { x: p.x + px * side * reach, y: p.y + py * side * reach };
+    branches.push({ x0: p.x, y0: p.y, x1: tip.x, y1: tip.y, bend: 0, depth: 1 });
+    buds.push({ ax: tip.x, ay: tip.y, r: 0.018 + rng() * 0.01, seed: Math.floor(rng() * 1e9) });
+  });
+  for (const p of along(rng, x0, y0, x1, y1, 16, 0.04, 0)) {
+    const off = (rng() - 0.5) * 0.14;
+    leaves.push(leafAt(rng, p.x + px * off, p.y + py * off, 0.05 + rng() * 0.03));
+  }
+  leaves.sort((a, b) => a.depth - b.depth);
+  return { branches, leaves, buds };
 }
 
 const cache = new Map<string, PlantForm>();
@@ -284,6 +469,38 @@ export function getForm(species: Species, seed: number): PlantForm {
         };
       });
       form.planClumps = makeClumps(rng, 8, 0.42, 0.42, 0, [0.12, 0.2]);
+      break;
+    }
+    case 'pleached': {
+      // Clipped to a line, so the outline barely moves. From above it is a
+      // shallow band like a climber's, and is drawn as one.
+      form.outline = wobbleProfile(rng, 12, 0.05);
+      form.trunkFraction = 0.55;
+      form.planClumps = makeClumps(rng, 12, 0.44, 0.18, 0, [0.12, 0.2]);
+      form.trained = pleachedFramework(rng);
+      break;
+    }
+    case 'umbrella': {
+      // From above, a clipped disc.
+      form.outline = wobbleProfile(rng, 13, 0.06);
+      form.trunkFraction = 0.75;
+      form.planClumps = makeClumps(rng, 14, 0.42, 0.42, 0, [0.16, 0.26]);
+      form.trained = umbrellaFramework(rng);
+      break;
+    }
+    case 'fan': {
+      form.outline = wobbleProfile(rng, 12, 0.1);
+      form.trunkFraction = FAN_LEG;
+      form.planClumps = makeClumps(rng, 12, 0.44, 0.18, 0, [0.12, 0.2]);
+      form.trained = fanFramework(rng);
+      break;
+    }
+    case 'cordon': {
+      form.outline = wobbleProfile(rng, 12, 0.1);
+      form.trunkFraction = 0;
+      form.trunks = [];
+      form.planClumps = makeClumps(rng, 10, 0.44, 0.18, 0, [0.12, 0.2]);
+      form.trained = cordonFramework(rng);
       break;
     }
     case 'climber': {

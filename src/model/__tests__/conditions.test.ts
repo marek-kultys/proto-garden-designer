@@ -37,6 +37,10 @@ const ALL_HABITS: Habit[] = [
   'fern',
   'treefern',
   'climber',
+  'pleached',
+  'umbrella',
+  'fan',
+  'cordon',
 ];
 
 describe('every plant has an answer for every condition', () => {
