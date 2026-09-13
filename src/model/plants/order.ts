@@ -289,4 +289,8 @@ export const PLANT_ORDER: readonly string[] = [
   /* 268 */ 'acer-campestre',
   /* 269 */ 'phormium-tenax',
   /* 270 */ 'salix-britzensis',
+  /* 271 */ 'pleached-tree',
+  /* 272 */ 'umbrella-tree',
+  /* 273 */ 'fan-trained-tree',
+  /* 274 */ 'cordon-tree',
 ];

@@ -457,3 +457,45 @@ describe('describeLosses', () => {
     expect(text).not.toContain('1 plants');
   });
 });
+
+/**
+ * A fan, a cordon or a pleached tree is turned to lie along its wall, its wires
+ * or its row — and a design reopened with every one of them spun back to a
+ * random angle would have to be laid out again from scratch.
+ */
+describe('trained trees in a saved design', () => {
+  it('keep the way they were turned', () => {
+    const plants = [
+      { id: 'f', speciesId: 'fan-trained-tree', x: 4, y: 9.3, seed: 11, plantedAge: 0, facing: 0 },
+      { id: 'c', speciesId: 'cordon-tree', x: 9, y: 9.3, seed: 12, plantedAge: 0, facing: 90 },
+      { id: 'p', speciesId: 'pleached-tree', x: 3, y: 5, seed: 13, plantedAge: 0, facing: 45 },
+      { id: 'u', speciesId: 'umbrella-tree', x: 10, y: 3, seed: 14, plantedAge: 0 },
+    ];
+    const file = {
+      schema: 'garden-designer-project',
+      version: CURRENT_VERSION,
+      name: 'Trained',
+      savedAt: '2026-09-13T10:00:00.000Z',
+      design: {
+        plot: rectanglePlot(14, 10),
+        plants,
+        site: {
+          latitude: 51.51,
+          longitude: -0.13,
+          altitude: 11,
+          northAngle: 0,
+          dst: true,
+          label: 'London',
+          slopeFall: 0,
+          slopeDirection: 180,
+        },
+        structures: [],
+      },
+    };
+    const result = parseProjectFile(JSON.parse(JSON.stringify(file)));
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.design.plants).toEqual(plants);
+    expect(result.skipped).toEqual([]);
+  });
+});

@@ -24,7 +24,7 @@ through a slice of it — five to twenty metres deep, as you choose — and a
 on a phone.
 
 Built to test whether the interaction idea has depth rather than to be a
-comprehensive plant database. Two hundred and seventy plants, each researched
+comprehensive plant database. Two hundred and seventy-four plants, each researched
 rather than invented, chosen to span the axes the simulation actually exercises
 — trees, shrubs, conifers, climbers, grasses, ferns, perennials, bulbs and
 annuals.
@@ -45,7 +45,7 @@ sent anywhere and there is no backend.
 
 The library is filtered by type and by growing conditions — aspect, soil type,
 soil pH, drainage, foliage, size and hardiness — so a border with dry shade on
-chalk narrows two hundred and seventy plants to the few dozen that will actually
+chalk narrows two hundred and seventy-four plants to the few dozen that will actually
 take it.
 
 📄 **[PRODUCT.md](PRODUCT.md)** — what it is, where the brief came from, what it
@@ -186,13 +186,22 @@ have pointer handlers announce when a gesture begins and ends — easy to get wr
 easy to forget in a new handler — consecutive edits carrying the same key within
 600 ms fold into one entry.
 
-**Twelve plant shapes, not one.** `src/render/form.ts` builds a skeleton per
+**Sixteen plant shapes, not one.** `src/render/form.ts` builds a skeleton per
 habit and `src/render/plant.ts` draws it in both plan and elevation — a tree, a
 clipped column, a grass tussock, a fern shuttlecock, a tree fern on its trunk, a
-flower spire over basal leaves, a climber as a sheet of leaf on a trellis. A
-plant whose habit has no draw path does not fail loudly; it falls through to the
-generic tree and renders a clematis as a small shrub, which is why a test asserts
-that every habit is used and a browser check screenshots one of each.
+flower spire over basal leaves, a climber as a sheet of leaf on a trellis, and
+four trained trees. A plant whose habit has no draw path does not fail loudly; it
+falls through to the generic tree and renders a clematis as a small shrub, which
+is why a test asserts that every habit is used and a browser check screenshots
+one of each. TypeScript will not catch it either: the elevation `switch` has a
+`default`, so a new habit compiles cleanly and draws wrongly.
+
+The trained trees keep their skeleton in `form.trained`, apart from the fields a
+free-grown crown uses. Those fields are read with offsets that suit a crown —
+flowers are pushed into the upper half and widened — so reusing them put a fan's
+cherries in the air between its ribs; and `form.flowers` is overwritten for every
+plant after its shape is built. Everything in `form.trained` is a literal
+position, which is what lets a test check that fruit sits on the framework.
 
 The 360° view is worth one more note: it is a **cylindrical** projection, mapping
 angle linearly to pixels, not a flat perspective plane. A pinhole projection

@@ -22,7 +22,13 @@ export type Habit =
   | 'spire' // basal leaves under a tall dense flower spike (delphinium, foxglove)
   | 'fern' // a shuttlecock of arching fronds (dryopteris)
   | 'treefern' // a fibrous trunk carrying a fern crown (dicksonia)
-  | 'climber'; // a sheet of growth on a support rather than a free-standing mass
+  | 'climber' // a sheet of growth on a support rather than a free-standing mass
+  // Trees trained to a shape by pruning and tying in. They are forms, not
+  // species: any of several trees can be grown each way.
+  | 'pleached' // a clear stem carrying a flat clipped panel, like a hedge on legs
+  | 'umbrella' // a clear stem carrying a level roof of branches over a frame
+  | 'fan' // branches tied in flat against a wall, spreading from a short leg
+  | 'cordon'; // one stem trained at a slant along wires, fruiting on short spurs
 
 /**
  * deciduous  — woody, drops its leaves

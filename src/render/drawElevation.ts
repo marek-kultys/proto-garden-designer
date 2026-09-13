@@ -201,11 +201,9 @@ export function drawElevation(
     shadowCastOnSlope(terrain, light.altitude, light.azimuth, site.northAngle).reach,
   );
 
-  const slices: StructureSlice[] = [];
-  for (const structure of scene.structures) {
-    const slice = sliceStructure(structure, sightLine.a, sightLine.b, band);
-    if (slice !== null) slices.push(slice);
-  }
+  const slices: StructureSlice[] = scene.structures.flatMap((structure) =>
+    sliceStructure(structure, sightLine.a, sightLine.b, band),
+  );
 
   // Back to front, so nearer things overlap those behind them — planting and
   // built work in one order, since a wall can be in front of one shrub and

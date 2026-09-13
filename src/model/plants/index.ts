@@ -91,6 +91,21 @@ export function hardinessRating(species: Species): number {
   return match ? Number(match[1]) : 0;
 }
 
+/**
+ * Plants grown flat — on a wall, on wires or on a frame — and so pointing some
+ * way as well as standing somewhere.
+ *
+ * One answer for the plan, which draws them as a shallow band, and for the
+ * control that turns them. Climbers were the only such plants and were tested
+ * for by type; trained trees are type "tree" like any other, so the question is
+ * really about the shape they are grown to.
+ */
+export function isTrainedFlat(species: Species): boolean {
+  return FLAT_HABITS.has(species.habit);
+}
+
+const FLAT_HABITS = new Set<Species['habit']>(['climber', 'pleached', 'fan', 'cordon']);
+
 export const TYPE_LABELS: Record<Species['type'], string> = {
   tree: 'Trees',
   shrub: 'Shrubs',
