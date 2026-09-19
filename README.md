@@ -65,7 +65,7 @@ For something you can email to a tester, or open by double-clicking with no
 server at all:
 
 ```bash
-SINGLEFILE=1 npm run build            # one self-contained dist/index.html, ~575 kB
+SINGLEFILE=1 npm run build            # one self-contained dist/index.html, well under 1 MB
 node scripts/check-singlefile.mjs     # confirms it runs from file:// with zero network requests
 ```
 
@@ -238,6 +238,13 @@ being told both beats fixing one and rerunning to find the other. A failing stag
 prints its own output and the script exits non-zero, so CI can use it unchanged.
 
 `npm test` on its own is still there for the tight loop while writing a model.
+
+The documents are part of what is checked. Every count this README, `PRODUCT.md`
+and `PLANTS.md` state about the library — how many plants, how many of each type,
+how many shapes, how many under the Mediterranean button — is compared with the
+library itself, so after adding plants `npm run verify` lists each sentence that
+needs its number changing, worded exactly as it should read. History is not
+checked: "the palette began at ten plants" stays true however large it grows.
 
 The models are where silent errors hide, so the unit tests check them against
 published figures rather than against themselves: London solar noon altitude and

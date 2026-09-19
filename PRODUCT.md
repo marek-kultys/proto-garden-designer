@@ -453,16 +453,17 @@ to groundcover, and now bulb, fern and climber as well.
 | Bulbs | 21 | snowdrop, cyclamen, narcissus, allium, tulips, crocus, camassia, fritillary, muscari, bluebell, erythronium, colchicum, eremurus |
 | Annuals | 8 | cosmos, love-in-a-mist, marigold, ammi, opium poppy, cerinthe, snapdragon, zinnia |
 
-A hundred and fifteen of those are a deliberate expansion rather than an
-accumulation. The first hundred and fifty-five grew out of testing — plants were
-added because the model needed something to exercise. Read as a working palette
-instead, that list was full of holes: four clipped subjects and no privet,
-hawthorn, laurel or box substitute; two conifers; two ferns; no wisteria, no
-Japanese anemone, no catmint; and nothing whatever for wet ground, so the wettest
-end of the drainage axis matched nothing at all. The expansion was chosen by
-asking what a UK designer actually specifies. Clipped subjects went from four to
-twenty-one, conifers from two to eight, ferns from two to seven, climbers from
-ten to eighteen, and bog and waterside planting exists for the first time.
+Everything after the first hundred and fifty-five is a deliberate expansion
+rather than an accumulation. Those first hundred and fifty-five grew out of
+testing — plants were added because the model needed something to exercise. Read
+as a working palette instead, that list was full of holes: four clipped subjects
+and no privet, hawthorn, laurel or box substitute; two conifers; two ferns; no
+wisteria, no Japanese anemone, no catmint; and nothing whatever for wet ground,
+so the wettest end of the drainage axis matched nothing at all. The expansion
+was chosen by asking what a UK designer actually specifies. Clipped subjects
+went from four to twenty-seven, conifers from two to eight, ferns from two to
+seven, climbers from ten to eighteen, and bog and waterside planting exists for
+the first time.
 
 Some plants now appear twice, as a plant and as a clipped hedge — beech, copper
 beech, sarcococca, field maple. That is deliberate: a 2.5 m hedge and a 20 m
@@ -706,8 +707,8 @@ The prototype exists to answer questions about the idea, not about the code:
    — but that needs testing, not assuming.
 3. **Is two hundred and ninety-five plants the right size?** The palette started
    at ten on a depth-over-breadth argument, grew to a hundred and fifty-five
-   because testing kept asking for specific plants, and then to two hundred and
-   seventy because a designer wanted to work in it. The open question is now the
+   because testing kept asking for specific plants, and then on past that
+   because a designer wanted to work in it. The open question is now the
    opposite one: whether a list this long is harder to work with than a curated
    short one, and whether the filters carry the weight the scrolling no longer
    does. At this size the answer matters — eight filter axes, a search box and
