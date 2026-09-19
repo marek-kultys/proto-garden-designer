@@ -26,6 +26,14 @@ import type { Species } from '../types';
  */
 
 import { PLANT_ORDER } from './order';
+
+export {
+  PLANTING_STYLES,
+  STYLE_LABELS,
+  inStyle,
+  styleMembers,
+  type PlantingStyle,
+} from './styles';
 import { TREES } from './trees';
 import { SHRUBS } from './shrubs';
 import { CONIFERS } from './conifers';

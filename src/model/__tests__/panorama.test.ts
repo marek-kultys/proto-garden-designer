@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_EYE_HEIGHT,
   EYE_PRESETS,
+  FOV_RANGE,
   GROUND_PRESETS,
   MAX_PITCH_DOWN,
   MAX_PITCH_UP,
@@ -10,6 +11,7 @@ import {
   angularHalfWidth,
   bearingOf,
   clampEyeHeight,
+  clampFov,
   clampGroundHeight,
   clampPitch,
   compassMarks,
@@ -255,5 +257,37 @@ describe('looking up and down', () => {
 
   it('tilts further up than down, because that is where the planting is', () => {
     expect(MAX_PITCH_UP).toBeGreaterThan(MAX_PITCH_DOWN);
+  });
+});
+
+/**
+ * The width of the view: one limit, shared by the slider and the store. They
+ * used to differ, 140 against 160, so a width set by anything but the slider
+ * could sit past the end of the slider that was meant to show it.
+ */
+describe('the width of the view', () => {
+  it('reaches all the way to 180 degrees, one shoulder to the other', () => {
+    expect(FOV_RANGE.max).toBe(180);
+    expect(clampFov(180)).toBe(180);
+  });
+
+  it('holds any requested width inside the slider’s own range', () => {
+    expect(clampFov(10)).toBe(FOV_RANGE.min);
+    expect(clampFov(400)).toBe(FOV_RANGE.max);
+    expect(clampFov(Number.NaN)).toBeGreaterThanOrEqual(FOV_RANGE.min);
+    expect(clampFov(Number.NaN)).toBeLessThanOrEqual(FOV_RANGE.max);
+  });
+
+  it('lands the slider on its own steps, so the top of the range is reachable', () => {
+    expect((FOV_RANGE.max - FOV_RANGE.min) % FOV_RANGE.step).toBe(0);
+  });
+
+  it('includes a plant standing square to one side once the view is 180 wide', () => {
+    // Due east of a viewer facing north is 90 degrees off; at 180 wide it is on
+    // the very edge of the picture, and at 140 it was not in it at all.
+    const side = { id: 's', speciesId: 'taxus-baccata', x: VIEWER.x + 5, y: VIEWER.y, seed: 1, plantedAge: 0 };
+    const facingNorth = { ...VIEWER, heading: 0 };
+    expect(isInView(sight(facingNorth, side, LONDON), 0.2, 180)).toBe(true);
+    expect(isInView(sight(facingNorth, side, LONDON), 0.2, 140)).toBe(false);
   });
 });

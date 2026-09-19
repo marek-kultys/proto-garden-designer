@@ -8,7 +8,7 @@ but not built — nothing gets added until Mela says so, batch by batch.
 
 Every plant has a number, so any of them can be named in one word.
 
-- `001`–`274` are plants in the app. The number is the order the plant
+- `001`–`295` are plants in the app. The number is the order the plant
   was added to the library, so **it never changes** — new plants take the next
   number up, and nothing already numbered shifts underneath it.
 - `P001` upwards are plants not yet built. A P-number is temporary: when the
@@ -32,11 +32,11 @@ photographs are copied, and nothing is harvested automatically. See
 
 ---
 
-## In the app now — 274 plants
+## In the app now — 295 plants
 
-237 full, 37 partial.
+256 full, 39 partial.
 
-### Trees (41)
+### Trees (44)
 
 - [x] `268` *Acer campestre* — Field maple · **FULL**
 - [x] `003` *Acer palmatum 'Ōsakazuki'* — Japanese maple · **FULL**
@@ -68,7 +68,10 @@ photographs are copied, and nothing is harvested automatically. See
 - [x] `143` *Malus domestica 'Sunset'* — Apple · **FULL**
 - [x] `092` *Malus x zumi 'Golden Hornet'* — Crab apple 'Golden Hornet' · **FULL**
 - [x] `267` *Olea europaea* — Olive · **FULL**
+- [x] `288` *Olea europaea* — Ancient olive · **PARTIAL**
+      - Drawn with the young olive’s single straight trunk; the massive, gnarled trunk that is the whole point of an ancient specimen is not drawn.
 - [x] `190` *Parrotia persica* — Persian ironwood · **FULL**
+- [x] `286` *Prunus 'Tai-haku'* — Japanese flowering cherry · **FULL**
 - [x] `094` *Prunus avium* — Wild cherry · **FULL**
 - [x] `194` *Prunus cerasifera 'Nigra'* — Purple-leaf cherry plum · **FULL**
 - [x] `095` *Prunus cerasus* — Morello cherry · **FULL**
@@ -78,21 +81,26 @@ photographs are copied, and nothing is harvested automatically. See
 - [x] `014` *Prunus serrula* — Tibetan cherry · **FULL**
 - [x] `093` *Prunus x blireana* — Double pink flowering plum · **FULL**
 - [x] `188` *Pyrus calleryana 'Chanticleer'* — Ornamental pear · **FULL**
+- [x] `287` *Pyrus communis 'Conference'* — Pear · **FULL**
 - [x] `186` *Quercus robur* — English oak · **FULL**
 - [x] `015` *Sorbus aucuparia* — Rowan · **FULL**
 - [x] `187` *Tilia cordata* — Small-leaved lime · **FULL**
 - [x] `272` *Tilia cordata* — Umbrella-trained tree · **FULL**
 - [x] `177` *Trachycarpus fortunei* — Chusan palm · **FULL**
 
-### Shrubs (64)
+### Shrubs (73)
 
+- [x] `295` *Aucuba japonica 'Crotonifolia'* — Spotted laurel · **FULL**
+- [x] `275` *Ballota pseudodictamnus* — False dittany · **FULL**
 - [x] `165` *Berberis darwinii* — Darwin's barberry · **FULL**
 - [x] `166` *Berberis thunbergii f. atropurpurea* — Purple Japanese barberry · **FULL**
+- [x] `276` *Brachyglottis (Dunedin Group) 'Sunshine'* — Brachyglottis · **FULL**
 - [x] `059` *Buxus sempervirens* — Common box · **FULL**
 - [x] `170` *Callicarpa bodinieri var. giraldii 'Profusion'* — Beautyberry · **FULL**
 - [x] `176` *Camellia × williamsii 'Donation'* — Camellia · **FULL**
 - [x] `071` *Chimonanthus praecox* — Wintersweet · **FULL**
 - [x] `020` *Choisya ternata 'Sundance'* — Mexican orange blossom · **FULL**
+- [x] `284` *Cistus albidus* — Grey-leaved rock rose · **FULL**
 - [x] `062` *Cistus x argenteus 'Silver Pink'* — Rock rose 'Silver Pink' · **FULL**
 - [x] `061` *Cistus x purpureus* — Purple rock rose · **FULL**
 - [x] `064` *Convolvulus cneorum* — Silverbush · **FULL**
@@ -120,6 +128,7 @@ photographs are copied, and nothing is harvested automatically. See
 - [x] `077` *Hydrangea serrata* — Mountain hydrangea · **PARTIAL**
       - No winter standing window, so the dried lacecap heads vanish in autumn rather than standing.
 - [x] `159` *Ilex crenata Dark Green ('Icoprins11')* — Japanese holly · **FULL**
+- [x] `294` *Laurus nobilis* — Bay laurel · **FULL**
 - [x] `006` *Lavandula angustifolia 'Hidcote'* — English lavender · **FULL**
 - [x] `016` *Leptospermum scoparium* — Mānuka · **FULL**
 - [x] `156` *Ligustrum ovalifolium* — Privet hedge · **FULL**
@@ -132,6 +141,7 @@ photographs are copied, and nothing is harvested automatically. See
       - Not marked as a clipped subject, so it reaches full shrub size instead of holding a hedge height.
 - [x] `175` *Pieris japonica 'Katsura'* — Lily-of-the-valley bush · **FULL**
 - [x] `162` *Pittosporum tenuifolium 'Silver Queen'* — Tawhiwhi · **FULL**
+- [x] `293` *Prunus laurocerasus* — Cherry laurel · **FULL**
 - [x] `158` *Prunus lusitanica* — Portugal laurel · **FULL**
 - [x] `060` *Pyracantha coccinea* — Firethorn · **FULL**
 - [x] `144` *Rhododendron yakushimanum* — Yakushima rhododendron · **FULL**
@@ -142,6 +152,8 @@ photographs are copied, and nothing is harvested automatically. See
 - [x] `050` *Rosa glauca* — Red-leaved rose · **FULL**
 - [x] `152` *Rosa spinosissima* — Burnet rose · **FULL**
 - [x] `270` *Salix alba var. vitellina 'Britzensis'* — Scarlet willow · **FULL**
+- [x] `277` *Salvia × jamensis 'La Luna'* — Shrubby sage · **FULL**
+- [x] `278` *Salvia officinalis* — Common sage · **FULL**
 - [x] `067` *Salvia rosmarinus* — Rosemary · **FULL**
 - [x] `068` *Salvia rosmarinus 'Foxtail'* — Rosemary 'Foxtail' · **FULL**
 - [x] `065` *Santolina chamaecyparissus* — Cotton lavender · **FULL**
@@ -155,6 +167,8 @@ photographs are copied, and nothing is harvested automatically. See
       - Not marked as a clipped subject, so it reaches full size instead of holding a clipped dome.
 - [x] `074` *Viburnum x bodnantense 'Dawn'* — Viburnum 'Dawn' · **FULL**
 - [x] `178` *Yucca filamentosa* — Adam's needle · **FULL**
+- [x] `290` *Yucca rostrata* — Beaked yucca · **PARTIAL**
+      - Drawn with a palm’s drooping crown on its trunk rather than a stiff sphere of blue leaves, and its flower spike is not drawn.
 
 ### Conifers (8)
 
@@ -206,11 +220,14 @@ photographs are copied, and nothing is harvested automatically. See
 - [x] `246` *Wisteria sinensis* — Chinese wisteria · **PARTIAL**
       - Height is capped at 2.2 m and there is no wall or pergola to attach to, so above that it spreads sideways instead of climbing.
 
-### Grasses (23)
+### Grasses (26)
 
 - [x] `222` *Anemanthele lessoniana* — Pheasant's tail grass · **FULL**
+- [x] `291` *Briza media* — Quaking grass · **FULL**
 - [x] `007` *Calamagrostis × acutiflora 'Karl Foerster'* — Feather reed grass · **FULL**
 - [x] `219` *Carex testacea* — Orange sedge · **FULL**
+- [x] `289` *Cortaderia selloana* — Pampas grass · **FULL**
+- [x] `292` *Cortaderia selloana 'Tiny Pampa'* — Pampas grass 'Tiny Pampa' · **FULL**
 - [x] `085` *Deschampsia cespitosa* — Tufted hair grass · **FULL**
 - [x] `179` *Fargesia murielae* — Umbrella bamboo · **FULL**
 - [x] `223` *Festuca glauca 'Elijah Blue'* — Blue fescue · **FULL**
@@ -242,10 +259,11 @@ photographs are copied, and nothing is harvested automatically. See
 - [x] `230` *Polypodium vulgare* — Common polypody · **FULL**
 - [x] `226` *Polystichum setiferum* — Soft shield fern · **FULL**
 
-### Perennials (84)
+### Perennials (90)
 
 - [x] `212` *Acanthus mollis* — Bear's breeches · **FULL**
 - [x] `196` *Achillea 'Moonshine'* — Yarrow · **FULL**
+- [x] `282` *Achillea 'Terracotta'* — Yarrow 'Terracotta' · **FULL**
 - [x] `213` *Actaea simplex 'Brunette'* — Bugbane · **FULL**
 - [x] `216` *Ajuga reptans 'Atropurpurea'* — Bugle · **FULL**
 - [x] `151` *Alcea rosea* — Hollyhock · **PARTIAL**
@@ -260,10 +278,12 @@ photographs are copied, and nothing is harvested automatically. See
 - [x] `105` *Aster x frikartii 'Monch'* — Aster 'Monch' · **FULL**
 - [x] `253` *Astilbe × arendsii 'Fanal'* — False goat's beard · **FULL**
 - [x] `197` *Astrantia major* — Masterwort · **FULL**
+- [x] `281` *Baptisia australis* — False indigo · **FULL**
 - [x] `203` *Bergenia cordifolia 'Purpurea'* — Elephant's ears · **FULL**
 - [x] `201` *Brunnera macrophylla 'Jack Frost'* — Siberian bugloss · **FULL**
 - [x] `257` *Caltha palustris* — Marsh marigold · **FULL**
 - [x] `211` *Campanula persicifolia* — Peach-leaved bellflower · **FULL**
+- [x] `279` *Centranthus ruber* — Red valerian · **FULL**
 - [x] `116` *Coreopsis verticillata 'Moonbeam'* — Threadleaf tickseed · **FULL**
 - [x] `208` *Crocosmia 'Lucifer'* — Montbretia · **FULL**
 - [x] `126` *Dahlia 'Bishop of Dover'* — Dahlia 'Bishop of Dover' · **PARTIAL**
@@ -304,10 +324,12 @@ photographs are copied, and nothing is harvested automatically. See
 - [x] `008` *Hosta (Tardiana Group) 'Halcyon'* — Plantain lily · **FULL**
 - [x] `114` *Houttuynia cordata* — Chameleon plant · **FULL**
 - [x] `199` *Hylotelephium 'Herbstfreude'* — Ice plant · **FULL**
+- [x] `285` *Hylotelephium cauticola 'Lidakense'* — Stonecrop 'Lidakense' · **FULL**
 - [x] `103` *Iris 'Benton Nigel'* — Benton iris · **FULL**
 - [x] `259` *Iris ensata* — Japanese water iris · **FULL**
 - [x] `258` *Iris pseudacorus* — Yellow flag iris · **FULL**
 - [x] `117` *Kniphofia 'Tawny King'* — Red hot poker 'Tawny King' · **FULL**
+- [x] `283` *Leontopodium nivale subsp. alpinum* — Edelweiss · **FULL**
 - [x] `122` *Liatris spicata* — Blazing star · **FULL**
 - [x] `255` *Ligularia dentata 'Britt-Marie Crawford'* — Leopard plant · **FULL**
 - [x] `198` *Nepeta × faassenii 'Six Hills Giant'* — Catmint · **FULL**
@@ -316,6 +338,7 @@ photographs are copied, and nothing is harvested automatically. See
 - [x] `132` *Paeonia lactiflora* — Chinese peony · **FULL**
 - [x] `200` *Persicaria amplexicaulis 'Firetail'* — Red bistort · **FULL**
 - [x] `102` *Phlomis russeliana* — Turkish sage · **FULL**
+- [x] `280` *Phlomis tuberosa 'Amazone'* — Sage-leaf mullein · **FULL**
 - [x] `079` *Phlox paniculata* — Border phlox · **FULL**
 - [x] `080` *Phlox subulata* — Creeping phlox · **FULL**
 - [x] `269` *Phormium tenax* — New Zealand flax · **FULL**
@@ -373,6 +396,66 @@ photographs are copied, and nothing is harvested automatically. See
 - [x] `241` *Papaver somniferum* — Opium poppy · **FULL**
 - [x] `138` *Tagetes 'Cinnabar'* — Marigold 'Cinnabar' · **FULL**
 - [x] `245` *Zinnia elegans* — Zinnia · **FULL**
+
+---
+
+## The Mediterranean button — 42 plants
+
+The button beside Trees, Shrubs and the rest shows these. It is a designer's
+grouping, not a botanical one: it means the dry, sunny, silver-and-aromatic
+garden, so it takes in Brachyglottis from New Zealand, Baptisia from the
+American prairie and edelweiss from the Alps because they do that job. Bugle is
+in by choice although it wants damp shade — useful under the shadier edge of a
+dry garden. To add or remove one, give its number.
+
+Asked for by name:
+
+- `275` *Ballota pseudodictamnus* — False dittany
+- `276` *Brachyglottis (Dunedin Group) 'Sunshine'* — Brachyglottis
+- `104` *Salvia yangii* — Russian sage
+- `024` *Salvia nemorosa 'Caradonna'* — Balkan clary
+- `277` *Salvia × jamensis 'La Luna'* — Shrubby sage
+- `278` *Salvia officinalis* — Common sage
+- `067` *Salvia rosmarinus* — Rosemary
+- `068` *Salvia rosmarinus 'Foxtail'* — Rosemary 'Foxtail'
+- `145` *Echium pininana* — Giant viper's bugloss
+- `239` *Eremurus × isabellinus 'Cleopatra'* — Foxtail lily
+- `279` *Centranthus ruber* — Red valerian
+- `206` *Verbascum 'Gainsborough'* — Mullein
+- `280` *Phlomis tuberosa 'Amazone'* — Sage-leaf mullein
+- `281` *Baptisia australis* — False indigo
+- `282` *Achillea 'Terracotta'* — Yarrow 'Terracotta'
+- `216` *Ajuga reptans 'Atropurpurea'* — Bugle
+- `283` *Leontopodium nivale subsp. alpinum* — Edelweiss
+- `061` *Cistus x purpureus* — Purple rock rose
+- `062` *Cistus x argenteus 'Silver Pink'* — Rock rose 'Silver Pink'
+- `284` *Cistus albidus* — Grey-leaved rock rose
+
+Mediterranean plants already in the library, added so the button holds what
+anyone pressing it would expect:
+
+- `006` *Lavandula angustifolia 'Hidcote'* — English lavender
+- `065` *Santolina chamaecyparissus* — Cotton lavender
+- `066` *Santolina chamaecyparissus 'Lemon Fizz'* — Cotton lavender 'Lemon Fizz'
+- `267` *Olea europaea* — Olive
+- `288` *Olea europaea* — Ancient olive
+- `294` *Laurus nobilis* — Bay laurel
+- `180` *Cupressus sempervirens 'Totem'* — Italian cypress
+- `262` *Arbutus unedo* — Strawberry tree
+- `128` *Euphorbia characias* — Mediterranean spurge
+- `129` *Euphorbia characias subsp. wulfenii* — Mediterranean spurge 'Wulfenii'
+- `022` *Stipa gigantea* — Giant oat grass
+- `102` *Phlomis russeliana* — Turkish sage
+- `064` *Convolvulus cneorum* — Silverbush
+- `063` *Helianthemum nummularium* — Rock rose
+- `112` *Foeniculum vulgare 'Purpureum'* — Bronze fennel
+- `212` *Acanthus mollis* — Bear's breeches
+- `242` *Cerinthe major 'Purpurascens'* — Honeywort
+- `150` *Tamarix tetrandra* — Four-stamen tamarisk
+- `037` *Allium sphaerocephalon* — Drumstick allium
+- `236` *Nectaroscordum siculum* — Sicilian honey garlic
+- `223` *Festuca glauca 'Elijah Blue'* — Blue fescue
+- `225` *Helictotrichon sempervirens* — Blue oat grass
 
 ---
 

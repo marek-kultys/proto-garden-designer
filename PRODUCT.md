@@ -57,7 +57,7 @@ A few open questions were settled before building:
 | Which optional extras? | The sun/shade overlay only — soil alerts, save/load and a plant info panel were cut |
 
 Everything after that came from using it: ten plants became thirty, then a
-hundred and fifty-five, then two hundred and seventy-four, plus a phone layout, a 360° view from inside the
+hundred and fifty-five, then two hundred and ninety-five, plus a phone layout, a 360° view from inside the
 garden, adjustable eye height, duplicating a plant in place, undo, and filtering
 the library by growing conditions.
 
@@ -133,7 +133,7 @@ terrace or an upstairs window.
 
 ### The plant library
 
-Two hundred and seventy-four plants, searchable by common name, Latin name, genus
+Two hundred and ninety-five plants, searchable by common name, Latin name, genus
 or family, each card showing both names, mature dimensions, foliage type and a
 sketch thumbnail. Drag onto the plan to place; on a phone, tap to drop one in the
 middle and then drag it into position.
@@ -141,8 +141,8 @@ middle and then drag it into position.
 A **planted count** on each card shows how many of that plant are already on the
 plan, and clicking it steps the selection through them.
 
-Filtering runs on six axes. Type and a *Planted* toggle stay visible; the rest
-fold behind a **Growing conditions** disclosure:
+Filtering runs on eight axes. Type, a *Planted* toggle and the planting-style
+buttons stay visible; the rest fold behind a **Growing conditions** disclosure:
 
 | Axis | Values |
 |---|---|
@@ -152,6 +152,8 @@ fold behind a **Growing conditions** disclosure:
 | Soil pH | acidic · neutral · alkaline |
 | Drainage | free draining · water retentive · waterlogged · bog · pond |
 | Foliage | deciduous · evergreen · dies back |
+| Size | small · medium · large |
+| Hardy to | H4+ · H5+ · H6+ · H7 — a threshold, so asking for H5 includes the hardier H6 and H7 plants too |
 
 Chips that would empty the list are **dimmed rather than hidden**, given the
 filters already set. That admits honestly where the palette is thin — *pond*
@@ -163,6 +165,22 @@ lime-haters.
 Dappled shade is treated as a category in its own right, not a midpoint between
 sun and shade. It is the moving, broken light under a deciduous canopy, and it is
 what a hellebore or a Japanese maple actually wants rather than merely tolerates.
+
+**Planting styles** are buttons beside the types, of which there is one so far:
+**Mediterranean**. A style cuts across the types — a Mediterranean garden has
+trees, shrubs, grasses and bulbs — so, like *Planted*, it is a switch that
+combines with whichever type is chosen: Mediterranean and Shrubs together shows
+the Mediterranean shrubs, still grouped under their type. It holds forty-two plants,
+listed with their numbers in `PLANTS.md`.
+
+A style is a designer's grouping, not a botanical one, and that is why its
+members are a list written by hand rather than worked out from sun and soil.
+"Mediterranean" means the dry, sunny, silver and aromatic garden, so it takes in
+Brachyglottis from New Zealand, Baptisia from the American prairie, the shrubby
+Mexican sages and edelweiss from the Alps, because each does that job. Bugle is
+in it by choice although it wants damp shade, as ground cover for the shadier
+edge of a dry garden; a test names it as the one member that does not take full
+sun and free drainage, so a second exception cannot slip in unnoticed.
 
 ### Placing and editing
 
@@ -419,19 +437,19 @@ than ellipses — a solid thing, not a dappled one.
 
 ## The plant palette
 
-Two hundred and seventy-four plants, chosen to span the axes the simulation
+Two hundred and ninety-five plants, chosen to span the axes the simulation
 exercises — vigorous to slow, evergreen to fully dormant, sun to deep shade, tree
 to groundcover, and now bulb, fern and climber as well.
 
 | Type | Count | Examples |
 |---|---|---|
-| Trees | 41 | birch, amelanchier, magnolia, crab apple, cherry, beech, hornbeam, oak, lime, ornamental pear, cercis, parrotia, liquidambar, ginkgo, Chusan palm; and pleached, umbrella, fan and cordon trained trees |
-| Shrubs | 64 | hydrangeas, lavender, roses, rhododendron, box, privet, Portugal laurel, osmanthus, pittosporum, escallonia, berberis, fatsia, camellia, pieris, skimmia, yucca |
+| Trees | 44 | birch, amelanchier, magnolia, crab apple, cherry, beech, hornbeam, oak, lime, ornamental pear, cercis, parrotia, liquidambar, ginkgo, Chusan palm; a Japanese flowering cherry, a pear and an ancient specimen olive; and pleached, umbrella, fan and cordon trained trees |
+| Shrubs | 73 | hydrangeas, lavender, roses, rhododendron, box, privet, Portugal laurel, osmanthus, pittosporum, escallonia, berberis, fatsia, camellia, pieris, skimmia, yucca, sages, cistus, ballota, brachyglottis, beaked yucca, cherry laurel, bay, spotted laurel |
 | Conifers | 8 | clipped yew, dwarf mountain pine, Italian cypress, thuja, blue juniper, Lawson cypress, blue Atlas cedar, cryptomeria |
 | Climbers | 18 | clematis, ivy, honeysuckle, passion flower, star jasmine, wisteria, climbing rose, Boston ivy, climbing hydrangea, akebia, campsis, golden hop, sweet pea |
-| Grasses | 23 | miscanthus, molinia, calamagrostis, stipa, pennisetum, hakonechloa, carex, panicum, sesleria, festuca, luzula, umbrella bamboo |
+| Grasses | 26 | miscanthus, molinia, calamagrostis, stipa, pennisetum, hakonechloa, carex, panicum, sesleria, festuca, luzula, umbrella bamboo, pampas grass, quaking grass |
 | Ferns | 7 | male fern, soft tree fern, soft shield fern, hart's tongue, Japanese painted fern, shuttlecock fern, polypody |
-| Perennials | 84 | hellebore, hosta, epimedium, geranium, aster, peony, dahlia, delphinium, Japanese anemone, achillea, astrantia, nepeta, sedum, heuchera, bergenia, astilbe, rodgersia, ligularia, water iris |
+| Perennials | 90 | hellebore, hosta, epimedium, geranium, aster, peony, dahlia, delphinium, Japanese anemone, achillea, astrantia, nepeta, sedum, heuchera, bergenia, astilbe, rodgersia, ligularia, water iris, red valerian, baptisia, edelweiss, a trailing stonecrop |
 | Bulbs | 21 | snowdrop, cyclamen, narcissus, allium, tulips, crocus, camassia, fritillary, muscari, bluebell, erythronium, colchicum, eremurus |
 | Annuals | 8 | cosmos, love-in-a-mist, marigold, ammi, opium poppy, cerinthe, snapdragon, zinnia |
 
@@ -532,12 +550,16 @@ per-plant page. Cut to keep the focus on the simulation.
 
 ## Known trade-offs
 
-- **The 360° view can be made narrower.** Its width is adjustable, and narrower
-  is worth having: a cylindrical projection bends every straight line, and past
-  about 120° a gardener's word for the result is "deformed". The floor on how
-  much sky and ground it must show was lowered so that asking for a narrow view
-  actually gives one; the cost is seeing less up and down at once, which the
-  tilt answers.
+- **The 360° view runs from 45° to 180° wide, and the wide end bends.** At 180°
+  it shows everything in front of you, one shoulder to the other — the whole of a
+  garden from one spot, which is what it was widened for. The cost is the
+  projection's: it is cylindrical, so every straight line across the view bows,
+  and past about 120° a gardener's word for the result was "deformed". That is
+  accepted rather than fixed, because a flat projection cannot show 180° at all.
+  Narrower is still there for a picture that keeps its lines straight. The floor
+  on how much sky and ground the view must show was lowered so that asking for a
+  narrow view actually gives one; the cost is seeing less up and down at once,
+  which the tilt answers.
 - **The plan and the view below it share the height, and the divider between
   them can be dragged.** Presets remain for the common cases; the divider is for
   when neither fits the plot in hand — a long shallow garden wants the plan
@@ -682,16 +704,17 @@ The prototype exists to answer questions about the idea, not about the code:
    *what will this look like*. Early signs are that the 360° view is the one that
    makes people stop talking about the drawing and start talking about the garden
    — but that needs testing, not assuming.
-3. **Is two hundred and seventy-four plants the right size?** The palette started
+3. **Is two hundred and ninety-five plants the right size?** The palette started
    at ten on a depth-over-breadth argument, grew to a hundred and fifty-five
    because testing kept asking for specific plants, and then to two hundred and
    seventy because a designer wanted to work in it. The open question is now the
    opposite one: whether a list this long is harder to work with than a curated
    short one, and whether the filters carry the weight the scrolling no longer
-   does. At this size the answer matters — eight filter axes and a search box are
-   now the only way through. Size and hardiness were added once the palette
-   passed two hundred; flowering month, a sort, and saved groups of plants a
-   designer returns to are still missing.
+   does. At this size the answer matters — eight filter axes, a search box and
+   one planting-style button are now the only way through. Size and hardiness
+   were added once the palette passed two hundred, and a Mediterranean button
+   after it; flowering month, a sort, and a designer's own saved groups are still
+   missing.
 4. **Is the sun/shade map read as analysis or as decoration?**
 5. **Would this be shown to a client, or is it a designer's private tool?**
 6. **What is the first thing they try to do that it cannot do?**
