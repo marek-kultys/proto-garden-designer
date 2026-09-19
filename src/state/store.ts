@@ -6,6 +6,7 @@ import { getSpecies } from '../model/plants';
 import {
   DEFAULT_EYE_HEIGHT,
   clampEyeHeight,
+  clampFov,
   clampGroundHeight,
   clampPitch,
   normaliseBearing,
@@ -736,7 +737,7 @@ export const useStore = create<AppState>((set, get) => ({
   setHeading: (heading) =>
     set((s) => ({ observer: { ...s.observer, heading: normaliseBearing(heading) } })),
   setFov: (fov) =>
-    set((s) => ({ observer: { ...s.observer, fov: Math.max(30, Math.min(160, fov)) } })),
+    set((s) => ({ observer: { ...s.observer, fov: clampFov(fov) } })),
   setPitch: (pitch) => set((s) => ({ observer: { ...s.observer, pitch: clampPitch(pitch) } })),
   setEyeHeight: (m) =>
     set((s) => ({ observer: { ...s.observer, eyeHeight: clampEyeHeight(m) } })),

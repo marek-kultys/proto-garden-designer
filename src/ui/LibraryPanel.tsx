@@ -1,5 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { SPECIES, TYPE_LABELS, hardinessRating } from '../model/plants';
+import {
+  PLANTING_STYLES,
+  SPECIES,
+  STYLE_LABELS,
+  TYPE_LABELS,
+  hardinessRating,
+  inStyle,
+  type PlantingStyle,
+} from '../model/plants';
 import { phaseAt } from '../model/phenology';
 import { matureSize } from '../model/growth';
 import { lightingFor } from '../render/palette';
@@ -289,6 +297,7 @@ export function LibraryPanel({ onStartDrag }: LibraryProps) {
   const [size, setSize] = useState<SizeClass | 'all'>('all');
   const [hardiness, setHardiness] = useState<'all' | 'H4' | 'H5' | 'H6' | 'H7'>('all');
   const [plantedOnly, setPlantedOnly] = useState(false);
+  const [style, setStyle] = useState<PlantingStyle | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [openId, setOpenId] = useState<string | null>(null);
 
@@ -310,6 +319,7 @@ export function LibraryPanel({ onStartDrag }: LibraryProps) {
     const q = query.trim().toLowerCase();
     return SPECIES.filter((s) => {
       if (plantedOnly && !counts.has(s.id)) return false;
+      if (style !== null && !inStyle(s, style)) return false;
       if (type !== 'all' && s.type !== type) return false;
       if (foliage !== 'all' && s.foliage !== foliage) return false;
       if (sun !== 'all' && !s.sun.includes(sun)) return false;
@@ -324,7 +334,20 @@ export function LibraryPanel({ onStartDrag }: LibraryProps) {
         .toLowerCase()
         .includes(q);
     });
-  }, [query, type, foliage, sun, soilPh, soilType, drainage, size, hardiness, plantedOnly, counts]);
+  }, [
+    query,
+    type,
+    foliage,
+    sun,
+    soilPh,
+    soilType,
+    drainage,
+    size,
+    hardiness,
+    plantedOnly,
+    style,
+    counts,
+  ]);
 
   const grouped = useMemo(() => {
     return TYPE_ORDER.map((t) => ({
@@ -340,7 +363,8 @@ export function LibraryPanel({ onStartDrag }: LibraryProps) {
   const activeConditions = [sun, soilPh, soilType, drainage, foliage, size, hardiness].filter(
     (v) => v !== 'all',
   ).length;
-  const filtered = activeConditions > 0 || type !== 'all' || plantedOnly || query.trim() !== '';
+  const filtered =
+    activeConditions > 0 || type !== 'all' || plantedOnly || style !== null || query.trim() !== '';
 
   const clearFilters = () => {
     setQuery('');
@@ -353,6 +377,7 @@ export function LibraryPanel({ onStartDrag }: LibraryProps) {
     setSize('all');
     setHardiness('all');
     setPlantedOnly(false);
+    setStyle(null);
   };
 
   /**
@@ -372,6 +397,7 @@ export function LibraryPanel({ onStartDrag }: LibraryProps) {
     SPECIES.filter(
       (s) =>
         predicate(s) &&
+        (style === null || inStyle(s, style)) &&
         (except === 'type' || type === 'all' || s.type === type) &&
         (except === 'sun' || sun === 'all' || s.sun.includes(sun)) &&
         (except === 'soilPh' || soilPh === 'all' || s.soilPh.includes(soilPh)) &&
@@ -412,19 +438,36 @@ export function LibraryPanel({ onStartDrag }: LibraryProps) {
           onPick={setType}
           countFor={(id) => (id === 'all' ? 1 : countIf((s) => s.type === id))}
           extra={
-            <button
-              className={`chip planted ${plantedOnly ? 'on' : ''}`}
-              onClick={() => setPlantedOnly((v) => !v)}
-              disabled={plants.length === 0}
-              title="Show only plants already on the plan"
-            >
-              Planted{plants.length > 0 ? ` (${distinctPlanted})` : ''}
-            </button>
+            <>
+              <button
+                className={`chip planted ${plantedOnly ? 'on' : ''}`}
+                onClick={() => setPlantedOnly((v) => !v)}
+                disabled={plants.length === 0}
+                title="Show only plants already on the plan"
+              >
+                Planted{plants.length > 0 ? ` (${distinctPlanted})` : ''}
+              </button>
+              {/* A style cuts across the types rather than being one of them — a
+                  Mediterranean garden has trees, shrubs, grasses and bulbs — so,
+                  like Planted, it is a switch that combines with whichever type
+                  is chosen instead of replacing it. */}
+              {PLANTING_STYLES.map((id) => (
+                <button
+                  key={id}
+                  className={`chip style ${style === id ? 'on' : ''}`}
+                  onClick={() => setStyle((current) => (current === id ? null : id))}
+                  aria-pressed={style === id}
+                  title={`Show only ${STYLE_LABELS[id]} plants`}
+                >
+                  {STYLE_LABELS[id]}
+                </button>
+              ))}
+            </>
           }
         />
 
-        {/* Six axes visible at once would leave no room for the plants
-            themselves, so the conditions fold away until wanted. */}
+        {/* Every growing condition visible at once would leave no room for the
+            plants themselves, so they fold away until wanted. */}
         <button
           className={`disclosure ${showFilters ? 'open' : ''}`}
           onClick={() => setShowFilters((v) => !v)}

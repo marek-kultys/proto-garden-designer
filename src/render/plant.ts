@@ -1233,7 +1233,12 @@ function drawElevSpire(
   seasonT: number,
 ): void {
   const { ctx, light } = dc;
-  if (phase.leafCover < 0.04 && phase.flower < 0.04) return;
+  // Nothing to draw only when there is no leaf, no flower and no standing seed
+  // spike. Checking just leaf and flower returned before the dry spike below was
+  // ever reached, so every herbaceous spire left standing for the winter —
+  // mullein, foxtail lily, bear's breeches and eight more — vanished from the
+  // side views from the day its leaves died until spring.
+  if (phase.leafCover < 0.04 && phase.flower < 0.04 && phase.seedhead < 0.05) return;
 
   // Basal foliage: a squat mound in the bottom fifth or so.
   const leafH = h * 0.24 * phase.leafCover;
