@@ -119,7 +119,7 @@ export const CONIFERS: Species[] = [
     foliageColour: 'very dark green, dense and fine',
     notes:
       'A dark green exclamation mark, and the quickest way to put Italy into an English garden. Narrower and more reliable than the species, holding a tight column without tying. H4 is the warning — a wet cold winter is more dangerous to it than a dry cold one, so it wants sharp drainage and sun. Snow can splay the column permanently.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Cupressus%20sempervirens%20Totem',
+    source: 'https://www.rhs.org.uk/plants/136396/cupressus-sempervirens-totem/details',
   },
   {
     id: 'thuja-smaragd',
@@ -160,7 +160,7 @@ export const CONIFERS: Species[] = [
     foliageColour: 'bright emerald green, held in flat sprays',
     notes:
       'The conifer hedge that behaves — slow enough at 20 cm a year that it will not run away from you, unlike leylandii, and it holds its colour through winter instead of bronzing. Modelled here as a clipped subject, since that is how it is nearly always used: a row of narrow columns or a formal screen.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Thuja%20occidentalis%20Smaragd',
+    source: 'https://www.rhs.org.uk/plants/75683/thuja-occidentalis-smaragd/details',
   },
   {
     id: 'juniperus-blue-star',
@@ -199,7 +199,7 @@ export const CONIFERS: Species[] = [
     foliageColour: 'intense silver-blue, dense and prickly',
     notes:
       'The bluest thing in this palette by a distance, and low enough to sit at the front of a gravel bed or spill over a wall. Very slow — a plant a decade old is still only knee high and a metre across. Needs full sun to hold the colour; in shade it goes a dull grey-green and thins out from underneath.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Juniperus%20squamata%20Blue%20Star',
+    source: 'https://www.rhs.org.uk/plants/99002/juniperus-squamata-blue-star/details',
   },
   {
     id: 'chamaecyparis-ellwoodii',
@@ -238,7 +238,7 @@ export const CONIFERS: Species[] = [
     foliageColour: 'soft grey-blue, feathery',
     notes:
       'A slow soft-textured column in grey-blue, useful where a dark green cypress would be too heavy. Feathery juvenile foliage rather than the flat scale sprays of the species. Takes shade better than most conifers here, and will grow on chalk, which the Italian cypress dislikes.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Chamaecyparis%20lawsoniana%20Ellwoodii',
+    source: 'https://www.rhs.org.uk/plants/92331/chamaecyparis-lawsoniana-ellwoodii/details',
   },
   {
     id: 'cedrus-atlantica-glauca',
@@ -277,7 +277,7 @@ export const CONIFERS: Species[] = [
     foliageColour: 'silver-blue needles in tufts',
     notes:
       'A parkland tree, and included as the honest warning it is: silver-blue and magnificent, and far too big for almost every garden it gets planted in. Reckon on eight metres in twenty years and eighteen eventually, with a spread to match. Worth having in the palette precisely so the shadow it throws can be seen before it is planted rather than after.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Cedrus%20atlantica%20Glauca',
+    source: 'https://www.rhs.org.uk/plants/133006/cedrus-atlantica-glauca-group/details',
   },
   {
     id: 'cryptomeria-elegans-compacta',
@@ -316,6 +316,6 @@ export const CONIFERS: Species[] = [
     foliageColour: 'soft feathery green, turning bronze-purple in winter',
     notes:
       'Soft to the point of being woolly, and one of the few conifers that changes colour with the season: fresh green all summer, then a deep bronze-purple through the cold months that comes back to green in spring. That colour shift is a feature, not stress. Dislikes chalk and dries out badly in a hot exposed spot.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Cryptomeria%20japonica%20Elegans%20Compacta',
+    source: 'https://www.rhs.org.uk/plants/58692/cryptomeria-japonica-elegans-compacta/details',
   },
 ];

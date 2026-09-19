@@ -83,7 +83,7 @@ export const ANNUALS: Species[] = [
     foliageColour: 'thread-fine bright green',
     notes:
       'A hardy annual, so the age slider does nothing to it — sow it where it is to flower, because it hates being moved. The inflated striped seedpods that follow are as good as the flowers and dry well. Once you have it you have it: it seeds about politely and comes back every year.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Nigella%20damascena',
+    source: 'https://www.rhs.org.uk/plants/121186/nigella-damascena/details',
   },
   {
     id: 'tagetes-cinnabar',
@@ -124,7 +124,7 @@ export const ANNUALS: Species[] = [
     foliageColour: 'ferny dark green, pungent',
     notes:
       'A single French marigold in a smoky brick red rather than the municipal orange, tall enough to go in a border rather than a bedding scheme. Half-hardy, so it goes out after the last frost and is killed by the first — deadhead it and it flowers from June until then.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Tagetes%20Cinnabar',
+    source: 'https://www.rhs.org.uk/plants/300419/tagetes-cinnabar/details',
   },
   {
     id: 'ammi-majus',
@@ -164,7 +164,7 @@ export const ANNUALS: Species[] = [
     foliageColour: 'finely cut bright green',
     notes:
       'Cow parsley you are allowed to plant on purpose — flat white lace plates on branching stems from July until autumn, and the best thing here for softening a border that has gone too solid. Sow it in autumn for far bigger plants than a spring sowing gives. Cut it and it lasts a fortnight in water.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Ammi%20majus',
+    source: 'https://www.rhs.org.uk/plants/25047/ammi-majus/details',
   },
   {
     id: 'papaver-somniferum',
@@ -206,7 +206,7 @@ export const ANNUALS: Species[] = [
     foliageColour: 'glaucous blue-grey, sculptural',
     notes:
       'Each flower lasts two days and the plant is worth it anyway — huge crumpled mauve or plum tissue over blue-grey sculptural leaves. Then the seedpods, which are the real point: perfect grey-green pepperpots that stand well into autumn and dry for the house. Seeds itself for ever once you have it.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Papaver%20somniferum',
+    source: 'https://www.rhs.org.uk/plants/58799/papaver-somniferum/details',
   },
   {
     id: 'cerinthe-purpurascens',
@@ -247,7 +247,7 @@ export const ANNUALS: Species[] = [
     foliageColour: 'sea-green, spotted, waxy',
     notes:
       'Waxy sea-green leaves that shade upward into blue-purple bracts, with dark indigo tubes hanging underneath — the whole plant is a colour rather than a flower, and nothing else here does it. Bees work it constantly. Half hardy, so sow after frost, and let it seed itself for next year.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Cerinthe%20major%20Purpurascens',
+    source: 'https://www.rhs.org.uk/plants/103798/cerinthe-major-purpurascens/details',
   },
   {
     id: 'antirrhinum-majus',
@@ -288,7 +288,7 @@ export const ANNUALS: Species[] = [
     foliageColour: 'narrow glossy dark green',
     notes:
       'Dense spikes of flowers that snap open when you pinch them, from June until the first hard frost if you keep deadheading. Technically a short-lived perennial and often survives a mild winter, so an old plant will sometimes surprise you in year two. Rust is the enemy; give it air and full sun.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Antirrhinum%20majus',
+    source: 'https://www.rhs.org.uk/plants/69565/antirrhinum-majus/details',
   },
   {
     id: 'zinnia-elegans',
@@ -329,6 +329,6 @@ export const ANNUALS: Species[] = [
     foliageColour: 'coarse mid green',
     notes:
       'The hottest colours available from a packet of seed, on stiff stems that make it a first-rate cutting flower. Genuinely tender — do not sow before late May, and it will be killed by the first frost. Hates cold wet roots and root disturbance, so sow direct or plant out from deep modules.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Zinnia%20elegans',
+    source: 'https://www.rhs.org.uk/plants/159688/zinnia-elegans/details',
   },
 ];

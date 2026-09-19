@@ -164,7 +164,7 @@ export const GRASSES: Species[] = [
     foliageColour: 'very fine green, each blade white-edged',
     notes:
       'The finest-leaved miscanthus, each blade edged with a thin white line so the whole clump reads as a silver haze rather than as green. Flowers late — often not until October in a cool summer — and stands right through winter until it is cut to the ground in February.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Miscanthus%20sinensis%20Morning%20Light',
+    source: 'https://www.rhs.org.uk/plants/54584/miscanthus-sinensis-morning-light-v/details',
   },
   {
     id: 'miscanthus-flamingo',
@@ -205,7 +205,7 @@ export const GRASSES: Species[] = [
     foliageColour: 'narrow arching mid green',
     notes:
       'Among the earliest miscanthus to flower, in August rather than October, which matters in a cold garden where the late ones never quite make it. The plumes hang and nod rather than standing stiffly, and open a distinct pink before bleaching.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Miscanthus%20sinensis%20Flamingo',
+    source: 'https://www.rhs.org.uk/plants/73460/miscanthus-sinensis-flamingo/details',
   },
   {
     id: 'miscanthus-indianerin',
@@ -287,7 +287,7 @@ export const GRASSES: Species[] = [
     foliageColour: 'green banded horizontally with butter yellow',
     notes:
       'Banded horizontally with butter-yellow across the blade rather than striped along it, which is genuinely unusual and reads well at a distance. Looser and more arching than the upright cultivars, and inclined to flop on rich soil.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Miscanthus%20sinensis%20Zebrinus',
+    source: 'https://www.rhs.org.uk/plants/99154/miscanthus-sinensis-zebrinus-v/details',
   },
   {
     id: 'deschampsia-cespitosa',
@@ -328,7 +328,7 @@ export const GRASSES: Species[] = [
     foliageColour: 'dark green evergreen tuft',
     notes:
       'A native of damp woodland and rough grass, and one of the very few good grasses for partial shade — most want open sun. The flowers are a haze rather than a plume, catching low light spectacularly in June. Evergreen base, so it never leaves a hole; comb the dead material out rather than cutting it down.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Deschampsia%20cespitosa',
+    source: 'https://www.rhs.org.uk/plants/5638/deschampsia-cespitosa/details',
   },
   {
     id: 'molinia-caerulea',
@@ -369,7 +369,7 @@ export const GRASSES: Species[] = [
     foliageColour: 'mid green turning clear gold',
     notes:
       'Native to wet acid moorland, and one of the few good grasses for ground that stays wet in winter. Turns a strong gold in October — and then, unusually, the whole plant abscises and collapses in one go around the turn of the year, so unlike miscanthus it gives you autumn but not February.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Molinia%20caerulea',
+    source: 'https://www.rhs.org.uk/plants/11169/molinia-caerulea/details',
   },
   {
     id: 'molinia-transparent',
@@ -410,7 +410,7 @@ export const GRASSES: Species[] = [
     foliageColour: 'low green mound under a two-metre veil',
     notes:
       'Named exactly right: a knee-high clump of leaves throwing flower stems to two metres so fine that you look straight through them. Meant to be planted at the front of a border and seen past, not behind everything — one of the few plants where putting the tallest thing in front is the correct decision.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Molinia%20arundinacea%20Transparent',
+    source: 'https://www.rhs.org.uk/plants/84915/molinia-caerulea-subsp-arundinacea-transparent/details',
   },
   {
     id: 'molinia-moorhexe',
@@ -451,7 +451,7 @@ export const GRASSES: Species[] = [
     foliageColour: 'neat green, gold in autumn',
     notes:
       'Strictly, stiffly vertical — a narrow exclamation mark of a grass that holds its shape without staking and never flops, which is why it is used in repeated rhythms through a planting. Small enough for a modest border, unlike most molinias.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Molinia%20caerulea%20Moorhexe',
+    source: 'https://www.rhs.org.uk/plants/47257/molinia-caerulea-subsp-caerulea-moorhexe/details',
   },
   {
     id: 'molinia-edith-dudszus',
@@ -492,7 +492,7 @@ export const GRASSES: Species[] = [
     foliageColour: 'green with purple-black flower stems',
     notes:
       'The darkest of the moor grasses — the stems themselves are purple-black, not just the spikelets, so the whole flowering structure reads as a dark vertical line. Best with low sun behind it, where the dark stems silhouette.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Molinia%20caerulea%20Edith%20Dudszus',
+    source: 'https://www.rhs.org.uk/plants/81061/molinia-caerulea-subsp-caerulea-edith-dudszus/details',
   },
   {
     id: 'pennisetum-hameln',
@@ -611,7 +611,7 @@ export const GRASSES: Species[] = [
     foliageColour: 'fine, arching, fresh green',
     notes:
       'The bamboo it is safe to plant. Fargesia clumps where the running bamboos invade, so it screens without a root barrier and without a lawsuit from next door. Arching canes to about three and a half metres, evergreen, and it moves in the smallest breeze, which is half the reason to use it. Drawn with no flower at all, which is right: bamboos flower once in several decades and then usually die.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Fargesia%20murielae',
+    source: 'https://www.rhs.org.uk/plants/82475/fargesia-murielae/details',
   },
   {
     id: 'hakonechloa-macra',
@@ -651,7 +651,7 @@ export const GRASSES: Species[] = [
     foliageColour: 'bright green, flowing all one way',
     notes:
       'All the leaves lean the same way, so a clump looks like water pouring over a rock — the most graceful thing here and the one grass that genuinely prefers shade. Turns copper-orange in autumn and holds that colour into winter. Slow to build up, so buy it bigger than feels sensible.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Hakonechloa%20macra',
+    source: 'https://www.rhs.org.uk/plants/33668/hakonechloa-macra/details',
   },
   {
     id: 'carex-testacea',
@@ -690,7 +690,7 @@ export const GRASSES: Species[] = [
     foliageColour: 'olive-bronze, turning burnt orange in sun',
     notes:
       'Evergreen and genuinely orange, which is rare — a fine arching tussock that goes from olive in shade to burnt copper in full sun, and holds it all winter when everything else has been cut down. Comb the dead leaves out with your fingers in spring rather than cutting it back.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Carex%20testacea',
+    source: 'https://www.rhs.org.uk/plants/83677/carex-testacea/details',
   },
   {
     id: 'panicum-heavy-metal',
@@ -730,7 +730,7 @@ export const GRASSES: Species[] = [
     foliageColour: 'stiff steel-blue, gold in autumn',
     notes:
       'Stiffly upright steel-blue leaves — it does not flop, which sets it apart from most grasses this tall — topped in August by a haze of tiny flowers so fine the plant seems to be surrounded by smoke. Clear gold in autumn, then a buff skeleton that stands until you cut it in February.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Panicum%20virgatum%20Heavy%20Metal',
+    source: 'https://www.rhs.org.uk/plants/103968/panicum-virgatum-heavy-metal/details',
   },
   {
     id: 'sesleria-autumnalis',
@@ -769,7 +769,7 @@ export const GRASSES: Species[] = [
     foliageColour: 'soft yellow-green, almost lime',
     notes:
       'An unusually light yellow-green that stays evergreen and takes both sun and dry shade, which makes it the most useful matrix grass here — plant it in quantity as a green floor and let perennials come up through it. Silvery spikes in late summer. Tolerates chalk and drought once established.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Sesleria%20autumnalis',
+    source: 'https://www.rhs.org.uk/plants/71003/sesleria-autumnalis/details',
   },
   {
     id: 'anemanthele-lessoniana',
@@ -808,7 +808,7 @@ export const GRASSES: Species[] = [
     foliageColour: 'green, streaking to orange, copper and rust',
     notes:
       'Changes colour through the year rather than at one moment — green in spring, then streaked orange, copper and rust from midsummer onward, all shades present at once on the same plant. Evergreen. Seeds itself about generously, which is either free plants or a weeding job depending on the garden.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Anemanthele%20lessoniana',
+    source: 'https://www.rhs.org.uk/plants/128871/anemanthele-lessoniana/details',
   },
   {
     id: 'festuca-glauca',
@@ -847,7 +847,7 @@ export const GRASSES: Species[] = [
     foliageColour: 'steel blue, needle fine',
     notes:
       'A tight blue hedgehog, small enough for a gravel garden or the front of a dry bed, and the best blue at ground level. Wants poor sharp-drained soil and full sun — on rich damp ground it goes green and rots out in the middle. Replace every three or four years rather than trying to rescue it.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Festuca%20glauca%20Elijah%20Blue',
+    source: 'https://www.rhs.org.uk/plants/104179/festuca-glauca-elijah-blue/details',
   },
   {
     id: 'luzula-nivea',
@@ -886,7 +886,7 @@ export const GRASSES: Species[] = [
     foliageColour: 'mid green, edged with fine white hairs',
     notes:
       'One of the few grassy things that flowers whitely enough to notice, in loose clusters in June, and it does it in dry shade under trees where most grasses give up. The leaf edges carry fine white hairs that catch the light. Evergreen, tough, and a good knitting plant between shade perennials.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Luzula%20nivea',
+    source: 'https://www.rhs.org.uk/plants/10577/luzula-nivea/details',
   },
   {
     id: 'helictotrichon-sempervirens',
@@ -926,7 +926,7 @@ export const GRASSES: Species[] = [
     foliageColour: 'steel blue, stiff and radiating',
     notes:
       'A blue hemisphere of stiff radiating leaves with oat-like flowers arching a long way clear of it — bigger and more architectural than blue fescue, and it holds its shape rather than collapsing. Evergreen. Sharp drainage and full sun are not negotiable; on damp clay it goes brown from the middle.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Helictotrichon%20sempervirens',
+    source: 'https://www.rhs.org.uk/plants/8555/helictotrichon-sempervirens/details',
   },
   {
     id: 'cortaderia-selloana',
@@ -1008,7 +1008,7 @@ export const GRASSES: Species[] = [
     foliageColour: 'fine, soft green tufts',
     notes:
       'A British native of old chalk meadows, grown for its flowers: dozens of small heart-shaped lockets hanging on hair-fine stems that tremble in the slightest breeze, purple-green in May and drying to straw by midsummer. Low tufts of fine leaf underneath. Easy on poor ground, chalk included, and short enough for the front of a border or a gravel edge. The dried heads last well when cut.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Briza%20media',
+    source: 'https://www.rhs.org.uk/plants/2406/briza-media/details',
   },
   {
     id: 'cortaderia-tiny-pampa',
@@ -1049,6 +1049,6 @@ export const GRASSES: Species[] = [
     foliageColour: 'slender, arching grey-green',
     notes:
       'The smallest pampas yet bred: the same fluffy plumes in late summer, but the whole plant, plumes included, only about 60 cm high. It gives the pampas look at the front of a border, in a gravel garden or in a pot, where the full-size one would be absurd. Same care as its parent — full sun, good drainage and an early-spring tidy with gloves on — and the same caution about seedlings.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Cortaderia%20selloana%20Tiny%20Pampa',
+    source: 'https://www.rhs.org.uk/plants/380847/cortaderia-selloana-tiny-pampa-day1-pbr/details',
   },
 ];

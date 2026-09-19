@@ -82,7 +82,7 @@ export const BULBS: Species[] = [
     foliageColour: 'narrow grey-green',
     notes:
       'The first thing to happen in the garden, in January or February when nothing else is moving. Everything above ground is gone by late May, so it wants planting where something later will cover the space. Increases into sheets if left alone; move it in the green rather than as a dry bulb.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Galanthus%20nivalis',
+    source: 'https://www.rhs.org.uk/plants/7568/galanthus-nivalis/details',
   },
   {
     id: 'chionodoxa-forbesii',
@@ -122,7 +122,7 @@ export const BULBS: Species[] = [
     foliageColour: 'narrow mid green',
     notes:
       'Still catalogued and sold as Chionodoxa, though botanically it has gone back to Scilla. Starry blue over March, before the trees come into leaf, and it seeds about generously under deciduous planting. Gone by the end of May.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Scilla%20forbesii',
+    source: 'https://www.rhs.org.uk/plants/370266/scilla-forbesii/details',
   },
   {
     id: 'cyclamen-coum',
@@ -162,7 +162,7 @@ export const BULBS: Species[] = [
     foliageColour: 'rounded, silver-marbled dark green',
     notes:
       'Flowers in the depths of February, and the marbled leaves are worth as much as the flowers. Wants dry shade under a deciduous tree or a hedge bottom, where summer drought is a feature rather than a problem. Note that the real leaf season runs from November, which the model cannot express — it shows the foliage from the turn of the year until it dies back in May.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Cyclamen%20coum',
+    source: 'https://www.rhs.org.uk/plants/5135/cyclamen-coum/details',
   },
   {
     id: 'narcissus-poeticus',
@@ -203,7 +203,7 @@ export const BULBS: Species[] = [
     foliageColour: 'strappy grey-green',
     notes:
       'The last daffodil to open, in May when the rest are over, and the only one most people would call beautiful rather than cheerful. Powerfully scented. Naturalises in grass that can be left uncut until midsummer, which is the constraint worth knowing before planting it in a lawn.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Narcissus%20poeticus%20recurvus',
+    source: 'https://www.rhs.org.uk/plants/529914/narcissus-poeticus-var-recurvus-haw-13/details',
   },
   {
     id: 'narcissus-minnow',
@@ -244,7 +244,7 @@ export const BULBS: Species[] = [
     foliageColour: 'short grey-green',
     notes:
       'A tazetta with several small scented flowers to a stem, at 20 cm rather than the 40 of a border daffodil — which makes it one of the few that looks right in a pot or at the front of a bed. Dies back quickly and tidily.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Narcissus%20Minnow',
+    source: 'https://www.rhs.org.uk/plants/90112/narcissus-minnow-8/details',
   },
   {
     id: 'allium-summer-drummer',
@@ -286,7 +286,7 @@ export const BULBS: Species[] = [
     foliageColour: 'strappy grey-green, gone by flowering',
     notes:
       'Nearly two metres, and flowering in July and August when the spring alliums are long over — which is the whole reason to grow it. Needs to come up through something sturdy, because the stems are tall and the leaves have collapsed by the time it flowers.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Allium%20Summer%20Drummer',
+    source: 'https://www.rhs.org.uk/plants/257844/allium-summer-drummer/details',
   },
   {
     id: 'allium-sphaerocephalon',
@@ -328,7 +328,7 @@ export const BULBS: Species[] = [
     foliageColour: 'thin grey-green, gone by flowering',
     notes:
       'Egg-shaped heads rather than spheres, opening green and staining claret from the top down over June and July, so a drift is never all one colour. Cheap enough to plant by the hundred, which is how it works — singly it disappears.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Allium%20sphaerocephalon',
+    source: 'https://www.rhs.org.uk/plants/870/allium-sphaerocephalon/details',
   },
   {
     id: 'lilium-orienpet',
@@ -530,7 +530,7 @@ export const BULBS: Species[] = [
     foliageColour: 'fine grassy green with a white midrib',
     notes:
       'The crocus that naturalises properly — thin lilac goblets from mid February, weeks before the fat Dutch ones, and it seeds itself into drifts through grass rather than sitting where you planted it. Opens flat in sun and shuts to a silver spike in dull weather. Squirrels take the corms of everything else and mostly leave this alone.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Crocus%20tommasinianus',
+    source: 'https://www.rhs.org.uk/plants/25699/crocus-tommasinianus/details',
   },
   {
     id: 'camassia-leichtlinii',
@@ -570,7 +570,7 @@ export const BULBS: Species[] = [
     foliageColour: 'broad strappy green, gone by July',
     notes:
       'The bulb for long grass on heavy soil, where tulips rot and most bulbs sulk — metre-tall spires of starry blue in May, exactly between the daffodils finishing and the meadow getting going. Wants ground that stays moist in spring. Leave the grass uncut until the leaves have yellowed in July.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Camassia%20leichtlinii',
+    source: 'https://www.rhs.org.uk/plants/100145/camassia-leichtlinii-subsp-suksdorfii-caerulea-group/details',
   },
   {
     id: 'fritillaria-meleagris',
@@ -611,7 +611,7 @@ export const BULBS: Species[] = [
     foliageColour: 'sparse, narrow, grey-green',
     notes:
       'Nodding bells chequered like a snake — a genuinely strange flower, and a British native now rare in the wild. Wants a damp meadow: heavy soil that stays wet through spring and only dries in summer. It will not establish in a dry border. Plant the bulbs the moment you get them; they dry out and die quickly.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Fritillaria%20meleagris',
+    source: 'https://www.rhs.org.uk/plants/7403/fritillaria-meleagris/details',
   },
   {
     id: 'muscari-armeniacum',
@@ -652,7 +652,7 @@ export const BULBS: Species[] = [
     foliageColour: 'floppy grassy green, up from autumn',
     notes:
       'The strongest blue of early spring, in dense little spikes, and it multiplies into a solid river given a few years. The catch is habit: in life the leaves come up in autumn and lie about looking untidy all winter before the flowers arrive in April. Drawn here with an ordinary spring cycle from February instead, because the seasonal model runs bud burst through to leaf fall within one year and cannot carry a leaf window across the turn of it — so the untidy winter foliage is real and is not shown.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Muscari%20armeniacum',
+    source: 'https://www.rhs.org.uk/plants/11247/muscari-armeniacum/details',
   },
   {
     id: 'hyacinthoides-non-scripta',
@@ -692,7 +692,7 @@ export const BULBS: Species[] = [
     foliageColour: 'narrow arching green, gone by July',
     notes:
       'The native bluebell, with the flowers all hung down one side of an arching stem and a real scent — the Spanish one stands upright, faces every way and barely smells. Buy cultivated stock, never wild-collected, and keep the two species apart: they hybridise readily and the hybrid swamps the native. Wants dappled woodland shade.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Hyacinthoides%20non-scripta',
+    source: 'https://www.rhs.org.uk/plants/8890/hyacinthoides-non-scripta/details',
   },
   {
     id: 'nectaroscordum-siculum',
@@ -734,7 +734,7 @@ export const BULBS: Species[] = [
     foliageColour: 'strappy grey-green, dying as it flowers',
     notes:
       'A relative of the alliums that hangs its flowers instead of bunching them: loose parasols of cream bells stained green and dusky pink, on metre stems in late May. Then every seedpod turns upward at once into a spiky candelabra that stands until August. Seeds itself enthusiastically, which is worth knowing.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Nectaroscordum%20siculum',
+    source: 'https://www.rhs.org.uk/plants/96507/nectaroscordum-siculum/details',
   },
   {
     id: 'erythronium-pagoda',
@@ -774,7 +774,7 @@ export const BULBS: Species[] = [
     foliageColour: 'broad, glossy, faintly mottled green',
     notes:
       'Sulphur-yellow flowers with the petals swept right back like a small cyclamen, held above broad mottled leaves in April. A woodland bulb — it wants leafy soil that never bakes, and it resents being dried out in a packet, so buy it potted or plant it the day it arrives.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Erythronium%20Pagoda',
+    source: 'https://www.rhs.org.uk/plants/89327/erythronium-pagoda/details',
   },
   {
     id: 'colchicum-autumnale',
@@ -814,7 +814,7 @@ export const BULBS: Species[] = [
     foliageColour: 'coarse glossy green in spring only',
     notes:
       'Does everything in the wrong order: big lilac goblets straight out of bare earth in September with no leaf at all, then coarse glossy foliage from February to June and nothing above ground in between. Nothing to do with crocuses and extremely poisonous. Plant it through low ground cover so the naked flowers have something to lean on.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Colchicum%20autumnale',
+    source: 'https://www.rhs.org.uk/plants/4190/colchicum-autumnale/details',
   },
   {
     id: 'eremurus-cleopatra',
@@ -856,6 +856,6 @@ export const BULBS: Species[] = [
     foliageColour: 'strappy blue-green rosette, gone by July',
     notes:
       'A metre and a half of densely packed burnt-orange stars that open from the bottom of the spike upward over three weeks — one of the great vertical accents of June. The root is a brittle starfish that must be planted shallow on a mound of grit; it rots at the crown in wet winter soil, which is how most of them are lost.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Eremurus%20isabellinus%20Cleopatra',
+    source: 'https://www.rhs.org.uk/plants/84954/eremurus-x-isabellinus-cleopatra/details',
   },
 ];
