@@ -14,6 +14,7 @@ This is a **base template**. Everything outside *Project profile* is meant to ho
 | 30-08-2026 | 0.1 | First generic draft, derived from the SwimCharts `CLAUDE.md` v0.19. Platform, language and domain rules replaced with stack-neutral equivalents; the Apple-specific privacy-manifest and on-device rules generalised into *declared facts* and *runtime observation*; per-project facts fenced into *Project profile*; two practices already visible in my own docs added as rules — record the non-obvious decision, and write down what the model does not know. |
 | 30-08-2026 | 0.2 | Reduce the template to make it more general. |
 | 30-08-2026 | 0.3 | Add rule about backwards compatibility |
+| 20-09-2026 | 0.4 | Bring *Project profile* up to date: React 19, and the verify script, which now exists. |
 
 Claude must always observe these rules.
 
@@ -23,9 +24,9 @@ Claude must always observe these rules.
 <!-- PER-PROJECT. This is the only section that changes between repos. Rewrite it wholesale; leave everything below it untouched. -->
 
 - **Project:** `proto-garden-designer` — a browser prototype of a garden-design simulation for semi-professional garden designers. Draw a plot, plant it, then scrub time of day, time of year and twenty years of growth, and watch the drawing answer back.
-- **Stack:** TypeScript (strict), React 18, Vite, zustand, Vitest, Playwright. All drawing is hand-rolled canvas 2D. No CSS framework, no UI component library, no charting library.
+- **Stack:** TypeScript (strict), React 19, Vite, zustand, Vitest, Playwright. All drawing is hand-rolled canvas 2D. No CSS framework, no UI component library, no charting library.
 - **Run it:** `npm run dev` → `http://localhost:5173`. Two build targets share one source tree: `npm run build`, and `SINGLEFILE=1 npm run build` for one self-contained `dist/index.html` with zero network requests, which is what testers actually receive.
-- **Verification:** `npm test` (unit tests over the models), plus the browser checks in `scripts/`, which drive the real app through `window.gardenStore`. There is no single verify script yet — see *Testing and verification*.
+- **Verification:** `npm run verify` is the single device-free pass — type check, unit tests, and both build targets, every stage run even after one fails. `npm test` runs the unit tests alone. Beyond that, the browser checks in `scripts/` drive the real app through `window.gardenStore`; they need `npx playwright install` once per machine and stay a manual step.
 - **Documents present:** `PRODUCT.md` (scope, principles, trade-offs, roadmap), `README.md` (how to run it, and why the code is shaped the way it is). Not yet written: `DEVELOPMENT-PLAN.md`, `VERSIONS.md`, `GUIDE.md`, `LINKS.md`.
 - **Design source:** none yet. There is no Figma file for this prototype; the design was made in code. The *Design reference* rules below apply from the moment a Figma file exists, and not before.
 - **Standing claims about the built artifact:** it runs entirely in the browser, transmits nothing, and stores nothing beyond the tab. `scripts/check-singlefile.mjs` enforces the zero-off-origin-request half of that. Those are the facts the *declared facts* rule has to keep true.
