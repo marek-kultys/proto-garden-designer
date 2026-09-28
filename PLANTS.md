@@ -32,6 +32,12 @@ photographs are copied, and nothing is harvested automatically. See
 
 ---
 
+<!-- Everything between a "generated" marker and its "/generated" partner is
+written from the plant library by `npm run plants:md`. Edit the library, not
+these lines. Everything outside the markers is written by hand and is left
+alone. A test fails if the two halves disagree. -->
+
+<!-- generated: plants -->
 ## In the app now — 295 plants
 
 256 full, 39 partial.
@@ -396,10 +402,13 @@ photographs are copied, and nothing is harvested automatically. See
 - [x] `241` *Papaver somniferum* — Opium poppy · **FULL**
 - [x] `138` *Tagetes 'Cinnabar'* — Marigold 'Cinnabar' · **FULL**
 - [x] `245` *Zinnia elegans* — Zinnia · **FULL**
+<!-- /generated -->
 
 ---
 
+<!-- generated: style-heading -->
 ## The Mediterranean button — 42 plants
+<!-- /generated -->
 
 The button beside Trees, Shrubs and the rest shows these. It is a designer's
 grouping, not a botanical one: it means the dry, sunny, silver-and-aromatic
@@ -410,6 +419,7 @@ dry garden. To add or remove one, give its number.
 
 Asked for by name:
 
+<!-- generated: style-asked -->
 - `275` *Ballota pseudodictamnus* — False dittany
 - `276` *Brachyglottis (Dunedin Group) 'Sunshine'* — Brachyglottis
 - `104` *Salvia yangii* — Russian sage
@@ -430,10 +440,12 @@ Asked for by name:
 - `061` *Cistus x purpureus* — Purple rock rose
 - `062` *Cistus x argenteus 'Silver Pink'* — Rock rose 'Silver Pink'
 - `284` *Cistus albidus* — Grey-leaved rock rose
+<!-- /generated -->
 
 Mediterranean plants already in the library, added so the button holds what
 anyone pressing it would expect:
 
+<!-- generated: style-staples -->
 - `006` *Lavandula angustifolia 'Hidcote'* — English lavender
 - `065` *Santolina chamaecyparissus* — Cotton lavender
 - `066` *Santolina chamaecyparissus 'Lemon Fizz'* — Cotton lavender 'Lemon Fizz'
@@ -456,6 +468,7 @@ anyone pressing it would expect:
 - `236` *Nectaroscordum siculum* — Sicilian honey garlic
 - `223` *Festuca glauca 'Elijah Blue'* — Blue fescue
 - `225` *Helictotrichon sempervirens* — Blue oat grass
+<!-- /generated -->
 
 ---
 

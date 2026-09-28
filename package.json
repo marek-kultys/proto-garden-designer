@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "verify": "node scripts/verify.mjs",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "plants:md": "node scripts/plants-md.mjs"
   },
   "dependencies": {
     "react": "^19.3.0",

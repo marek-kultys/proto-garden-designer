@@ -59,6 +59,7 @@ npm install
 npm run dev        # http://localhost:5173
 npm run verify     # the gate: types, tests, and both build targets
 npm run build      # production build into dist/
+npm run plants:md  # rewrite the generated lists in PLANTS.md from the library
 ```
 
 For something you can email to a tester, or open by double-clicking with no
@@ -245,6 +246,22 @@ how many shapes, how many under the Mediterranean button — is compared with th
 library itself, so after adding plants `npm run verify` lists each sentence that
 needs its number changing, worded exactly as it should read. History is not
 checked: "the palette began at ten plants" stays true however large it grows.
+
+The checklist in `PLANTS.md` goes further: the numbered lists are not written by
+hand at all but generated from the library, so a plant cannot be missing from it,
+filed under the wrong type, or carry a number that points at something else.
+
+```bash
+npm run plants:md   # rewrite the generated lists after changing the library
+```
+
+It touches only what sits between the `<!-- generated: … -->` markers; the
+prose, the "still to build" list and the fixes worth doing are hand-written and
+left alone. Whether a plant is FULL or PARTIAL is data too — the sentence saying
+what is missing lives in [`src/model/plants/gaps.ts`](src/model/plants/gaps.ts),
+next to the library it describes, so closing a gap and claiming it is closed are
+the same edit. A test compares the file on disk with what the generator would
+write, which is the same question as "is the checklist current?".
 
 The models are where silent errors hide, so the unit tests check them against
 published figures rather than against themselves: London solar noon altitude and
