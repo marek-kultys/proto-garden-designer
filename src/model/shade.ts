@@ -1,5 +1,6 @@
+import { flatShadow } from './flat';
 import { polygonBounds, pointInPolygon } from './geometry';
-import { getSpecies } from './plants';
+import { getSpecies, isTrainedFlat } from './plants';
 import { phaseAt } from './phenology';
 import { plantAge, sizeAt } from './growth';
 import { dayLength, solarPosition } from './sun';
@@ -148,7 +149,10 @@ export function computeShadeGrid(
       // lengthens and starts further out. Ignoring this would make a bed purely
       // cosmetic in the one view where it does measurable work.
       const base = groundOffsetAt(plant, structures);
-      return { plant, size, base, density: canopyDensity(species, phase) };
+      // Anything grown flat is shaded as the band it occupies rather than as a
+      // disc of its spread; see `flat.ts` for why that is not a detail.
+      const flat = isTrainedFlat(species);
+      return { plant, size, base, flat, density: canopyDensity(species, phase) };
     })
     .filter((c) => c.density > 0.01);
 
@@ -164,6 +168,43 @@ export function computeShadeGrid(
   const steps = Math.max(1, Math.ceil(day.daylight / (stepMinutes / 60)));
   const step = day.daylight / steps;
   const transmit = new Float32Array(n);
+
+  /**
+   * Take `keep` of the light off every cell the polygon covers.
+   *
+   * Walls, raised beds and anything grown flat all shade a piece of ground
+   * rather than an ellipse of it, so they all end up here. Called once per
+   * polygon per step, so it walks the polygon's own bounding box rather than
+   * the whole grid.
+   */
+  const shadePolygon = (poly: { x: number; y: number }[], keep: number): void => {
+    if (poly.length < 3) return;
+    let pminX = Infinity;
+    let pminY = Infinity;
+    let pmaxX = -Infinity;
+    let pmaxY = -Infinity;
+    for (const pt of poly) {
+      if (pt.x < pminX) pminX = pt.x;
+      if (pt.y < pminY) pminY = pt.y;
+      if (pt.x > pmaxX) pmaxX = pt.x;
+      if (pt.y > pmaxY) pmaxY = pt.y;
+    }
+    const c0 = Math.max(0, Math.floor((pminX - bounds.minX) / cellSize));
+    const c1 = Math.min(cols - 1, Math.ceil((pmaxX - bounds.minX) / cellSize));
+    const r0 = Math.max(0, Math.floor((pminY - bounds.minY) / cellSize));
+    const r1 = Math.min(rows - 1, Math.ceil((pmaxY - bounds.minY) / cellSize));
+
+    for (let r = r0; r <= r1; r++) {
+      const rowBase = r * cols;
+      const py = bounds.minY + (r + 0.5) * cellSize;
+      for (let c = c0; c <= c1; c++) {
+        const idx = rowBase + c;
+        if (!inside[idx] || transmit[idx] === 0) continue;
+        const px = bounds.minX + (c + 0.5) * cellSize;
+        if (pointInPolygon({ x: px, y: py }, poly)) transmit[idx] *= keep;
+      }
+    }
+  };
 
   for (let i = 0; i < steps; i++) {
     const hour = day.sunrise + (i + 0.5) * step;
@@ -195,6 +236,14 @@ export function computeShadeGrid(
     const vy = ux;
 
     for (const caster of casters) {
+      if (caster.flat) {
+        shadePolygon(
+          flatShadow(caster.plant, caster.size, caster.base, cast, 60),
+          1 - caster.density,
+        );
+        continue;
+      }
+
       const len = Math.min(60, caster.size.height * reach);
       const a = caster.size.spread / 2 + len / 2;
       const b = caster.size.spread / 2;
@@ -231,34 +280,11 @@ export function computeShadeGrid(
       const vy = uy * drop;
       const keep = built.transmission;
 
+      // A bed can be concave, so its swept ground is several polygons rather
+      // than one hull. They overlap, which is harmless only because a built
+      // thing is opaque: nothing survives being shaded twice.
       for (const foot of built.footprints) {
-        for (const part of sweptPolygons(foot, vx, vy)) {
-          let pminX = Infinity;
-          let pminY = Infinity;
-          let pmaxX = -Infinity;
-          let pmaxY = -Infinity;
-          for (const pt of part) {
-            if (pt.x < pminX) pminX = pt.x;
-            if (pt.y < pminY) pminY = pt.y;
-            if (pt.x > pmaxX) pmaxX = pt.x;
-            if (pt.y > pmaxY) pmaxY = pt.y;
-          }
-          const c0 = Math.max(0, Math.floor((pminX - bounds.minX) / cellSize));
-          const c1 = Math.min(cols - 1, Math.ceil((pmaxX - bounds.minX) / cellSize));
-          const r0 = Math.max(0, Math.floor((pminY - bounds.minY) / cellSize));
-          const r1 = Math.min(rows - 1, Math.ceil((pmaxY - bounds.minY) / cellSize));
-
-          for (let r = r0; r <= r1; r++) {
-            const rowBase = r * cols;
-            const py = bounds.minY + (r + 0.5) * cellSize;
-            for (let c = c0; c <= c1; c++) {
-              const idx = rowBase + c;
-              if (!inside[idx] || transmit[idx] === 0) continue;
-              const px = bounds.minX + (c + 0.5) * cellSize;
-              if (pointInPolygon({ x: px, y: py }, part)) transmit[idx] *= keep;
-            }
-          }
-        }
+        for (const part of sweptPolygons(foot, vx, vy)) shadePolygon(part, keep);
       }
     }
 

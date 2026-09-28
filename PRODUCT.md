@@ -607,8 +607,11 @@ per-plant page. Cut to keep the focus on the simulation.
   support; the rest are masses that look much the same from any side. Selecting
   one offers the four compass lines a fence commonly takes, or any angle
   between. The labels follow the north dial rather than assuming north is up the
-  page. Until it is set, the plant keeps the sketchy rotation it was given when
-  it went in.
+  page. Until it is set, the plant keeps a stable angle of its own, decided when
+  it went in — and since September 2026 that angle is settled in one place, so
+  the band drawn on the plan and the band measured on the sun map are the same
+  band. The same is true of a pleached tree, a fan and a cordon, which are flat
+  in exactly the same sense.
 - **A climber still has no wall to climb.** Walls and raised beds now exist, but
   nothing connects a climber to one: a clematis is drawn against its implied
   trellis wherever it is placed, whether or not there is a wall behind it.
@@ -664,11 +667,23 @@ per-plant page. Cut to keep the focus on the simulation.
 - **A tree trained flat is drawn face-on in the elevation and 360° view.** A
   pleached tree, a fan or a cordon turns on the plan, but side-on views always
   show it at its full width, as they do a climber — so a row of pleached trees
-  seen end-on looks like a screen rather than a line of narrow stems. Its shadow
-  is the ordinary round one, the same in the drawing and on the sun map, which
-  overstates what something flat against a wall throws. A flat shadow would be
-  right, but climbers already draw one while the sun map shades a disc, and the
-  two should be put right together rather than the disagreement spread.
+  seen end-on looks like a screen rather than a line of narrow stems. Its
+  *shadow* is no longer round: everything grown flat now shades the band it
+  occupies, pointing whichever way it has been turned, in the drawing and on the
+  sun map alike. What remains is the picture of the plant itself in the two
+  side-on views.
+- **A flat plant's shadow is a band, and only approximately so when the sun runs
+  along it.** The band is swept along the shadow and measured as the ground it
+  covers, which is right when the sun crosses the plane — the case that decides
+  a bed in front of a fence. With the sun running nearly parallel to the plane,
+  the real shadow narrows to almost nothing while this still throws the band's
+  own depth, so such a plant is drawn very slightly shadier than it is. Until
+  September 2026 it was worse in the other direction and by an order of
+  magnitude: the sun map shaded a disc as wide as the plant had run along its
+  fence, so a mature Boston ivy — seven metres of ivy a foot deep — put a
+  seven-metre circle of shade on the map while the plan drew the band. One
+  climber in a small garden took 7% of the plot out of full sun; it now takes
+  1.5%, and turning it changes the map, which it never did before.
 - **A shape can be reshaped but not re-pointed.** Corners can be dragged and the
   whole outline can be drawn again, but there is no way to add a corner to an
   existing shape or take one away. Turning a four-sided bed into a six-sided one
