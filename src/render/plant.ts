@@ -11,14 +11,11 @@ import {
 } from './sketch';
 import { flowerColour, foliageColour, inkColour, shade, type Lighting } from './palette';
 import { CORDON_STEM, FAN_LEG, type PlantForm, type TrainedForm } from './form';
-import { isTrainedFlat } from '../model/plants';
+import { unhandled } from './exhaustive';
 import type { Phase, PlantSize, Species, Vec2 } from '../model/types';
 
 /** Types with a woody stem worth marking in plan, so you see where it is planted. */
 const WOODY = new Set<Species['type']>(['tree', 'shrub', 'conifer', 'climber']);
-
-/** Habits drawn from above as leaves radiating from a single crown. */
-const ROSETTE_HABITS = new Set<Species['habit']>(['clump', 'spire', 'fern', 'treefern']);
 
 /**
  * Drawing a plant, in plan and in elevation.
@@ -93,19 +90,76 @@ export function drawPlantPlan(
     ctx.setLineDash([]);
   }
 
-  if (species.habit === 'globe') {
-    drawPlanGlobes(dc, species, form, phase, radius, cx, cy, seasonT);
-  } else if (species.habit === 'tussock' || species.habit === 'airy') {
-    drawPlanRadiating(dc, species, form, phase, radius, cx, cy, seasonT);
-  } else if (isTrainedFlat(species)) {
+  /*
+   * Every shape, named. Grouped by what the plan makes of them rather than by
+   * what they are: from above, a hosta and a tree fern are both a rosette.
+   *
+   * A list of cases rather than a chain of ifs so that the last branch can ask
+   * the type checker whether the list is complete. It used to end in an "else"
+   * that drew a canopy, so a shape nobody had wired up here drew as a generic
+   * blob and said nothing about it.
+   */
+  switch (species.habit) {
+    case 'globe':
+      drawPlanGlobes(dc, species, form, phase, radius, cx, cy, seasonT);
+      break;
+    case 'tussock':
+    case 'airy':
+      drawPlanRadiating(dc, species, form, phase, radius, cx, cy, seasonT);
+      break;
     // A climber, a fan, a cordon and a pleached tree are all a sheet seen edge
     // on from above: a shallow band along whatever they are trained against.
-    drawPlanClimber(dc, species, form, phase, radius, cx, cy, seasonT, facing);
-  } else if (ROSETTE_HABITS.has(species.habit)) {
+    // These four are what `isTrainedFlat` knows as flat and what the sun map
+    // shades as a band; a fifth flat shape has to be added in both places.
+    case 'climber':
+    case 'pleached':
+    case 'fan':
+    case 'cordon':
+      drawPlanClimber(dc, species, form, phase, radius, cx, cy, seasonT, facing);
+      break;
     // A fern crown and a delphinium's basal leaves both read from above as
     // leaves radiating from one point, which is what the rosette draw does.
-    drawPlanRosette(dc, species, form, phase, radius, cx, cy, seasonT);
-  } else {
+    case 'clump':
+    case 'spire':
+    case 'fern':
+    case 'treefern':
+      drawPlanRosette(dc, species, form, phase, radius, cx, cy, seasonT);
+      break;
+    // A mass with an outline: a crown, a clipped column, a dome, or the level
+    // roof of an umbrella tree, which is round from above however it is grown.
+    case 'round':
+    case 'multistem':
+    case 'columnar':
+    case 'mound':
+    case 'umbrella':
+      drawPlanCanopy(dc, species, form, phase, radius, cx, cy, seasonT, leafy, ink);
+      break;
+    default:
+      unhandled(species.habit, 'the plan');
+      drawPlanCanopy(dc, species, form, phase, radius, cx, cy, seasonT, leafy, ink);
+  }
+
+  ctx.restore();
+}
+
+/**
+ * A plant drawn from above as a mass: its canopy outline, the leaf clumps
+ * inside it, whatever it is carrying, and the stem it stands on.
+ */
+function drawPlanCanopy(
+  dc: DrawContext,
+  species: Species,
+  form: PlantForm,
+  phase: Phase,
+  radius: number,
+  cx: number,
+  cy: number,
+  seasonT: number,
+  leafy: boolean,
+  ink: string,
+): void {
+  const { ctx, light } = dc;
+  {
     const outline = canopyOutline(form, cx, cy, radius);
 
     if (leafy) {
@@ -163,8 +217,6 @@ export function drawPlantPlan(
       }
     }
   }
-
-  ctx.restore();
 }
 
 function drawPlanTwigs(
@@ -474,7 +526,16 @@ export function drawPlantElevation(
     case 'cordon':
       drawElevCordon(dc, species, form, phase, w, h, baseX, baseY, seasonT);
       break;
+    // A broad crown on a trunk, one stem or several: the ordinary tree draw.
+    case 'round':
+    case 'multistem':
+      drawElevTree(dc, species, form, phase, w, h, baseX, baseY, seasonT);
+      break;
     default:
+      // Unreachable while the shapes above cover the union — which is the
+      // point. A shape left out of this list used to be drawn as a generic
+      // tree and look merely wrong; now it fails the build instead.
+      unhandled(species.habit, 'the side view');
       drawElevTree(dc, species, form, phase, w, h, baseX, baseY, seasonT);
   }
 

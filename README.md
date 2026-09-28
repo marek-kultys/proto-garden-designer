@@ -270,6 +270,15 @@ dormant in January, altitude delaying bud burst, and cross-checks that the soil
 axes cannot contradict each other, that no two plants share an id, and that every
 drawable plant shape has at least one plant using it.
 
+A plant's shape is chosen in three places — the skeleton it is built from, the
+plan, and the side view — and leaving a new shape out of any of them used to be
+silent: a generic tree in the side view, a blob on the plan, and in the skeleton
+nothing at all, which cannot look wrong because nothing is drawn. Each of the
+three now ends by handing the shape to `unhandled` in
+[`src/render/exhaustive.ts`](src/render/exhaustive.ts), which compiles only when
+every shape has been accounted for. Add one to the `Habit` union and the build
+stops, naming the shape and the three lines that need it.
+
 The browser checks drive the real app through `window.gardenStore` and assert
 behaviour a screenshot alone would not catch:
 
