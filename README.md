@@ -294,8 +294,26 @@ node scripts/check-mobile.mjs   http://localhost:4173 screenshots  # the documen
 node scripts/check-panorama.mjs http://localhost:4173 screenshots  # turning must change what is in front of you
 node scripts/check-editing.mjs  http://localhost:4173 screenshots  # duplicate-in-place, eye height, hover states
 node scripts/check-habits.mjs   http://localhost:4173 screenshots  # every plant shape actually draws
+node scripts/check-drawing.mjs  http://localhost:4173              # the drawing, against docs/golden
 node scripts/readme-images.mjs  http://localhost:4173 docs/img     # the images in this file
 ```
+
+`check-drawing.mjs` is the one that compares pictures. Ten plants once vanished
+from the side views for weeks, every winter, and were found by someone happening
+to look at January — the drawing's output is a canvas, and what is wrong with it
+is what it looks like. It could not be automated before because every plant gets
+a random seed when it is planted, so no two runs drew the same sketch; the check
+writes a design straight into the store with seeds of its own, which makes seven
+scenes reproducible to the pixel. Those scenes are the plan, the side view in
+midsummer, spring, autumn and January, the 360° view, and the sun map, against
+the references in `docs/golden/`.
+
+Two dates would not be enough: a plant can be right at both solstices and vanish
+in between, which is exactly where that bug lived. Putting it back turns three
+scenes red, and each failure leaves `screenshots/<scene>.actual.png` and a diff
+with every changed pixel in magenta. When a change is meant, `--update` accepts
+it — deliberately, after looking, and worth a line in the commit saying why the
+drawing changed.
 
 And against the built single file, which is what testers actually receive:
 
