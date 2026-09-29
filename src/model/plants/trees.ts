@@ -363,7 +363,7 @@ export const TREES: Species[] = [
     foliageColour: 'very dark glossy green',
     notes:
       'Slow, dense and permanent — the darkest evergreen in the British flora, and the best thing there is for winter structure in shade. Holly is dioecious: only female plants carry berries, and only with a male somewhere nearby, which is the single most common reason a holly never fruits.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Ilex%20aquifolium',
+    source: 'https://www.rhs.org.uk/plants/9087/ilex-aquifolium/details',
   },
   {
     id: 'magnolia-black-tulip',
@@ -404,7 +404,7 @@ export const TREES: Species[] = [
     foliageColour: 'plain mid green',
     notes:
       'The darkest magnolia commonly available: six or eight big tulip-shaped flowers of burgundy so deep it reads black against a grey March sky, all on bare wood. Narrower and more upright than the saucer magnolia, so it fits a garden that could not take one. Like all of them it hates shallow chalk and resents root disturbance.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Magnolia%20Black%20Tulip',
+    source: 'https://www.rhs.org.uk/plants/287492/magnolia-black-tulip-jurmag1/details',
   },
   {
     id: 'malus-red-sentinel',
@@ -446,7 +446,7 @@ export const TREES: Species[] = [
     foliageColour: 'mid green, yellow in autumn',
     notes:
       'The best of the crabs for winter fruit: glossy deep red apples in dense bunches that hang on well past Christmas, often into February, because the birds leave them until everything else is gone. Blossom in May and a good pollinator for eating apples.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Malus%20Red%20Sentinel',
+    source: 'https://www.rhs.org.uk/plants/45895/malus-x-robusta-red-sentinel/details',
   },
   {
     id: 'malus-golden-hornet',
@@ -488,7 +488,7 @@ export const TREES: Species[] = [
     foliageColour: 'mid green, yellow in autumn',
     notes:
       'Bright yellow crabs held in quantity from September, lighting up a bare tree through November and December. Less persistent than the red forms — birds take these earlier — but the colour against a low winter sun is worth it. Good for jelly.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Malus%20Golden%20Hornet',
+    source: 'https://www.rhs.org.uk/plants/80907/malus-x-zumi-golden-hornet/details',
   },
   {
     id: 'prunus-blireana',
@@ -528,7 +528,7 @@ export const TREES: Species[] = [
     foliageColour: 'coppery purple all summer',
     notes:
       'Fully double pink flowers smothering bare branches in late March, followed by purple-bronze leaves that hold their colour all season — two effects from a tree small enough for an ordinary garden. Rarely sets fruit.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Prunus%20blireana',
+    source: 'https://www.rhs.org.uk/plants/62796/prunus-x-blireana-d/details',
   },
   {
     id: 'prunus-avium',
@@ -570,7 +570,7 @@ export const TREES: Species[] = [
     foliageColour: 'mid green, orange-red in autumn',
     notes:
       'The native gean, and a full-sized forest tree — sixteen metres and more, so it belongs in a large garden or a boundary rather than a border. Sheets of white blossom in April, small dark cherries the birds strip in July, and reliable orange-scarlet autumn colour. Suckers freely from the roots.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Prunus%20avium',
+    source: 'https://www.rhs.org.uk/plants/13950/prunus-avium/details',
   },
   {
     id: 'prunus-cerasus',
@@ -612,7 +612,7 @@ export const TREES: Species[] = [
     foliageColour: 'mid green',
     notes:
       'The acid cooking cherry, and the one fruit tree that genuinely crops on a north wall — self-fertile, and it fruits on the previous season\'s wood, so it is fan-trained and pruned quite differently from a sweet cherry. Too sour to eat raw, which is also why the birds leave some for you.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Prunus%20cerasus',
+    source: 'https://www.rhs.org.uk/plants/160703/prunus-cerasus/details',
   },
   {
     id: 'prunus-merryweather',
@@ -654,7 +654,7 @@ export const TREES: Species[] = [
     foliageColour: 'mid green',
     notes:
       'A large-fruited damson, self-fertile and heavy-cropping, with blue-black plums in September that are far too sharp raw and excellent cooked. Blossoms early enough to be caught by a late frost in an exposed spot. On St Julien A rootstock it stays about four metres.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Prunus%20domestica%20Merryweather',
+    source: 'https://www.rhs.org.uk/plants/45723/prunus-insititia-merryweather-damson-c/details',
   },
   {
     id: 'carpinus-betulus',
@@ -695,7 +695,7 @@ export const TREES: Species[] = [
     foliageColour: 'ribbed green, russet-brown all winter',
     notes:
       'Marcescent when clipped: the leaves die in October but stay on the plant until the new ones push them off in April, so a hornbeam hedge is a russet-brown screen all winter rather than a row of bare twigs. Preferred over beech on heavy or wet ground, where beech simply fails.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Carpinus%20betulus',
+    source: 'https://www.rhs.org.uk/plants/3136/carpinus-betulus/details',
   },
   {
     id: 'fagus-sylvatica',
@@ -737,7 +737,7 @@ export const TREES: Species[] = [
     foliageColour: 'silky lime green in spring, copper in autumn',
     notes:
       'A chalk-country tree, and one of the few big trees that is genuinely happier on thin alkaline soil than on rich ground — but it will not tolerate waterlogging at all, and dies slowly on heavy wet clay. Casts the densest shade of any British tree, so nothing much grows beneath it. As a clipped hedge it holds its brown leaves all winter.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Fagus%20sylvatica',
+    source: 'https://www.rhs.org.uk/plants/7127/fagus-sylvatica/details',
   },
   {
     id: 'fagus-sylvatica-purpurea',
@@ -779,7 +779,7 @@ export const TREES: Species[] = [
     foliageColour: 'deep purple-bronze all summer',
     notes:
       'The same enormous tree with dark purple leaves, and a decision that cannot be undone in a lifetime — a mature copper beech is a heavy, absorbing presence that dominates everything around it and casts shade the colour of a wet slate roof. Needs full sun to keep the colour; in shade it goes a muddy green-bronze.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Fagus%20sylvatica%20purpurea',
+    source: 'https://www.rhs.org.uk/plants/105716/fagus-sylvatica-atropurpurea-group/details',
   },
   {
     id: 'malus-domestica-sunset',
@@ -906,7 +906,7 @@ export const TREES: Species[] = [
     foliageColour: 'silky green, copper-brown all winter',
     notes:
       'Marcescent when clipped, like hornbeam: October leaves go copper and hang on until April pushes them off, so the hedge is a warm brown screen through winter rather than bare twigs. Kept as a separate entry from the beech tree because a 2.5 m hedge and a 20 m forest tree are not the same plant to design with. Needs drained ground — it fails on heavy wet clay where hornbeam thrives.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Fagus%20sylvatica',
+    source: 'https://www.rhs.org.uk/plants/7127/fagus-sylvatica/details',
   },
   {
     id: 'fagus-sylvatica-purpurea-hedge',
@@ -947,7 +947,7 @@ export const TREES: Species[] = [
     foliageColour: 'deep purple, copper-brown all winter',
     notes:
       'The same hedge as green beech and the same winter copper, but the summer is deep purple rather than green — heavy enough that a long run of it can dominate a garden, and best used where something needs stopping rather than continuing. Slightly slower than the green form. Wants sun to hold the colour, and drained ground like its parent.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Fagus%20sylvatica%20purpurea',
+    source: 'https://www.rhs.org.uk/plants/105716/fagus-sylvatica-atropurpurea-group/details',
   },
   {
     id: 'trachycarpus-fortunei',
@@ -986,7 +986,7 @@ export const TREES: Species[] = [
     foliageColour: 'stiff, pleated, fan-shaped green',
     notes:
       'The one palm that is genuinely hardy across most of Britain, and the fastest way to make a garden not look British. Slow — a metre of trunk takes several years — with a fibrous brown trunk that stays shaggy unless you strip it. The leaves shred in wind, which is cosmetic rather than fatal, but a windy site will keep it looking tattered.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Trachycarpus%20fortunei',
+    source: 'https://www.rhs.org.uk/plants/18291/trachycarpus-fortunei/details',
   },
   {
     id: 'quercus-robur',
@@ -1551,7 +1551,7 @@ export const TREES: Species[] = [
     foliageColour: 'ribbed green, russet-brown into winter',
     notes:
       'A hedge on legs: a clear stem of about 1.8 m carrying a flat panel of branches tied to a frame and clipped to a line. Planted in a row they make a screen at first-floor height and leave the ground underneath open, for planting or for walking through. Modelled on hornbeam, which most pleached screens are, and which holds its dead leaves russet-brown well into winter when clipped. It is bought already trained, so it arrives most of the way to its final shape. Plant 1.5 to 2 m apart and turn each one to face along the row.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Carpinus%20betulus',
+    source: 'https://www.rhs.org.uk/plants/3136/carpinus-betulus/details',
   },
   {
     id: 'umbrella-tree',
@@ -1636,7 +1636,7 @@ export const TREES: Species[] = [
     foliageColour: 'mid green, orange in autumn',
     notes:
       "Branches tied in flat against a wall or fence on horizontal wires, spreading out from a short leg like the ribs of a fan. It grows to about 2.2 m high and 3.5 m across and stands no more than a hand's breadth off the wall. Modelled on the Morello cherry, the one fruit that crops well on a north-facing wall: white blossom in April, dark sour cherries in July. It looks best in winter, when the trained ribs are all there is to see. Turn it to lie along its wall.",
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Prunus%20cerasus',
+    source: 'https://www.rhs.org.uk/plants/63690/prunus-cerasus-morello-c/details',
   },
   {
     id: 'cordon-tree',
@@ -1681,5 +1681,125 @@ export const TREES: Species[] = [
     notes:
       'A single stem trained at 45 degrees along wires, carrying its fruit on short spurs close to the stem. It is the way to grow a lot of different apples in very little room: plant them 75 cm apart in a slanting row along a fence, or as a low screen. Modelled on apple, with pink-flushed blossom in April and fruit through the autumn. On a dwarfing rootstock it reaches about 2 m and stays there with one summer prune. Turn it to lie along its wires.',
     source: 'https://www.rhs.org.uk/plants/search-results?query=Malus%20domestica',
+  },
+  {
+    id: 'prunus-tai-haku',
+    common: 'Japanese flowering cherry',
+    latin: "Prunus 'Tai-haku'",
+    genus: 'Prunus',
+    family: 'Rosaceae',
+    type: 'tree',
+    habit: 'round',
+    foliage: 'deciduous',
+    plantedHeight: 2.5,
+    plantedSpread: 1.2,
+    matureHeight: 8.0,
+    matureSpread: 9.0,
+    yearsToMature: 25,
+    budBurst: 96,
+    fullLeaf: 128,
+    autumnStart: 272,
+    leafFall: 308,
+    flowerStart: 104,
+    flowerEnd: 124,
+    colors: {
+      leafSpring: '#9a5a3e',
+      leafSummer: '#4f7046',
+      leafAutumn: '#d0862e',
+      flower: '#fbfaf6',
+      bark: '#6e4a40',
+    },
+    sun: ['full'],
+    soilPh: ['acidic', 'neutral', 'alkaline'],
+    soilType: ['clay', 'loam', 'sand', 'chalk'],
+    drainage: ['free', 'retentive'],
+    hardiness: 'H6',
+    sizeClass: 'large',
+    flowerColour: 'huge single pure white, among bronze young leaves',
+    foliageColour: 'bronze-red when young, then green, orange in autumn',
+    notes:
+      'The great white cherry, and the Japanese flowering cherry designers reach for: single pure white flowers up to six centimetres across in mid April, opening among young leaves of deep bronze-red, then good orange in autumn. Broad and spreading — wider than it is tall in the end — so it wants room, and the shade under it is real by midsummer. Nearly lost in Japan, it was reintroduced there from a tree found growing in a Sussex garden. For the pink double of the street cherries, Kanzan is the alternative.',
+    source: 'https://www.rhs.org.uk/plants/67715/prunus-tai-haku/details',
+  },
+  {
+    id: 'pyrus-conference',
+    common: 'Pear',
+    latin: "Pyrus communis 'Conference'",
+    genus: 'Pyrus',
+    family: 'Rosaceae',
+    type: 'tree',
+    habit: 'round',
+    foliage: 'deciduous',
+    plantedHeight: 2.0,
+    plantedSpread: 0.9,
+    matureHeight: 5.0,
+    matureSpread: 3.5,
+    yearsToMature: 14,
+    budBurst: 92,
+    fullLeaf: 125,
+    autumnStart: 280,
+    leafFall: 322,
+    flowerStart: 100,
+    flowerEnd: 120,
+    fruitStart: 250,
+    fruitEnd: 300,
+    colors: {
+      leafSpring: '#a2c068',
+      leafSummer: '#3f6b3c',
+      leafAutumn: '#c88a3a',
+      flower: '#fbf8f0',
+      fruit: '#8f9a4a',
+      bark: '#5f5448',
+    },
+    sun: ['full', 'partial'],
+    soilPh: ['acidic', 'neutral', 'alkaline'],
+    soilType: ['clay', 'loam'],
+    drainage: ['free', 'retentive'],
+    hardiness: 'H6',
+    sizeClass: 'medium',
+    flowerColour: 'white blossom in early April',
+    foliageColour: 'glossy dark green, yellow-orange in autumn',
+    notes:
+      'The pear most British gardens grow, and the most reliable: long green-russet fruit in late September and October, and partly self-fertile, so it crops without a partner nearby though better with one. White blossom early in April, a week or two ahead of the apples, which is exactly when a late frost can take the crop. The size given is a tree on Quince A rootstock; as with apples, the rootstock decides the final height. Pears take heavier ground than apples but hate drought at the root.',
+    source: 'https://www.rhs.org.uk/plants/search-results?query=Pyrus%20communis%20Conference',
+  },
+  {
+    id: 'olea-europaea-ancient',
+    common: 'Ancient olive',
+    latin: 'Olea europaea',
+    genus: 'Olea',
+    family: 'Oleaceae',
+    type: 'tree',
+    habit: 'round',
+    foliage: 'evergreen',
+    plantedHeight: 3.5,
+    plantedSpread: 3.2,
+    matureHeight: 4.5,
+    matureSpread: 4.2,
+    yearsToMature: 20,
+    budBurst: 112,
+    fullLeaf: 155,
+    autumnStart: 300,
+    leafFall: 345,
+    flowerStart: 152,
+    flowerEnd: 180,
+    colors: {
+      leafSpring: '#a8b898',
+      leafSummer: '#8a9c82',
+      leafAutumn: '#90a288',
+      flower: '#f0eede',
+      bark: '#a09888',
+    },
+    sun: ['full'],
+    soilPh: ['acidic', 'neutral', 'alkaline'],
+    soilType: ['loam', 'sand', 'chalk'],
+    drainage: ['free'],
+    hardiness: 'H4',
+    sizeClass: 'medium',
+    flowerColour: 'tiny cream, barely noticed',
+    foliageColour: 'narrow grey-green, silver underneath',
+    notes:
+      'A specimen rather than a young tree: an olive a century or more old, dug and shipped with a massive, twisted, often hollow trunk and its crown already formed, and planted as a finished feature on the first day. It barely grows after that — the point is its age, not what it will become. Kept apart from the young olive because it arrives the size the young one takes decades to reach. Needs the sharpest drainage and a warm sheltered spot, and the first two winters after moving are the risky ones.',
+    source: 'https://www.rhs.org.uk/plants/search-results?query=Olea%20europaea',
   },
 ];

@@ -24,7 +24,7 @@ through a slice of it — five to twenty metres deep, as you choose — and a
 on a phone.
 
 Built to test whether the interaction idea has depth rather than to be a
-comprehensive plant database. Two hundred and seventy-four plants, each researched
+comprehensive plant database. Two hundred and ninety-five plants, each researched
 rather than invented, chosen to span the axes the simulation actually exercises
 — trees, shrubs, conifers, climbers, grasses, ferns, perennials, bulbs and
 annuals.
@@ -45,8 +45,9 @@ sent anywhere and there is no backend.
 
 The library is filtered by type and by growing conditions — aspect, soil type,
 soil pH, drainage, foliage, size and hardiness — so a border with dry shade on
-chalk narrows two hundred and seventy-four plants to the few dozen that will actually
-take it.
+chalk narrows two hundred and ninety-five plants to the few dozen that will
+actually take it. A **Mediterranean** button beside the types gathers the dry,
+sunny, silver-and-aromatic palette in one press.
 
 📄 **[PRODUCT.md](PRODUCT.md)** — what it is, where the brief came from, what it
 does, what was deliberately left out, and the roadmap.
@@ -58,13 +59,14 @@ npm install
 npm run dev        # http://localhost:5173
 npm run verify     # the gate: types, tests, and both build targets
 npm run build      # production build into dist/
+npm run plants:md  # rewrite the generated lists in PLANTS.md from the library
 ```
 
 For something you can email to a tester, or open by double-clicking with no
 server at all:
 
 ```bash
-SINGLEFILE=1 npm run build            # one self-contained dist/index.html, ~575 kB
+SINGLEFILE=1 npm run build            # one self-contained dist/index.html, well under 1 MB
 node scripts/check-singlefile.mjs     # confirms it runs from file:// with zero network requests
 ```
 
@@ -77,12 +79,16 @@ src/model/    the simulation — sun, growth, phenology, shade, panorama geometr
               in the order given by plants/order.ts — which is what numbers them
               in PLANTS.md, so it is kept even though nothing else reads it)
 src/render/   canvas drawing — sketchy line work, the light palette, and one
-              draw pass per view
+              draw pass per view (plant/ holds the drawing of a plant itself,
+              split by view and by the shapes that needed a file of their own)
 src/state/    a single zustand store; all state is plain and serialisable, plus
               the save/load boundary (projectFile.ts is pure and browser-free,
               projectStorage.ts is the only code that touches localStorage, and
               projectTransfer.ts exports and imports a design as a file)
 src/ui/       React components: the panels, the canvases, the time bar
+              (library/ holds the plant library's parts — the chips, a card, a
+              thumbnail; which plants match is model/plants/filter.ts, because
+              that is a question about plants rather than about a screen)
 scripts/      Playwright checks and screenshot capture
 ```
 
@@ -238,12 +244,44 @@ prints its own output and the script exits non-zero, so CI can use it unchanged.
 
 `npm test` on its own is still there for the tight loop while writing a model.
 
+The documents are part of what is checked. Every count this README, `PRODUCT.md`
+and `PLANTS.md` state about the library — how many plants, how many of each type,
+how many shapes, how many under the Mediterranean button — is compared with the
+library itself, so after adding plants `npm run verify` lists each sentence that
+needs its number changing, worded exactly as it should read. History is not
+checked: "the palette began at ten plants" stays true however large it grows.
+
+The checklist in `PLANTS.md` goes further: the numbered lists are not written by
+hand at all but generated from the library, so a plant cannot be missing from it,
+filed under the wrong type, or carry a number that points at something else.
+
+```bash
+npm run plants:md   # rewrite the generated lists after changing the library
+```
+
+It touches only what sits between the `<!-- generated: … -->` markers; the
+prose, the "still to build" list and the fixes worth doing are hand-written and
+left alone. Whether a plant is FULL or PARTIAL is data too — the sentence saying
+what is missing lives in [`src/model/plants/gaps.ts`](src/model/plants/gaps.ts),
+next to the library it describes, so closing a gap and claiming it is closed are
+the same edit. A test compares the file on disk with what the generator would
+write, which is the same question as "is the checklist current?".
+
 The models are where silent errors hide, so the unit tests check them against
 published figures rather than against themselves: London solar noon altitude and
 sunrise/sunset times, growth monotonic and hitting mature size at year 20, hosta
 dormant in January, altitude delaying bud burst, and cross-checks that the soil
 axes cannot contradict each other, that no two plants share an id, and that every
 drawable plant shape has at least one plant using it.
+
+A plant's shape is chosen in three places — the skeleton it is built from, the
+plan, and the side view — and leaving a new shape out of any of them used to be
+silent: a generic tree in the side view, a blob on the plan, and in the skeleton
+nothing at all, which cannot look wrong because nothing is drawn. Each of the
+three now ends by handing the shape to `unhandled` in
+[`src/render/exhaustive.ts`](src/render/exhaustive.ts), which compiles only when
+every shape has been accounted for. Add one to the `Habit` union and the build
+stops, naming the shape and the three lines that need it.
 
 The browser checks drive the real app through `window.gardenStore` and assert
 behaviour a screenshot alone would not catch:
@@ -256,8 +294,26 @@ node scripts/check-mobile.mjs   http://localhost:4173 screenshots  # the documen
 node scripts/check-panorama.mjs http://localhost:4173 screenshots  # turning must change what is in front of you
 node scripts/check-editing.mjs  http://localhost:4173 screenshots  # duplicate-in-place, eye height, hover states
 node scripts/check-habits.mjs   http://localhost:4173 screenshots  # every plant shape actually draws
+node scripts/check-drawing.mjs  http://localhost:4173              # the drawing, against docs/golden
 node scripts/readme-images.mjs  http://localhost:4173 docs/img     # the images in this file
 ```
+
+`check-drawing.mjs` is the one that compares pictures. Ten plants once vanished
+from the side views for weeks, every winter, and were found by someone happening
+to look at January — the drawing's output is a canvas, and what is wrong with it
+is what it looks like. It could not be automated before because every plant gets
+a random seed when it is planted, so no two runs drew the same sketch; the check
+writes a design straight into the store with seeds of its own, which makes seven
+scenes reproducible to the pixel. Those scenes are the plan, the side view in
+midsummer, spring, autumn and January, the 360° view, and the sun map, against
+the references in `docs/golden/`.
+
+Two dates would not be enough: a plant can be right at both solstices and vanish
+in between, which is exactly where that bug lived. Putting it back turns three
+scenes red, and each failure leaves `screenshots/<scene>.actual.png` and a diff
+with every changed pixel in magenta. When a change is meant, `--update` accepts
+it — deliberately, after looking, and worth a line in the commit saying why the
+drawing changed.
 
 And against the built single file, which is what testers actually receive:
 

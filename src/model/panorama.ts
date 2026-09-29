@@ -82,8 +82,30 @@ export const MIN_DISTANCE = 0.8;
  */
 export const MIN_VERTICAL_FOV = 28;
 
-/** The field the viewer may ask for, in degrees. */
-export const FOV_RANGE = { min: 45, max: 140, step: 5 };
+/**
+ * The field the viewer may ask for, in degrees.
+ *
+ * Up to 180 — everything in front of you, from one shoulder to the other —
+ * because a designer asked to see the whole of a garden from one spot. The cost
+ * is known and was chosen: the projection is cylindrical, so at this width a
+ * straight wall or plot edge that runs across the view is drawn as a curve,
+ * which is what a gardener earlier called "deformed". The narrower settings are
+ * still there for a picture that keeps its straight lines straight.
+ */
+export const FOV_RANGE = { min: 45, max: 180, step: 5 };
+
+/**
+ * A field the view can actually show, from any number.
+ *
+ * The one limit for both the slider and the store. They used to disagree — the
+ * slider stopped at 140 while the store would take anything up to 160 — so a
+ * width set from anywhere but the slider could sit outside the slider's own
+ * range, with its handle pinned at the end and not matching the picture.
+ */
+export function clampFov(degrees: number): number {
+  if (!Number.isFinite(degrees)) return 90;
+  return Math.max(FOV_RANGE.min, Math.min(FOV_RANGE.max, degrees));
+}
 
 /** Pixels per degree of arc — the one number the whole projection hangs off. */
 export function pixelsPerDegree(width: number, height: number, requestedFov: number): number {

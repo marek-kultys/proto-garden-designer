@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  convexHull,
   distance,
   pointInPolygon,
   pointToSegment,
@@ -253,5 +254,45 @@ describe('distance from a point to a wall segment', () => {
   it('does not depend on which end is given first', () => {
     const p = { x: 4, y: 3 };
     expect(pointToSegment(p, a, b).dist).toBeCloseTo(pointToSegment(p, b, a).dist, 9);
+  });
+});
+
+describe('the convex hull of a set of points', () => {
+  it('drops the points inside and keeps the corners', () => {
+    const hull = convexHull([
+      { x: 0, y: 0 },
+      { x: 4, y: 0 },
+      { x: 4, y: 4 },
+      { x: 0, y: 4 },
+      { x: 2, y: 2 },
+      { x: 1, y: 3 },
+    ]);
+    expect(hull).toHaveLength(4);
+    expect(polygonArea(hull)).toBeCloseTo(16, 9);
+    expect(hull.some((p) => p.x === 2 && p.y === 2)).toBe(false);
+  });
+
+  /**
+   * The case it exists for: a band swept along a shadow is a rectangle and its
+   * translated copy, and the hull of the two is the ground both cover.
+   */
+  it('closes over a rectangle and its translated copy', () => {
+    const band = [
+      { x: 0, y: 0 },
+      { x: 6, y: 0 },
+      { x: 6, y: 0.5 },
+      { x: 0, y: 0.5 },
+    ];
+    const moved = band.map((p) => ({ x: p.x + 3, y: p.y + 4 }));
+    const hull = convexHull([...band, ...moved]);
+    expect(pointInPolygon({ x: 3, y: 2 }, hull)).toBe(true);
+    expect(pointInPolygon({ x: 0.2, y: 3 }, hull)).toBe(false);
+    expect(polygonArea(hull)).toBeGreaterThan(polygonArea(band) * 2);
+  });
+
+  it('hands back anything with no area to take a hull of', () => {
+    expect(convexHull([{ x: 1, y: 1 }])).toEqual([{ x: 1, y: 1 }]);
+    const line = [{ x: 0, y: 0 }, { x: 1, y: 1 }, { x: 2, y: 2 }];
+    expect(convexHull(line)).toEqual(line);
   });
 });

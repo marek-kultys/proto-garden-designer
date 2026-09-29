@@ -39,7 +39,7 @@ export const CLIMBERS: Species[] = [
     foliageColour: 'bronze-tinted mid green',
     notes:
       'Enormous and enormously generous — a sheet of pink over three weeks in May, and quite capable of pulling down a weak trellis or swamping a small tree. Prune straight after flowering or not at all; cut it back hard in spring and there is no flower that year.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Clematis%20montana%20rubens',
+    source: 'https://www.rhs.org.uk/plants/46574/clematis-montana-var-rubens-eh-wilson/details',
   },
   {
     id: 'clematis-armandii',
@@ -78,7 +78,7 @@ export const CLIMBERS: Species[] = [
     foliageColour: 'long, leathery, dark green',
     notes:
       'The only widely grown evergreen clematis, and worth it for almond-scented flowers in March and April when little else is climbing. Wants a warm sheltered wall — H4 means it will scorch badly in a cold wind — and it accumulates a thatch of dead leaves at the base that needs pulling out.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Clematis%20armandii',
+    source: 'https://www.rhs.org.uk/plants/3923/clematis-armandii/details',
   },
   {
     id: 'clematis-viticella',
@@ -117,7 +117,7 @@ export const CLIMBERS: Species[] = [
     foliageColour: 'mid green',
     notes:
       'The easiest clematis there is: cut the whole thing to 30 cm every February and it flowers from July to September on the new growth, which means it never turns into the bare-legged tangle the large-flowered hybrids do. Resistant to clematis wilt, unlike them.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Clematis%20viticella',
+    source: 'https://www.rhs.org.uk/plants/29466/clematis-viticella/details',
   },
   {
     id: 'vitis-coignetiae',
@@ -159,7 +159,7 @@ export const CLIMBERS: Species[] = [
     foliageColour: 'huge heart-shaped leaves, scarlet in autumn',
     notes:
       'Grown entirely for October, when leaves the size of dinner plates turn scarlet and crimson. Vigorous enough to need a serious structure and an annual reckoning with the secateurs. The small black grapes are ornamental rather than edible.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Vitis%20coignetiae',
+    source: 'https://www.rhs.org.uk/plants/19030/vitis-coignetiae/details',
   },
   {
     id: 'trachelospermum-jasminoides',
@@ -198,7 +198,7 @@ export const CLIMBERS: Species[] = [
     foliageColour: 'glossy dark green, bronzing in winter',
     notes:
       'Slow for the first two or three years and then steadily excellent: glossy evergreen cover on a warm wall, with intensely fragrant white flowers all through July and August. The leaves take on a red-bronze cast in a cold winter, which is a feature and not a problem.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Trachelospermum%20jasminoides',
+    source: 'https://www.rhs.org.uk/plants/18287/trachelospermum-jasminoides/details',
   },
   {
     id: 'jasminum-nudiflorum',
@@ -238,7 +238,7 @@ export const CLIMBERS: Species[] = [
     foliageColour: 'dark green on green stems',
     notes:
       'Yellow flowers on bare green stems from November right through to February, in the one season when a wall has nothing else to offer. Not a true climber — it has no means of attaching itself and must be tied in, or it will simply arch over and root where it touches. Takes a north wall.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Jasminum%20nudiflorum',
+    source: 'https://www.rhs.org.uk/plants/9452/jasminum-nudiflorum/details',
   },
   {
     id: 'jasminum-polyanthum',
@@ -278,7 +278,7 @@ export const CLIMBERS: Species[] = [
     foliageColour: 'glossy dark green',
     notes:
       'Overwhelmingly fragrant, and H2 — which in practice means a conservatory, a porch or a very sheltered city courtyard, not an open garden anywhere in Britain. Included because it is asked for constantly; the hardiness rating is the thing to read before buying one for a wall.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Jasminum%20polyanthum',
+    source: 'https://www.rhs.org.uk/plants/9457/jasminum-polyanthum/details',
   },
   {
     id: 'hedera-helix',
@@ -443,7 +443,7 @@ export const CLIMBERS: Species[] = [
     foliageColour: 'soft grey-green, climbing by tendrils',
     notes:
       'Grown for scent above everything, and the one flower where cutting it is the maintenance — stop picking, it sets seed and stops flowering within a fortnight. An annual climber, so it needs a wigwam or netting from scratch each year. Wants rich moist soil and constant water; it goes over fast in drought.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Lathyrus%20odoratus',
+    source: 'https://www.rhs.org.uk/plants/25520/lathyrus-odoratus/details',
   },
   {
     id: 'wisteria-sinensis',
@@ -484,7 +484,7 @@ export const CLIMBERS: Species[] = [
     foliageColour: 'fresh pinnate green, clear yellow in autumn',
     notes:
       'Long scented lilac racemes hanging from bare branches in May, before the leaves — the most theatrical climber in this palette and the most demanding. It needs pruning twice a year, in July and February, or it makes wood instead of flowers. Buy a grafted named plant: a seedling can take twenty years to flower and may never do it well.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Wisteria%20sinensis',
+    source: 'https://www.rhs.org.uk/plants/19126/wisteria-sinensis/details',
   },
   {
     id: 'rosa-madame-alfred-carriere',
@@ -527,7 +527,7 @@ export const CLIMBERS: Species[] = [
     foliageColour: 'light green, nearly thornless stems',
     notes:
       'The climbing rose for a north wall, which almost no rose will take — blush-white scented flowers from June right through to November, on nearly thornless stems that make tying it in a pleasure rather than a fight. Vigorous enough to reach a first-floor window. Prune in winter to a permanent framework.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Rosa%20Madame%20Alfred%20Carriere',
+    source: 'https://www.rhs.org.uk/plants/99741/rosa-madame-alfred-carriere-n/details',
   },
   {
     id: 'parthenocissus-tricuspidata',
@@ -569,7 +569,7 @@ export const CLIMBERS: Species[] = [
     foliageColour: 'glossy green, turning pure scarlet',
     notes:
       'Sticks itself flat to a wall with adhesive pads and needs no wires at all, then turns the whole elevation scarlet for three weeks in October. The best autumn colour available on a vertical surface. Very vigorous — it will reach the gutters and lift roof tiles, so it wants an annual cut back, not neglect.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Parthenocissus%20tricuspidata',
+    source: 'https://www.rhs.org.uk/plants/12350/parthenocissus-tricuspidata/details',
   },
   {
     id: 'hydrangea-petiolaris',
@@ -608,7 +608,7 @@ export const CLIMBERS: Species[] = [
     foliageColour: 'heart-shaped green, clear yellow in autumn',
     notes:
       'The answer to a cold north wall: self-clinging, flowering freely in shade with flat white lacecaps in June, and clear yellow in autumn. Slow to start — expect two or three years of apparently nothing before it begins to climb — and then steady and long-lived. Cinnamon peeling bark in winter is a bonus.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Hydrangea%20anomala%20petiolaris',
+    source: 'https://www.rhs.org.uk/plants/97624/hydrangea-anomala-subsp-petiolaris/details',
   },
   {
     id: 'akebia-quinata',
@@ -647,7 +647,7 @@ export const CLIMBERS: Species[] = [
     foliageColour: 'neat five-fingered green, semi-evergreen',
     notes:
       'Small dusky chocolate-purple flowers in April that smell distinctly of vanilla, over neat five-fingered leaves that mostly hold through winter. Twining rather than self-clinging, so it needs wires. Vigorous once settled and will smother a small shrub, so give it a wall or a big pergola rather than a trellis panel.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Akebia%20quinata',
+    source: 'https://www.rhs.org.uk/plants/747/akebia-quinata/details',
   },
   {
     id: 'campsis-radicans',
@@ -686,7 +686,7 @@ export const CLIMBERS: Species[] = [
     foliageColour: 'pinnate dark green, very late to appear',
     notes:
       'Fat orange-scarlet trumpets in August and September, when almost nothing else is climbing a wall in flower. It needs a genuinely hot sunny wall to bloom at all — in a cool spot you get a vigorous green plant and no flowers, year after year. Alarmingly late into leaf; do not write it off until June.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Campsis%20radicans',
+    source: 'https://www.rhs.org.uk/plants/2993/campsis-radicans/details',
   },
   {
     id: 'humulus-lupulus-aureus',
@@ -725,6 +725,6 @@ export const CLIMBERS: Species[] = [
     foliageColour: 'bright acid yellow, vine-shaped',
     notes:
       'Dies to the ground every winter and climbs six metres again by July, in acid yellow — the fastest thing here by a distance, and the only climber that gives you a bare structure back every winter. Papery hop cones in August. Wants sun for the gold; in shade it turns lime green.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Humulus%20lupulus%20Aureus',
+    source: 'https://www.rhs.org.uk/plants/91715/humulus-lupulus-aureus/details',
   },
 ];

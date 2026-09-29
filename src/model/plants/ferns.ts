@@ -39,7 +39,7 @@ export const FERNS: Species[] = [
     foliageColour: 'fresh green croziers to deep green fronds',
     notes:
       'The native fern of British woodland, and about as tough as a shade plant gets — it will take dry shade under trees once established, which almost nothing else will. Unrolling croziers in April are one of the better moments in the spring garden. Semi-evergreen: it holds on into December in a mild winter and is cut back in February.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Dryopteris%20filix-mas',
+    source: 'https://www.rhs.org.uk/plants/114462/dryopteris-filix-mas/details',
   },
   {
     id: 'dicksonia-antarctica',
@@ -78,7 +78,7 @@ export const FERNS: Species[] = [
     foliageColour: 'arching deep green fronds on a fibrous trunk',
     notes:
       'Sold by trunk height because the trunk grows only two or three centimetres a year — buying a taller one is buying decades. H3, so it needs a sheltered spot and the crown stuffed with straw in winter over most of the country; the trunk must be kept damp, since the roots are in it rather than the ground.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Dicksonia%20antarctica',
+    source: 'https://www.rhs.org.uk/plants/5794/dicksonia-antarctica/details',
   },
   {
     id: 'polystichum-setiferum',
@@ -117,7 +117,7 @@ export const FERNS: Species[] = [
     foliageColour: 'soft, finely divided, matt green',
     notes:
       'The best evergreen fern for a British garden: soft lacy fronds that stay through winter, unlike the male fern beside it, and unfurl a fresh set of pale croziers in April. Takes dry shade better than most ferns and will grow on chalk. Cut the old fronds off in March just as the new ones rise.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Polystichum%20setiferum',
+    source: 'https://www.rhs.org.uk/plants/13490/polystichum-setiferum/details',
   },
   {
     id: 'asplenium-scolopendrium',
@@ -156,7 +156,7 @@ export const FERNS: Species[] = [
     foliageColour: 'undivided glossy strap-shaped green',
     notes:
       'The odd one out among ferns — plain glossy straps rather than lacy fronds, which is exactly why it works next to them. Evergreen, and one of very few ferns that actively likes lime, so it is the fern for a chalk garden or the foot of a mortared wall. Deep shade and damp are what it wants.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Asplenium%20scolopendrium',
+    source: 'https://www.rhs.org.uk/plants/25910/asplenium-scolopendrium/details',
   },
   {
     id: 'athyrium-niponicum-pictum',
@@ -195,7 +195,7 @@ export const FERNS: Species[] = [
     foliageColour: 'silver-grey flushed maroon, on wine-red stems',
     notes:
       'Metallic silver fronds shot through with maroon on wine-red midribs — the only fern here that is grown for colour rather than form, and it lifts a dark corner the way a variegated shrub would. Dies back completely in winter, unlike the evergreen ferns. Wants shade, shelter and soil that stays damp.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Athyrium%20niponicum%20pictum',
+    source: 'https://www.rhs.org.uk/plants/92151/athyrium-niponicum-var-pictum/details',
   },
   {
     id: 'matteuccia-struthiopteris',
@@ -235,7 +235,7 @@ export const FERNS: Species[] = [
     foliageColour: 'bright fresh green, held as a perfect vase',
     notes:
       'A precise upright vase of pale green fronds, and the most sculptural fern here — a group of them beside water is one of the reliable pictures in British gardening. Dark fertile fronds stand through winter after the green ones collapse. Runs underground into a colony where the ground stays wet, which is usually welcome.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Matteuccia%20struthiopteris',
+    source: 'https://www.rhs.org.uk/plants/10920/matteuccia-struthiopteris/details',
   },
   {
     id: 'polypodium-vulgare',
@@ -274,6 +274,6 @@ export const FERNS: Species[] = [
     foliageColour: 'simple, leathery, deep green combs',
     notes:
       'Runs slowly sideways into a low mat of leathery combs, and grows where no other fern will — on top of a wall, in the fork of a tree, in almost no soil at all. Its year is upside down: new fronds appear in midsummer and stand all winter, so it is at its best in January.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Polypodium%20vulgare',
+    source: 'https://www.rhs.org.uk/plants/13464/polypodium-vulgare/details',
   },
 ];
