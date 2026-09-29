@@ -79,12 +79,16 @@ src/model/    the simulation — sun, growth, phenology, shade, panorama geometr
               in the order given by plants/order.ts — which is what numbers them
               in PLANTS.md, so it is kept even though nothing else reads it)
 src/render/   canvas drawing — sketchy line work, the light palette, and one
-              draw pass per view
+              draw pass per view (plant/ holds the drawing of a plant itself,
+              split by view and by the shapes that needed a file of their own)
 src/state/    a single zustand store; all state is plain and serialisable, plus
               the save/load boundary (projectFile.ts is pure and browser-free,
               projectStorage.ts is the only code that touches localStorage, and
               projectTransfer.ts exports and imports a design as a file)
 src/ui/       React components: the panels, the canvases, the time bar
+              (library/ holds the plant library's parts — the chips, a card, a
+              thumbnail; which plants match is model/plants/filter.ts, because
+              that is a question about plants rather than about a screen)
 scripts/      Playwright checks and screenshot capture
 ```
 
