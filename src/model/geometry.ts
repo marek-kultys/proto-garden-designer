@@ -71,3 +71,36 @@ export function pointToSegment(p: Vec2, a: Vec2, b: Vec2): { dist: number; t: nu
   t = Math.max(0, Math.min(1, t));
   return { dist: Math.hypot(p.x - (a.x + t * dx), p.y - (a.y + t * dy)), t };
 }
+
+/**
+ * The smallest convex outline containing every point given, anticlockwise.
+ *
+ * Andrew's monotone chain. It exists for one job: the ground a flat plant's
+ * shadow covers is its footprint swept along the shadow — which is the hull of
+ * the footprint and its translated copy. Sweeping by building the footprint,
+ * the copy and a quad per edge (as walls do, because a bed can be concave)
+ * would hand back overlapping pieces, and a piece counted twice would shade the
+ * ground twice over; one convex outline can be tested, and filled, exactly once.
+ *
+ * Fewer than three points come back unchanged: there is no hull to take.
+ */
+export function convexHull(points: Vec2[]): Vec2[] {
+  if (points.length < 3) return [...points];
+  const sorted = [...points].sort((a, b) => (a.x === b.x ? a.y - b.y : a.x - b.x));
+  const cross = (o: Vec2, a: Vec2, b: Vec2) =>
+    (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+
+  const half = (pts: Vec2[]): Vec2[] => {
+    const out: Vec2[] = [];
+    for (const p of pts) {
+      while (out.length >= 2 && cross(out[out.length - 2], out[out.length - 1], p) <= 0) out.pop();
+      out.push(p);
+    }
+    out.pop();
+    return out;
+  };
+
+  const hull = [...half(sorted), ...half([...sorted].reverse())];
+  // Every point identical, or all on one line: no area, so no hull.
+  return hull.length >= 3 ? hull : [...points];
+}

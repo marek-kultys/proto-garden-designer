@@ -1,4 +1,5 @@
-import { getSpecies } from '../model/plants';
+import { getSpecies, isTrainedFlat } from '../model/plants';
+import { flatFacing, flatShadow } from '../model/flat';
 import { plantState } from '../model/plantState';
 import { bearingToCanvas, shadowLengthFactor } from '../model/sun';
 import { canopyDensity, type ShadeGrid } from '../model/shade';
@@ -58,9 +59,6 @@ export interface PlanOptions {
 
 const PAPER = '#f7f4ec';
 
-/** Metres a climber stands off its support, for the band it shades. */
-const CLIMBER_SHADOW_DEPTH = 0.45;
-
 export function drawPlan(
   ctx: CanvasRenderingContext2D,
   width: number,
@@ -105,10 +103,11 @@ export function drawPlan(
       const form = getForm(species, plant.seed);
       const screen = toScreen(viewport, plant);
       const base = standingHeightAt(plant, scene.structures, (q) => groundAt(planTerrain, q));
-      // A climber follows the fence it was planted against, when that has been
-      // said; otherwise its own sketchy rotation stands in.
-      const facing =
-        plant.facing === undefined ? undefined : (plant.facing * Math.PI) / 180;
+      // A plant grown flat follows the fence it was planted against, when that
+      // has been said, and a stable angle of its own when it has not. The model
+      // answers that, so the band drawn here and the band the sun map measures
+      // are the same band — they used to be worked out separately and differed.
+      const facing = isTrainedFlat(species) ? flatFacing(plant) : undefined;
       return { plant, species, phase, size, form, screen, base, facing };
     })
     .sort((a, b) => b.size.spread - a.size.spread);
@@ -286,24 +285,28 @@ function drawShadows(
     const lift = Math.min(40, d.base * factor) * viewport.scale;
 
     /*
-     * A climber's shadow is a band, not a disc.
+     * Anything grown flat throws a band, not a disc.
      *
      * Its spread is how far it has run along its support, not how far it stands
-     * out from it — so once climbers were capped at trellis height and grew
-     * sideways instead, using the canopy outline threw a sixteen-metre circle
-     * of shade across the whole garden from a plant a foot deep.
+     * out from it — so using the canopy outline threw a sixteen-metre circle of
+     * shade across the whole garden from a plant a foot deep. The outline comes
+     * from the model, which is the same one the sun map shades with: the two
+     * disagreeing about this is precisely the fault being fixed.
      */
-    if (d.species.type === 'climber') {
-      const halfRun = Math.max(2, (d.size.spread / 2) * viewport.scale);
-      const halfDepth = Math.max(1.5, (CLIMBER_SHADOW_DEPTH / 2) * viewport.scale);
-      ctx.save();
-      ctx.translate(d.screen.x + ux * (lift + len / 2), d.screen.y + uy * (lift + len / 2));
-      ctx.rotate(d.facing ?? d.form.rotation);
+    if (isTrainedFlat(d.species)) {
+      // `factor`, not `cast.reach`: the drawing caps how far a shadow may be
+      // thrown per metre of height, where the sun map measures the real thing.
+      const ground = flatShadow(d.plant, d.size, d.base, { ux, uy, reach: factor }, 40);
+      if (ground.length < 3) continue;
       ctx.fillStyle = `rgba(46, 54, 78, ${(light.shadowAlpha * density).toFixed(3)})`;
       ctx.beginPath();
-      ctx.ellipse(0, 0, halfRun, halfDepth + len / 2, 0, 0, Math.PI * 2);
+      ground.forEach((p, i) => {
+        const s = toScreen(viewport, p);
+        if (i === 0) ctx.moveTo(s.x, s.y);
+        else ctx.lineTo(s.x, s.y);
+      });
+      ctx.closePath();
       ctx.fill();
-      ctx.restore();
       continue;
     }
 

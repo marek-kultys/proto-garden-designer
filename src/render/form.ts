@@ -1,4 +1,5 @@
 import { mulberry32 } from './sketch';
+import { unhandled } from './exhaustive';
 import type { Species } from '../model/types';
 
 /**
@@ -539,6 +540,11 @@ export function getForm(species: Species, seed: number): PlantForm {
       form.planClumps = makeClumps(rng, 5, 0.3, 0.3, 0, [0.1, 0.16]);
       break;
     }
+    default:
+      // A shape with no skeleton draws as nothing at all — no outline, no
+      // clumps, no stems — which is the one failure no screenshot catches,
+      // because there is nothing on the paper to look wrong.
+      unhandled(species.habit, 'getForm');
   }
 
   const FLOWER_COUNT: Partial<Record<Species['habit'], number>> = {

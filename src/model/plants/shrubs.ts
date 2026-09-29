@@ -325,7 +325,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'mid green',
     notes:
       'A David Austin English rose with an unusually strong myrrh scent and one of the longest seasons of any of them, repeating from June until the frosts. Compact enough for a small garden, unlike most of the family.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Rosa%20Sceptred%20Isle%20Ausland',
+    source: 'https://www.rhs.org.uk/plants/121977/rosa-scepterd-isle-ausland-s/details',
   },
   {
     id: 'rosa-bring-me-sunshine',
@@ -365,7 +365,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'glossy mid green',
     notes:
       'A compact yellow bush rose, repeat-flowering from June to the first frosts and healthy enough not to need spraying. Yellow roses fade as they age, so a bush carries several shades at once.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Rosa%20Bring%20Me%20Sunshine',
+    source: 'https://www.rhs.org.uk/plants/515112/rosa-bring-me-sunshine-ausernie-s/details',
   },
   {
     id: 'rosa-glauca',
@@ -407,7 +407,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'grey-purple, glaucous',
     notes:
       'Grown for the foliage rather than the flower — dusky purple-grey leaves on plum-coloured stems, which is why it earns border space next to plants it would otherwise clash with. Single flowers for a fortnight in June, then heavy bunches of red hips that hold into winter.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Rosa%20glauca',
+    source: 'https://www.rhs.org.uk/plants/16043/rosa-glauca-pourr-s/details',
   },
   {
     id: 'rosa-canina',
@@ -449,7 +449,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'mid green',
     notes:
       'The native hedgerow rose: arching, thorny and completely indestructible, for a boundary or a wild hedge rather than a border. Scented single flowers in June, then scarlet hips that feed birds through the winter.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Rosa%20canina',
+    source: 'https://www.rhs.org.uk/plants/16017/rosa-canina-s/details',
   },
   {
     id: 'sarcococca-confusa',
@@ -491,7 +491,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'glossy dark green',
     notes:
       'The flowers are almost invisible and the scent carries across a garden — vanilla, in January, from a shrub that also happens to be one of the few good evergreens for deep shade. Plant it by a door or a path, where somebody will walk past it in winter, or the whole point is wasted.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Sarcococca%20confusa',
+    source: 'https://www.rhs.org.uk/plants/16452/sarcococca-confusa/details',
   },
   {
     id: 'photinia-red-robin',
@@ -530,7 +530,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'brilliant red new growth over dark green',
     notes:
       'Grown for the scarlet flush of new leaves, which is why it is usually clipped — every cut produces another flush, and an unclipped plant does it once in April and then goes plain green. Ubiquitous as a screening hedge, and prone to leaf spot where air movement is poor.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Photinia%20fraseri%20Red%20Robin',
+    source: 'https://www.rhs.org.uk/plants/94829/photinia-x-fraseri-red-robin/details',
   },
   {
     id: 'elaeagnus-submacrophylla',
@@ -569,7 +569,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'leathery green, silver-scaled beneath',
     notes:
       'Still sold almost everywhere as Elaeagnus x ebbingei. A workhorse screening shrub that shrugs off salt wind and poor dry soil, and then produces an astonishing scent in late October from flowers nobody ever notices. Variegated forms revert; cut green shoots out as they appear.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Elaeagnus%20submacrophylla',
+    source: 'https://www.rhs.org.uk/plants/169093/elaeagnus-x-submacrophylla/details',
   },
   {
     id: 'garrya-james-roof',
@@ -608,7 +608,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'dull leathery dark green',
     notes:
       "A dull shrub for ten months and remarkable for two: 'James Roof' carries the longest catkins of any form, hanging in grey curtains through January and February. Male plants have the good tassels. Wants a wall, and resents being moved once settled.",
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Garrya%20elliptica%20James%20Roof',
+    source: 'https://www.rhs.org.uk/plants/95309/garrya-elliptica-james-roof-m/details',
   },
   {
     id: 'mahonia-charity',
@@ -650,7 +650,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'architectural spiny dark green',
     notes:
       'Upright, gaunt and useful: yellow spires from November to January in shade, followed by blue-bloomed berries. Goes leggy with age, and the cure is to cut whole stems to 30 cm in spring — it breaks readily from old wood. The leaf spines are genuinely vicious, so keep it off a path edge.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Mahonia%20media%20Charity',
+    source: 'https://www.rhs.org.uk/plants/98703/mahonia-x-media-charity/details',
   },
   {
     id: 'griselinia-littoralis',
@@ -691,7 +691,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'glossy apple green',
     notes:
       'The standard evergreen hedge for a seaside garden — it takes salt wind better than almost anything and clips to a clean apple-green wall. Inland and in a cold winter it can be cut back hard by frost, which is what the H4 rating is warning about. Modelled here as a clipped hedge rather than the eight-metre tree it becomes if left alone.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Griselinia%20littoralis',
+    source: 'https://www.rhs.org.uk/plants/8123/griselinia-littoralis/details',
   },
   {
     id: 'buxus-sempervirens',
@@ -732,7 +732,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'small, dense, dark green',
     notes:
       'The classic clipped edging, at ten centimetres of growth a year — which is why a low box hedge is a decade of patience and not a season. Box blight and box tree moth have both made it a far riskier choice than it was twenty years ago; Ilex crenata is the usual substitute.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Buxus%20sempervirens',
+    source: 'https://www.rhs.org.uk/plants/2579/buxus-sempervirens/details',
   },
   {
     id: 'pyracantha-coccinea',
@@ -774,7 +774,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'glossy dark green on thorny stems',
     notes:
       'Will flower and fruit on a north wall, which very little else does, and the berry display from September onwards is as strong as anything in the garden. The thorns are serious — excellent against an intruder, unpleasant against a washing line. Prune in late summer so you can see which shoots carry the berries.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Pyracantha%20coccinea',
+    source: 'https://www.rhs.org.uk/plants/14208/pyracantha-coccinea/details',
   },
   {
     id: 'cistus-purpureus',
@@ -813,7 +813,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'grey-green, resinous',
     notes:
       'Each flower lasts a single morning and the bush is covered again the next day for six weeks — a plant that has to be watched rather than kept. Wants sharp drainage, full sun and no kindness whatsoever; it rots in a wet winter on clay and cannot be pruned back into old wood.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Cistus%20purpureus',
+    source: 'https://www.rhs.org.uk/plants/90960/cistus-x-purpureus/details',
   },
   {
     id: 'cistus-argenteus',
@@ -852,7 +852,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'soft grey-green',
     notes:
       'Lower and greyer than the purple form, and hardier than most cistus — one of the more reliable choices for a hot dry bank or the edge of a gravel garden. Same rules: full sun, sharp drainage, no hard pruning.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Cistus%20argenteus%20Silver%20Pink',
+    source: 'https://www.rhs.org.uk/plants/89899/cistus-x-argenteus-silver-pink-ambig/details',
   },
   {
     id: 'helianthemum-nummularium',
@@ -891,7 +891,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'small grey-green',
     notes:
       'The other plant called rock rose — a native chalk-downland sub-shrub making a low evergreen mat, not to be confused with Cistus, which is larger and shrubbier. Smothers itself in flower through June, and responds to a shear straight afterwards with a second flush.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Helianthemum%20nummularium',
+    source: 'https://www.rhs.org.uk/plants/8469/helianthemum-nummularium/details',
   },
   {
     id: 'convolvulus-cneorum',
@@ -930,7 +930,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'silky silver, almost metallic',
     notes:
       'Grown as much for the foliage as the flower — silver leaves with a satin sheen that hold their colour all winter. Absolutely intolerant of wet feet; on heavy ground it wants a raised bed or a pot. Short-lived, and worth taking cuttings from.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Convolvulus%20cneorum',
+    source: 'https://www.rhs.org.uk/plants/4333/convolvulus-cneorum/details',
   },
   {
     id: 'santolina-chamaecyparissus',
@@ -969,7 +969,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'finely cut silver-white',
     notes:
       'A dense silver cushion that clips into a low hedge as readily as box, and is aromatic when brushed. Many gardeners shear the flowers off before they open, on the grounds that the yellow fights the silver. Cut it back into the grey each spring or it goes woody and splits open.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Santolina%20chamaecyparissus',
+    source: 'https://www.rhs.org.uk/plants/19856/santolina-chamaecyparissus/details',
   },
   {
     id: 'santolina-lemon-fizz',
@@ -1008,7 +1008,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'acid yellow-green, feathery',
     notes:
       'The same plant as the silver cotton lavender with the colour turned up: acid-yellow foliage that reads as a light source in a dark planting. Keeps its colour best in full sun on poor soil; feed it and it goes green and floppy.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Santolina%20Lemon%20Fizz',
+    source: 'https://www.rhs.org.uk/plants/254811/santolina-rosmarinifolia-lemon-fizz/details',
   },
   {
     id: 'salvia-rosmarinus',
@@ -1047,7 +1047,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'dark needle green, silver beneath',
     notes:
       'Renamed from Rosmarinus officinalis, to general irritation. Flowers from March, earlier than almost any other shrub, and again in autumn in a mild year — which makes it one of the better early sources of nectar. Wants poor sharp drainage; it dies of wet and cold together, not cold alone.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Salvia%20rosmarinus',
+    source: 'https://www.rhs.org.uk/plants/384211/salvia-rosmarinus-ro/details',
   },
   {
     id: 'rosemary-foxtail',
@@ -1086,7 +1086,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'dense bright green, brush-like shoots',
     notes:
       'A trailing rosemary with unusually thick bottlebrush shoots, for spilling over a wall or the edge of a raised bed rather than standing up in a border. Same conditions as the upright form and the same intolerance of a wet winter.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Salvia%20rosmarinus%20Foxtail',
+    source: 'https://www.rhs.org.uk/plants/384083/salvia-rosmarinus-foxtail-ro/details',
   },
   {
     id: 'erica-carnea',
@@ -1126,7 +1126,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'fine needle green',
     notes:
       'The one heather that will grow on chalk — every other garden heath needs acid soil, which is why this species turns up in so many planting plans that have no business containing heathers at all. Flowers from December to April, and is one of the few reliable winter nectar sources for early bees.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Erica%20carnea',
+    source: 'https://www.rhs.org.uk/plants/6643/erica-carnea/details',
   },
   {
     id: 'hamamelis-intermedia',
@@ -1166,7 +1166,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'broad mid green, clear yellow in autumn',
     notes:
       'Spidery scented flowers clinging to bare branches through January and February, and then butter-yellow autumn colour — two seasons from one slow, expensive shrub. Will not have lime: on chalk it yellows and sulks whatever you feed it. Nearly all plants are grafted, so pull off any suckers from below the union.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Hamamelis%20intermedia%20Pallida',
+    source: 'https://www.rhs.org.uk/plants/77881/hamamelis-x-intermedia-pallida/details',
   },
   {
     id: 'chimonanthus-praecox',
@@ -1206,7 +1206,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'coarse mid green',
     notes:
       'The strongest winter scent of any hardy shrub, from small waxy flowers hanging on bare wood in the darkest weeks. The catch is patience: a young plant may take five to eight years before it flowers at all. Dull the rest of the year, so put it where it is passed in winter and forgotten in summer.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Chimonanthus%20praecox',
+    source: 'https://www.rhs.org.uk/plants/29215/chimonanthus-praecox/details',
   },
   {
     id: 'corylopsis-sinensis',
@@ -1246,7 +1246,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'soft mid green',
     notes:
       'Racemes of cowslip-scented primrose flowers dangling from bare branches in March, before the leaves. Another lime-hater from the witch hazel family, and like them it wants shelter from a late frost that would brown the flowers overnight.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Corylopsis%20sinensis',
+    source: 'https://www.rhs.org.uk/plants/92278/corylopsis-sinensis-var-sinensis/details',
   },
   {
     id: 'daphne-odora',
@@ -1286,7 +1286,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'glossy dark green, often cream-edged',
     notes:
       'One of the great scents of the garden year, in February, from a neat evergreen dome. Daphnes are famously capricious: they hate being moved, hate having their roots disturbed by weeding, and have a habit of dying suddenly and completely for no visible reason after eight or ten good years. Plant it once, in the right place, and leave it entirely alone.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Daphne%20odora',
+    source: 'https://www.rhs.org.uk/plants/31151/daphne-odora/details',
   },
   {
     id: 'viburnum-bodnantense-dawn',
@@ -1327,7 +1327,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'bronze-tinted mid green',
     notes:
       'Flowers in flushes on bare stems from November to March, taking whatever the weather gives and starting again after each frost — the most dependable winter-flowering shrub there is. Stiff, upright and frankly graceless in summer, so plant it behind something.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Viburnum%20bodnantense%20Dawn',
+    source: 'https://www.rhs.org.uk/plants/99308/viburnum-x-bodnantense-dawn/details',
   },
   {
     id: 'forsythia-intermedia',
@@ -1367,7 +1367,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'plain mid green',
     notes:
       'Utterly reliable and utterly unfashionable — a fortnight of hard yellow on bare stems in late March and nothing whatever for the other fifty weeks. Prune immediately after flowering, taking a third of the oldest stems out at the base; clipping it into a bun, which is what usually happens, removes next year\'s flower.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Forsythia%20intermedia%20Lynwood',
+    source: 'https://www.rhs.org.uk/plants/214902/forsythia-x-intermedia-lynwood-variety/details',
   },
   {
     id: 'hydrangea-quercifolia',
@@ -1408,7 +1408,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'big oak-shaped leaves, deep burgundy in autumn',
     notes:
       'The only hydrangea grown as much for its leaves as its flowers: large lobed leaves turning wine-red and holding into December, over peeling cinnamon bark. White cones from July age through pink and then dry on the plant, so it carries structure into the new year.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Hydrangea%20quercifolia',
+    source: 'https://www.rhs.org.uk/plants/8949/hydrangea-quercifolia/details',
   },
   {
     id: 'hydrangea-serrata',
@@ -1448,7 +1448,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'neat mid green, red-tinted in autumn',
     notes:
       'A smaller, finer-boned lacecap than the mophead — better in a small garden and better in a mixed border, where the flat flowerheads sit among other things instead of shouting over them. Flowers on old wood, so cutting it back in spring removes the whole season.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Hydrangea%20serrata',
+    source: 'https://www.rhs.org.uk/plants/25075/hydrangea-serrata/details',
   },
   {
     id: 'hydrangea-macrophylla',
@@ -1489,7 +1489,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'coarse glossy mid green',
     notes:
       'The one plant everybody knows changes colour with soil pH: blue where aluminium is available in acid ground, pink where lime locks it up, and a muddy mauve in between. White cultivars stay white whatever you do. Leave the dead heads on over winter — they protect the buds beneath and look better than the alternative.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Hydrangea%20macrophylla',
+    source: 'https://www.rhs.org.uk/plants/40792/hydrangea-macrophylla-h/details',
   },
   {
     id: 'paeonia-suffruticosa',
@@ -1529,7 +1529,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'grey-green, deeply divided',
     notes:
       'Woody, so it does not die back — a permanent framework of stems carrying flowers the size of a saucer in May. It breaks into growth very early and the flowers are easily ruined by a late frost, so avoid an east-facing spot where morning sun hits frozen buds. Almost always grafted onto a herbaceous rootstock; remove suckers.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Paeonia%20suffruticosa',
+    source: 'https://www.rhs.org.uk/plants/377762/paeonia-x-suffruticosa-s/details',
   },
   {
     id: 'rhododendron-yakushimanum',
@@ -2114,7 +2114,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'narrow, glossy, very dark green',
     notes:
       'Kept as a separate entry from the loose shrub because a clipped 70 cm edging and a 1.5 m mound do quite different jobs. The reason to use it rather than box is the scent: nothing to look at, but in January it carries across a garden from a plant you cannot see. Slow, shade-tolerant to the point of preferring it, and untroubled by the blight that is ruining box.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Sarcococca%20confusa',
+    source: 'https://www.rhs.org.uk/plants/16452/sarcococca-confusa/details',
   },
   {
     id: 'callicarpa-profusion',
@@ -2240,7 +2240,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'deeply veined, leathery dark green',
     notes:
       'A low dome of ribbed leathery leaves that does the job of ground cover without looking like ground cover — the most useful evergreen filler here for a shaded bed. The metallic blue fruit is the reason people plant it and the reason they are disappointed: you need a male and a female plant, and most gardens have one.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Viburnum%20davidii',
+    source: 'https://www.rhs.org.uk/plants/18892/viburnum-davidii/details',
   },
   {
     id: 'hebe-rakaiensis',
@@ -2279,7 +2279,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'small, bright apple green',
     notes:
       'Makes a tight bright-green bun entirely on its own, with no clipping at all, which is why it turns up wherever a designer wants the look of topiary without the maintenance. The white July flowers are a bonus rather than the point. Short-lived by shrub standards — reckon on ten to fifteen years before it goes woody and gappy and wants replacing.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Hebe%20rakaiensis',
+    source: 'https://www.rhs.org.uk/plants/8357/hebe-rakaiensis/details',
   },
   {
     id: 'skimmia-rubella',
@@ -2319,7 +2319,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'aromatic, glossy dark green',
     notes:
       'Grown for the buds, not the flowers: tight heads of dark red stay closed from October right through to April, so it carries a shaded bed through the whole winter, then opens to scented white. This one is male, which is worth knowing — it will never carry berries, and it exists to pollinate the females that do. Yellows badly on chalk.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Skimmia%20japonica%20Rubella',
+    source: 'https://www.rhs.org.uk/plants/94155/skimmia-japonica-rubella-m/details',
   },
   {
     id: 'pieris-katsura',
@@ -2359,7 +2359,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'wine-red young growth over dark green',
     notes:
       'Two shows in one plant: drooping strings of rose bells in March, then a flush of wine-red new leaves that reads from across a garden as though it is flowering twice. Strictly for acid soil — on anything limy the leaves go yellow between the veins and it never recovers. Late frost catches the flowers, so keep it off an east-facing spot that thaws fast.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Pieris%20japonica%20Katsura',
+    source: 'https://www.rhs.org.uk/plants/191109/pieris-japonica-katsura/details',
   },
   {
     id: 'camellia-donation',
@@ -2399,7 +2399,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'glossy dark green',
     notes:
       'The camellia to plant if you plant only one: free with its clear pink semi-doubles from late February, and unlike most it drops its dead flowers cleanly instead of hanging onto brown rags. Acid soil only. Never plant it facing east — a night frost on frozen buds followed by early sun turns the whole display brown by lunchtime.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Camellia%20williamsii%20Donation',
+    source: 'https://www.rhs.org.uk/plants/91278/camellia-x-williamsii-donation/details',
   },
   {
     id: 'yucca-filamentosa',
@@ -2439,7 +2439,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'stiff blue-green swords with curling white threads',
     notes:
       'A rosette of rigid swords that holds its shape all year and reads as architecture rather than planting — the strongest full stop in this palette. Every few years it throws a two-metre panicle of ivory bells in high summer, and the dead spike stands well into winter. Wants sharp drainage and full sun; on wet clay the crown rots.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Yucca%20filamentosa',
+    source: 'https://www.rhs.org.uk/plants/19164/yucca-filamentosa/details',
   },
   {
     id: 'corylus-maxima-purpurea',
@@ -2482,7 +2482,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'deep beetroot-purple, huge and rounded',
     notes:
       'Purple catkins on bare stems in February, then enormous rounded beetroot-purple leaves — heavier and darker than a purple beech, and useful as a screen that is not a hedge. Coppice it every few years to keep it in bounds and get bigger leaves. Purple-shelled cobnuts follow if squirrels leave any.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Corylus%20maxima%20Purpurea',
+    source: 'https://www.rhs.org.uk/plants/92005/corylus-maxima-purpurea-f/details',
   },
   {
     id: 'cotoneaster-horizontalis',
@@ -2524,7 +2524,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'small glossy green, scarlet in autumn',
     notes:
       'Branches arranged in a flat herringbone that presses itself against a wall or spreads over a bank — a genuinely distinctive structure, visible all winter once the leaves drop. Scarlet leaves and red berries together in October. Bees work the tiny pink flowers so hard in May that the whole plant hums.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Cotoneaster%20horizontalis',
+    source: 'https://www.rhs.org.uk/plants/4619/cotoneaster-horizontalis/details',
   },
   {
     id: 'nandina-domestica',
@@ -2566,7 +2566,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'red new growth, green summer, crimson winter',
     notes:
       'Not a bamboo at all, though the upright canes and fine divided leaves make the name obvious. Three colours a year on the same plant: red new growth, green through summer, crimson from October, plus white flowers and red berries. Upright and narrow, so it suits a tight space or a pot by a door.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Nandina%20domestica',
+    source: 'https://www.rhs.org.uk/plants/11327/nandina-domestica/details',
   },
   {
     id: 'salix-britzensis',
@@ -2606,7 +2606,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'narrow grey-green, yellow in autumn',
     notes:
       'Grown entirely for the winter stems, which burn orange-scarlet from November to March and are brightest on wood grown the previous season — so coppice it hard every year or two in early spring, exactly as you would a dogwood. Will grow in ground too wet for almost anything else. Roots are invasive near drains.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Salix%20alba%20vitellina%20Britzensis',
+    source: 'https://www.rhs.org.uk/plants/84906/salix-alba-var-vitellina-britzensis-m/details',
   },
   {
     id: 'ballota-pseudodictamnus',
@@ -2762,7 +2762,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'soft, pebbled grey-green',
     notes:
       'The kitchen sage, and a better ornamental than it gets credit for: soft pebbled grey-green leaves all year and violet-blue spikes in May and June that the bees cover. It earns a place at the front of a dry border as much as in a herb bed. Woody and gappy after four or five years, so plan to replace it rather than rescue it. Trim after flowering, never hard into old wood, and keep it out of wet winter ground.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Salvia%20officinalis',
+    source: 'https://www.rhs.org.uk/plants/16356/salvia-officinalis/details',
   },
   {
     id: 'cistus-albidus',
@@ -2801,7 +2801,7 @@ export const SHRUBS: Species[] = [
     foliageColour: 'thick, white-felted grey',
     notes:
       'The palest-leaved cistus, with thick felted leaves almost white in summer, and soft rose-lilac flowers with a yellow boss from late May. Like every rock rose each flower lasts a morning and the bush is covered again the next day. A true plant of the Mediterranean hills, so it wants what they give: full sun, poor stony ground and no winter wet. It will not regrow from old wood, and is best replaced after ten years or so.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Cistus%20albidus',
+    source: 'https://www.rhs.org.uk/plants/3862/cistus-albidus/details',
   },
   {
     id: 'yucca-rostrata',

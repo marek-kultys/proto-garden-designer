@@ -358,7 +358,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'plain mid green',
     notes:
       'The scent of an August evening in an English border. Wants richer, damper ground than most sun perennials, and dries out badly against a hot wall — where it will get mildew and lose its lower leaves. Thin the stems in spring to five or six per clump for better air movement and bigger heads.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Phlox%20paniculata',
+    source: 'https://www.rhs.org.uk/plants/12736/phlox-paniculata/details',
   },
   {
     id: 'phlox-subulata',
@@ -397,7 +397,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'needle-fine evergreen mat',
     notes:
       'A tight evergreen mat that vanishes under flower for a month in late spring — for the top of a wall, a bank, or between paving, where it can bake. Nothing to do with border phlox beyond the name: this one wants sun and sharp drainage and hates rich damp soil. Shear it over after flowering to keep it dense.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Phlox%20subulata',
+    source: 'https://www.rhs.org.uk/plants/97337/phlox-subulata/details',
   },
   {
     id: 'geranium-macrorrhizum',
@@ -436,7 +436,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'aromatic light green, red-tinted in winter',
     notes:
       'The best weed-suppressing groundcover there is for dry shade under trees and shrubs, which is the hardest place in any garden to plant. Semi-evergreen, aromatic when crushed, and it knits into a solid carpet that nothing gets through. Shear it over after flowering if it looks tired.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Geranium%20macrorrhizum',
+    source: 'https://www.rhs.org.uk/plants/7891/geranium-macrorrhizum/details',
   },
   {
     id: 'oenothera-lindheimeri',
@@ -476,7 +476,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'small, willowy, often red-spotted',
     notes:
       'Still sold as Gaura lindheimeri. Wands of small flowers that move in the slightest breeze from June until the frosts — one of the longest-flowering perennials available, and it reads as a haze rather than a block. Short-lived and often lost over a wet winter rather than a cold one, so it needs sharp drainage.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Oenothera%20lindheimeri',
+    source: 'https://www.rhs.org.uk/plants/386413/oenothera-lindheimeri-g/details',
   },
   {
     id: 'phlomis-russeliana',
@@ -517,7 +517,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'large sage-green, felted, evergreen',
     notes:
       'Grown as much for the skeleton as the flower: tiers of butter-yellow hooded whorls in June dry to hard brown rings that stand bolt upright until February, holding frost and snow better than almost anything. Big felted evergreen leaves cover the ground underneath all winter.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Phlomis%20russeliana',
+    source: 'https://www.rhs.org.uk/plants/12705/phlomis-russeliana/details',
   },
   {
     id: 'iris-benton',
@@ -557,7 +557,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'grey-green sword fans',
     notes:
       'The tall bearded irises bred by the painter Cedric Morris at Benton End in the 1940s and 50s, in the muted, slightly muddy colours a painter would choose rather than the clear ones a nurseryman would. The rhizomes must bake: plant them proud of the soil in full sun, and keep neighbours off them, or they rot instead of flowering.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Iris%20Benton',
+    source: 'https://www.rhs.org.uk/plants/76013/iris-benton-nigel-tb/details',
   },
   {
     id: 'salvia-yangii',
@@ -598,7 +598,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'grey-green, aromatic and finely cut',
     notes:
       'Renamed from Perovskia atriplicifolia. A blue haze from August to October on stems so white they carry the plant right through the winter after the flowers have gone — leave them standing and cut to a low framework in April. Wants heat, poor soil and sharp drainage; on rich damp ground it flops open in the middle.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Salvia%20yangii%20Perovskia',
+    source: 'https://www.rhs.org.uk/plants/383623/salvia-yangii-pe/details',
   },
   {
     id: 'aster-monch',
@@ -638,7 +638,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'plain mid green',
     notes:
       'Often called the best perennial there is, and hard to argue with: lavender daisies from July right through to October, no staking, and — unlike the michaelmas daisies — no mildew. One of the few asters that starts in midsummer rather than waiting for September.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Aster%20frikartii%20Monch',
+    source: 'https://www.rhs.org.uk/plants/93410/aster-x-frikartii-monch/details',
   },
   {
     id: 'aster-little-carlow',
@@ -678,7 +678,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'mid green',
     notes:
       'The best of the small-flowered michaelmas daisies: not individual flowers but a solid haze of blue-violet in late September and October, when the border badly needs it. Holds itself up, and is far less prone to mildew than the old novae-angliae types.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Symphyotrichum%20Little%20Carlow',
+    source: 'https://www.rhs.org.uk/plants/340822/symphyotrichum-little-carlow-cordifolium-hybrid/details',
   },
   {
     id: 'amsonia-hubrichtii',
@@ -717,7 +717,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'thread-fine green turning pure gold',
     notes:
       'Grown for October, not May: needle-fine foliage that turns an extraordinary uniform gold and holds it for weeks, lighting up like a bonfire beside anything purple. The pale blue flowers in late spring are a modest bonus. Slow to establish and then long-lived; resents being moved.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Amsonia%20hubrichtii',
+    source: 'https://www.rhs.org.uk/plants/137924/amsonia-hubrichtii/details',
   },
   {
     id: 'amsonia-storm-cloud',
@@ -756,7 +756,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'near-black emerging shoots, then silver-veined green',
     notes:
       'The shoots come through almost black in April, which is the whole selling point, then green up under heads of periwinkle-blue stars and finish gold in autumn. Lower and broader than the Arkansas species.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Amsonia%20Storm%20Cloud',
+    source: 'https://www.rhs.org.uk/plants/367510/amsonia-tabernaemontana-storm-cloud/details',
   },
   {
     id: 'amsonia-tabernaemontana',
@@ -795,7 +795,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'willow-like green, yellow in autumn',
     notes:
       'Broader-leaved than the threadleaf species and a better flower — dense domes of pale blue in May — with decent rather than spectacular autumn yellow. Takes damper ground than the others, and is one of the more shade-tolerant blue stars.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Amsonia%20tabernaemontana',
+    source: 'https://www.rhs.org.uk/plants/1096/amsonia-tabernaemontana/details',
   },
   {
     id: 'geum-mai-tai',
@@ -835,7 +835,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'low evergreen rosette of soft green',
     notes:
       'Semi-double flowers in a peculiar shifting apricot-to-old-rose that changes as they age, held on wiry branching stems well above the leaves from May to July. Deadhead and it carries on. Wants soil that does not dry out; it sulks and goes bare in the middle on hot sand.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Geum%20Mai%20Tai',
+    source: 'https://www.rhs.org.uk/plants/306954/geum-mai-tai-cocktails-series/details',
   },
   {
     id: 'geum-rivale',
@@ -875,7 +875,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'soft mid green',
     notes:
       'A native of wet meadows and streamsides, and one of the genuinely useful plants for ground that stays damp — nodding, half-closed bells on dark stems from April to June, quieter than the border geums and better in a naturalistic planting.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Geum%20rivale',
+    source: 'https://www.rhs.org.uk/plants/7979/geum-rivale/details',
   },
   {
     id: 'foeniculum-purpureum',
@@ -916,7 +916,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'smoky bronze-purple filigree',
     notes:
       'A cloud of bronze thread-fine foliage that other plants can be seen through, and flat yellow umbels that bring in hoverflies by the hundred. Seeds itself with enthusiasm — cut the heads off in August unless you want fennel everywhere, which many people eventually do.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Foeniculum%20vulgare%20Purpureum',
+    source: 'https://www.rhs.org.uk/plants/43739/foeniculum-vulgare-purpureum/details',
   },
   {
     id: 'stachys-byzantina',
@@ -955,7 +955,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'thick silver-white felt',
     notes:
       'Grown for a texture rather than a colour — leaves so densely felted that water sits on them in beads, which is exactly why it rots in a wet winter or under a dripping tree. Superb edging a hot dry path. Some gardeners remove the flower spikes; the bees would rather you did not.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Stachys%20byzantina',
+    source: 'https://www.rhs.org.uk/plants/17707/stachys-byzantina/details',
   },
   {
     id: 'houttuynia-cordata',
@@ -994,7 +994,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'heart-shaped, splashed red, cream and green',
     notes:
       'Will grow in standing water at a pond margin as readily as in a border, which is why it is the one plant here that answers the bog filter. It is also invasive: it runs underground, fragments regenerate from the smallest piece, and it is very nearly impossible to remove once established. Plant it in a sunken container, or not at all.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Houttuynia%20cordata',
+    source: 'https://www.rhs.org.uk/plants/8842/houttuynia-cordata/details',
   },
   {
     id: 'trollius-new-moon',
@@ -1033,7 +1033,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'deeply cut dark green',
     notes:
       'Rounded buttercup globes of a soft creamy lemon in May, over handsome dissected foliage. A plant for ground that stays reliably damp — a streamside, a bog garden edge, or heavy clay that never really dries. It goes over quickly on a dry border.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Trollius%20cultorum%20New%20Moon',
+    source: 'https://www.rhs.org.uk/plants/315949/trollius-x-cultorum-new-moon/details',
   },
   {
     id: 'coreopsis-verticillata',
@@ -1072,7 +1072,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'fine, needle-like fresh green',
     notes:
       'A haze of small soft-yellow daisies over thread-fine foliage from midsummer until October — the pale lemon of this cultivar sits happily beside blues and pinks in a way the brassier golden coreopsis never do. Wants sun and drainage; short-lived on heavy wet soil.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Coreopsis%20verticillata%20Moonbeam',
+    source: 'https://www.rhs.org.uk/plants/4370/coreopsis-verticillata-moonbeam/details',
   },
   {
     id: 'kniphofia-tawny-king',
@@ -1112,7 +1112,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'evergreen grey-green straps',
     notes:
       'A softer poker than the municipal scarlet ones — buds of warm amber opening cream, on dark bronze stems, over a long season from July to September. Evergreen, so it holds a place in winter; tie the leaves up over the crown in a cold garden to keep water out of it.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Kniphofia%20Tawny%20King',
+    source: 'https://www.rhs.org.uk/plants/115125/kniphofia-tawny-king/details',
   },
   {
     id: 'eryngium-planum',
@@ -1153,7 +1153,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'basal green rosette, stems flushing blue',
     notes:
       'The blue runs up the stems as well as into the flowerheads, so the whole upper half of the plant turns metallic in July. Dries to a hard brown skeleton that stands into the new year. A deep taproot means it takes drought well and transplanting badly.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Eryngium%20planum',
+    source: 'https://www.rhs.org.uk/plants/24972/eryngium-planum/details',
   },
   {
     id: 'eryngium-agavifolium',
@@ -1194,7 +1194,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'evergreen rosette of saw-edged straps',
     notes:
       'Architectural rather than pretty: an evergreen rosette of long saw-toothed leaves sending up branched stems of green-white thimbles to a metre and a half. Keeps its structure through winter, which most sea hollies do not. The leaf teeth are sharp enough to draw blood, so keep it off a path.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Eryngium%20agavifolium',
+    source: 'https://www.rhs.org.uk/plants/6777/eryngium-agavifolium/details',
   },
   {
     id: 'digitalis-purpurea',
@@ -1234,7 +1234,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'soft, furred grey-green rosette',
     notes:
       'Strictly a biennial — a rosette in year one, a spire in year two, and then it dies — which the age slider here cannot show, since it models plants that persist. In practice a colony carries on indefinitely by seeding itself, so long as bare soil is left for it to land on. Every part is poisonous.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Digitalis%20purpurea',
+    source: 'https://www.rhs.org.uk/plants/5862/digitalis-purpurea/details',
   },
   {
     id: 'delphinium-elatum',
@@ -1274,7 +1274,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'deeply cut mid green',
     notes:
       'The tallest true blue in the border, and the most work: it needs rich soil, staking before it needs staking, and unremitting slug defence in April, when a whole clump can be eaten to the ground in one wet night. Cut the spike down after flowering and it will often give a second, smaller one in September.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Delphinium%20elatum',
+    source: 'https://www.rhs.org.uk/plants/5398/delphinium-elatum/details',
   },
   {
     id: 'liatris-spicata',
@@ -1315,7 +1315,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'narrow grassy green',
     notes:
       'Bottlebrush spikes that open from the top downwards, which is the wrong way round and the reason it is worth a second look. Grassy foliage and a strong vertical among rounded shapes. Grows from a corm; it wants sun and drainage and rots in a wet winter on clay.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Liatris%20spicata',
+    source: 'https://www.rhs.org.uk/plants/10064/liatris-spicata/details',
   },
   {
     id: 'dahlia-bishop-of-llandaff',
@@ -1355,7 +1355,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'near-black divided foliage',
     notes:
       'The original and still the best of the Bishops: open scarlet singles against foliage so dark it is nearly black, and an open centre the bees can actually reach, unlike the pompons. Awarded an AGM and grown continuously since the 1920s.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Dahlia%20Bishop%20of%20Llandaff',
+    source: 'https://www.rhs.org.uk/plants/96238/dahlia-bishop-of-llandaff-p/details',
   },
   {
     id: 'dahlia-bishop-of-york',
@@ -1395,7 +1395,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'near-black divided foliage',
     notes:
       'Buttercup-yellow singles over the same near-black foliage as the rest of the Bishops. The colour contrast is harder than the red form and carries further down a garden.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Dahlia%20Bishop%20of%20York',
+    source: 'https://www.rhs.org.uk/plants/209089/dahlia-bishop-of-york-sin/details',
   },
   {
     id: 'dahlia-bishop-of-oxford',
@@ -1435,7 +1435,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'near-black divided foliage',
     notes:
       'Burnt orange, which sits between the scarlet and the yellow of its siblings and mixes more easily with hot planting than either. Dark foliage as with all the Bishops.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Dahlia%20Bishop%20of%20Oxford',
+    source: 'https://www.rhs.org.uk/plants/209090/dahlia-bishop-of-oxford-sin/details',
   },
   {
     id: 'dahlia-bishop-of-dover',
@@ -1475,7 +1475,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'near-black divided foliage',
     notes:
       'The quiet one: white singles with a faint pink flush and a yellow eye, over dark foliage. Useful where the rest of the Bishops would be too loud.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Dahlia%20Bishop%20of%20Dover',
+    source: 'https://www.rhs.org.uk/plants/251412/dahlia-bishop-of-dover-sin/details',
   },
   {
     id: 'dahlia-cafe-au-lait',
@@ -1515,7 +1515,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'plain mid green',
     notes:
       'The dinnerplate dahlia the wedding trade made famous — heads the width of a hand in an indeterminate blush that is never quite the same twice, and varies with the weather. Heavy enough to need staking, and the stems snap in wind. Not frost hardy: lift the tubers or mulch them deeply.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Dahlia%20Cafe%20au%20Lait',
+    source: 'https://www.rhs.org.uk/plants/50819/dahlia-cafe-au-lait-d/details',
   },
   {
     id: 'euphorbia-characias',
@@ -1555,7 +1555,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'blue-grey, in dense whorls up the stem',
     notes:
       'Evergreen, architectural and in flower from March to June, which is a long run for anything. Cut the flowered stems right out at the base once they go over — new ones are already coming from below. The milky sap is a serious irritant and blisters skin in sunlight, so wear gloves and long sleeves.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Euphorbia%20characias',
+    source: 'https://www.rhs.org.uk/plants/32728/euphorbia-characias/details',
   },
   {
     id: 'euphorbia-wulfenii',
@@ -1595,7 +1595,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'markedly blue-grey',
     notes:
       'The bigger, bluer subspecies, half as tall again as the type and with flower domes the size of a football. Everything else about it is the same, including the caustic sap. Short-lived on heavy ground, and worth leaving one seedling to replace it.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Euphorbia%20characias%20wulfenii',
+    source: 'https://www.rhs.org.uk/plants/99051/euphorbia-characias-subsp-wulfenii/details',
   },
   {
     id: 'euphorbia-robbiae',
@@ -1635,7 +1635,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'dark, leathery, in flat rosettes',
     notes:
       'One of the very few things that will colonise dry shade under trees and look deliberate doing it — dark evergreen rosettes lit up by lime bracts in spring. It runs, steadily and unstoppably, which is either the point or the problem depending on where it is planted. Same caustic sap as its relatives.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Euphorbia%20amygdaloides%20robbiae',
+    source: 'https://www.rhs.org.uk/plants/93184/euphorbia-amygdaloides-var-robbiae/details',
   },
   {
     id: 'helleborus-foetidus',
@@ -1675,7 +1675,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'very dark, narrow, finely fingered',
     notes:
       'A native, and the most architectural of the hellebores — dark fingered leaves in a tight whorl under a great head of pale green bells from January to April. The smell is only released if the leaves are crushed, so the common name is unfair. Short-lived, but it seeds itself readily.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Helleborus%20foetidus',
+    source: 'https://www.rhs.org.uk/plants/8569/helleborus-foetidus/details',
   },
   {
     id: 'paeonia-lactiflora',
@@ -1715,7 +1715,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'red shoots in spring, glossy dark green, russet in autumn',
     notes:
       'A fortnight of flower in June from a plant that will outlive whoever plants it — peonies routinely go on for fifty years and hate being moved. The single most common reason one never flowers is being planted too deep: the buds must sit no more than three centimetres under the surface. Red shoots in March and good russet autumn colour extend the interest either side.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Paeonia%20lactiflora',
+    source: 'https://www.rhs.org.uk/plants/12123/paeonia-lactiflora/details',
   },
   {
     id: 'paeonia-itoh-bartzella',
@@ -1755,7 +1755,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'deeply cut, tree-peony-like dark green',
     notes:
       'An intersectional cross between a tree peony and a herbaceous one, which produces the yellow no herbaceous peony has and the die-back habit no tree peony has. Sturdy enough not to need staking, and it flowers over three or four weeks rather than a fortnight. Expensive, and worth it.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Paeonia%20Itoh%20Bartzella',
+    source: 'https://www.rhs.org.uk/plants/178427/paeonia-bartzella-i/details',
   },
   {
     id: 'asparagus-officinalis',
@@ -1797,7 +1797,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'ferny bright green, clear gold in autumn',
     notes:
       'A twenty-year crop from one planting, which makes it one of the few vegetables the age slider says anything useful about: no cutting at all in the first two years, a light cut in the third, and full cropping from the fourth for two decades. After the June cut it runs up into a two-metre ferny screen that turns gold in autumn.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Asparagus%20officinalis',
+    source: 'https://www.rhs.org.uk/plants/41557/asparagus-officinalis/details',
   },
   {
     id: 'fragaria-ananassa',
@@ -1839,7 +1839,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'coarse trifoliate green',
     notes:
       'Productive for three or four years and then in steep decline as virus builds up, so a bed is replaced on a rolling cycle from its own runners — which is the opposite of how the age slider treats everything else here. Wants sun, and something under the fruit to keep it off wet soil.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Fragaria%20ananassa',
+    source: 'https://www.rhs.org.uk/plants/106127/fragaria-x-ananassa-f/details',
   },
   {
     id: 'epimedium-sulphureum',
@@ -2074,7 +2074,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'dark vine-shaped green',
     notes:
       'Single white saucers held well above the leaves on wiry stems from August to October, exactly when a border runs out of things to say. Takes real shade. The one caution is that it runs — a happy plant travels through a border by underground shoots and is very hard to remove once it has decided to stay.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Anemone%20hybrida%20Honorine%20Jobert',
+    source: 'https://www.rhs.org.uk/plants/95098/anemone-x-hybrida-honorine-jobert/details',
   },
   {
     id: 'achillea-moonshine',
@@ -2115,7 +2115,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'finely cut silver-grey',
     notes:
       'Flat yellow plates held horizontally over ferny silver foliage, which makes it one of the best shapes in a border — everything else is a spike or a daisy. Dries to a good buff seedhead that stands all winter. Wants poor sharp-drained ground and full sun; fed and watered it flops open and needs staking.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Achillea%20Moonshine',
+    source: 'https://www.rhs.org.uk/plants/92712/achillea-moonshine/details',
   },
   {
     id: 'astrantia-major',
@@ -2155,7 +2155,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'divided fresh green',
     notes:
       'Pincushion flowers sitting in a papery collar, held on thin stems so a drift of it reads as a haze rather than a block. Long season if deadheaded, from June well into September. Wants soil that does not dry out — in a hot dry border it burns off by July and sulks for the rest of the year.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Astrantia%20major',
+    source: 'https://www.rhs.org.uk/plants/1870/astrantia-major/details',
   },
   {
     id: 'nepeta-six-hills-giant',
@@ -2195,7 +2195,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'soft grey-green, aromatic',
     notes:
       'The softener — a grey-green cloud of lavender-blue that spills over a path edge and flowers from May until the frosts if you shear it back once in midsummer. Bees swarm it. Cats roll in it and can flatten a young plant completely, which is worth knowing before you use it for a long formal edge.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Nepeta%20faassenii%20Six%20Hills%20Giant',
+    source: 'https://www.rhs.org.uk/plants/11491/nepeta-six-hills-giant/details',
   },
   {
     id: 'hylotelephium-herbstfreude',
@@ -2236,7 +2236,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'fleshy grey-green',
     notes:
       'Flat heads that come up green in August, turn salmon-pink in September, deepen to brick red, then dry to a dark brown plate that stands all winter and looks best of all under frost. Butterflies cover it. Rich soil makes it flop open in the middle — starve it and it stays upright.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Hylotelephium%20Herbstfreude',
+    source: 'https://www.rhs.org.uk/plants/522362/hylotelephium-x-mottramianum-herbstfreude/details',
   },
   {
     id: 'persicaria-firetail',
@@ -2276,7 +2276,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'large pointed mid green',
     notes:
       'Thin crimson pokers held above a solid mound of leaf, from July until the first real frost — one of the longest flowering seasons of anything here, and it needs no staking or deadheading at all. Wants moisture; it wilts visibly in a dry summer. Makes a dense clump that suppresses weeds.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Persicaria%20amplexicaulis%20Firetail',
+    source: 'https://www.rhs.org.uk/plants/85609/persicaria-amplexicaulis-firetail/details',
   },
   {
     id: 'brunnera-jack-frost',
@@ -2315,7 +2315,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'heart-shaped, almost white with green veins',
     notes:
       'Grown for the leaf rather than the flower: big heart-shaped leaves so heavily silvered they light up a shaded bed from March to November. Forget-me-not blue sprays in April are a bonus. Needs shade and damp — full sun scorches the pale leaf to brown crisps within a fortnight.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Brunnera%20macrophylla%20Jack%20Frost',
+    source: 'https://www.rhs.org.uk/plants/172201/brunnera-macrophylla-jack-frost/details',
   },
   {
     id: 'heuchera-palace-purple',
@@ -2354,7 +2354,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'bronze-purple, metallic in low light',
     notes:
       'Evergreen bronze-purple mounds that hold through winter and do the job of a full stop at the front of a shaded bed. Flowers are a thin cream haze on wiry stems and are not the reason to grow it. Lift and replant every three or four years — the crown gradually pushes itself up out of the ground and then rocks loose.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Heuchera%20Palace%20Purple',
+    source: 'https://www.rhs.org.uk/plants/256801/heuchera-villosa-palace-purple/details',
   },
   {
     id: 'bergenia-purpurea',
@@ -2393,7 +2393,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'big leathery paddles, beetroot-red in winter',
     notes:
       'Big leathery evergreen paddles that turn beetroot-red through winter, then magenta flowers on red stems in March. Nearly indestructible — dry shade, heavy clay, root competition under trees. Unfashionable for decades and worth ignoring that: nothing else covers difficult ground this reliably and still looks deliberate.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Bergenia%20cordifolia%20Purpurea',
+    source: 'https://www.rhs.org.uk/plants/89222/bergenia-cordifolia-purpurea/details',
   },
   {
     id: 'thalictrum-delavayi',
@@ -2432,7 +2432,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'fine, blue-green, maidenhair-like',
     notes:
       'A cloud rather than a plant — tiny mauve flowers on stems so thin the whole thing is transparent, which makes it the best thing here to plant in front of something rather than behind it. Over a metre and a half tall and still see-through. The stems are fine enough to need discreet support in an open site.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Thalictrum%20delavayi',
+    source: 'https://www.rhs.org.uk/plants/18077/thalictrum-delavayi/details',
   },
   {
     id: 'sanguisorba-officinalis',
@@ -2472,7 +2472,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'neat divided blue-green',
     notes:
       'Dark red buttons floating on thin branching stems well above the leaves — a meadow plant that reads as movement rather than colour, and one of the mainstays of naturalistic planting. The bobbles dry brown and stand into winter. Wants ground that stays damp; it wilts hard in drought.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Sanguisorba%20officinalis',
+    source: 'https://www.rhs.org.uk/plants/16403/sanguisorba-officinalis/details',
   },
   {
     id: 'verbascum-gainsborough',
@@ -2512,7 +2512,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'grey-green felted rosette',
     notes:
       'Pale primrose spires over a felted grey rosette, and the vertical that a flat border is usually missing in June. Short-lived — three or four years at best, often less if it flowers hard — so let a few seed themselves. Mullein moth caterpillars can strip the leaves to ribs in a week.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Verbascum%20Gainsborough',
+    source: 'https://www.rhs.org.uk/plants/87693/verbascum-cotswold-group-gainsborough/details',
   },
   {
     id: 'helenium-moerheim-beauty',
@@ -2553,7 +2553,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'plain mid green',
     notes:
       'Burnt orange daisies with swept-back petals around a dark brown cone, from late June into September — the hot end of the late-summer border, and it sits well against grasses. Needs soil that holds moisture. Divide it every couple of years or the clump dies out in the middle.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Helenium%20Moerheim%20Beauty',
+    source: 'https://www.rhs.org.uk/plants/89456/helenium-moerheim-beauty/details',
   },
   {
     id: 'crocosmia-lucifer',
@@ -2593,7 +2593,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'pleated sword-shaped green',
     notes:
       'The brightest red here, on arching sprays above stiff pleated leaves that are worth having even out of flower. Seedheads dry to good brown beads. Spreads steadily by corms into a wide clump — welcome in a big border, less so in a small one, and quite hard to dig out completely.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Crocosmia%20Lucifer',
+    source: 'https://www.rhs.org.uk/plants/91289/crocosmia-lucifer/details',
   },
   {
     id: 'hemerocallis-stafford',
@@ -2633,7 +2633,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'arching strap-shaped fresh green',
     notes:
       'Each flower lasts one day, which sounds like a flaw and is not — a good clump opens new ones for six weeks. Among the first things up in February, so it covers ground long before the border wakes. Deep red with a yellow throat, and about as trouble-free as a perennial gets.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Hemerocallis%20Stafford',
+    source: 'https://www.rhs.org.uk/plants/99494/hemerocallis-stafford/details',
   },
   {
     id: 'aquilegia-vulgaris',
@@ -2674,7 +2674,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'soft blue-green, divided',
     notes:
       'Cottage-garden granny bonnets in May, on wiry stems above soft blue-green leaves. It seeds everywhere and hybridises freely, so what you plant is not what you will have in five years — treat it as a self-renewing colony rather than a specimen. Goes over quickly and can mildew; cut it to the ground and it refoliates.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Aquilegia%20vulgaris',
+    source: 'https://www.rhs.org.uk/plants/100859/aquilegia-vulgaris/details',
   },
   {
     id: 'campanula-persicifolia',
@@ -2713,7 +2713,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'narrow evergreen rosette',
     notes:
       'Wide open bells the colour of willow-pattern china, held on thin stems above a low evergreen rosette that stays tidy all winter. Threads itself between other plants rather than making a block. Deadhead and it will flower again in September. Slugs go for the young rosettes hard in spring.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Campanula%20persicifolia',
+    source: 'https://www.rhs.org.uk/plants/2956/campanula-persicifolia/details',
   },
   {
     id: 'acanthus-mollis',
@@ -2754,7 +2754,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'huge, glossy, deeply cut dark green',
     notes:
       'The leaf carved on Corinthian columns, and it has the same architectural weight in a border — huge glossy arching foliage from March, then metre-and-a-half spikes of hooded white under purple bracts. The one warning is permanence: any fragment of root left behind regrows, so put it where you want it for good.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Acanthus%20mollis',
+    source: 'https://www.rhs.org.uk/plants/155/acanthus-mollis/details',
   },
   {
     id: 'actaea-brunette',
@@ -2794,7 +2794,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'near-black divided purple',
     notes:
       'Almost black foliage all summer, then scented white bottlebrushes on dark stems in October — the last thing to flower here, and it does it in shade. Slow to settle and worth the wait. Must not dry out: a summer drought browns the leaf edges and it will not recover that year.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Actaea%20simplex%20Brunette',
+    source: 'https://www.rhs.org.uk/plants/165617/actaea-simplex-atropurpurea-group-brunette/details',
   },
   {
     id: 'veronicastrum-virginicum',
@@ -2834,7 +2834,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'whorled green, in neat tiers up the stem',
     notes:
       'Dead straight stems with leaves in whorls like the rungs of a ladder, topped by narrow pale candles in July — the most disciplined vertical in this palette, and it never needs staking. The bare winter stems stand well into the new year. A cornerstone of prairie-style planting alongside grasses.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Veronicastrum%20virginicum',
+    source: 'https://www.rhs.org.uk/plants/18873/veronicastrum-virginicum/details',
   },
   {
     id: 'tiarella-cordifolia',
@@ -2873,7 +2873,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'lobed green with dark central markings',
     notes:
       'Low woodland ground cover that spreads politely by runners into a continuous mat, with frothy cream spires in May. The leaves are marked dark along the veins and take on bronze tints in winter. Wants shade and leafy damp soil — it is a woodland-floor plant and will not take a dry sunny bed.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Tiarella%20cordifolia',
+    source: 'https://www.rhs.org.uk/plants/18215/tiarella-cordifolia/details',
   },
   {
     id: 'ajuga-atropurpurea',
@@ -2912,7 +2912,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'glossy bronze-purple, almost flat to the ground',
     notes:
       'A flat evergreen carpet of glossy bronze-purple with short blue spikes in May — the lowest thing in this palette and useful for running under shrubs or between paving. Spreads by surface runners, which makes it excellent ground cover and a nuisance in a lawn edge. Needs damp; it scorches in dry sun.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Ajuga%20reptans%20Atropurpurea',
+    source: 'https://www.rhs.org.uk/plants/94495/ajuga-reptans-atropurpurea/details',
   },
   {
     id: 'vinca-minor',
@@ -2951,7 +2951,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'small, glossy, dark evergreen',
     notes:
       'The workhorse for dry shade under trees, where almost nothing else will knit together — glossy dark evergreen with blue propeller flowers through spring. Roots wherever a stem touches soil, so it covers fast and is difficult to remove. Use it where you want a permanent floor, not as a temporary filler.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Vinca%20minor',
+    source: 'https://www.rhs.org.uk/plants/18973/vinca-minor/details',
   },
   {
     id: 'astilbe-fanal',
@@ -2991,7 +2991,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'bronze-tinted, deeply divided green',
     notes:
       'Dark crimson plumes over bronze-tinted divided leaves, and the plumes dry to a good rust-brown skeleton that stands right through winter. Absolutely dependent on moisture — this is a bog and streamside plant, and in a dry border the leaf edges crisp brown by July and stay that way.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Astilbe%20arendsii%20Fanal',
+    source: 'https://www.rhs.org.uk/plants/95205/astilbe-fanal-x-arendsii/details',
   },
   {
     id: 'rodgersia-pinnata-superba',
@@ -3030,7 +3030,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'huge bronze-purple horse-chestnut hands',
     notes:
       'Enormous crinkled leaves shaped like a horse chestnut, bronze-purple when they unfurl and turning again in autumn, with branched pink plumes above them in July. Big and slow and worth the wait beside water. Needs shelter as much as moisture — wind shreds the leaves and late frost blackens the young ones.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Rodgersia%20pinnata%20Superba',
+    source: 'https://www.rhs.org.uk/plants/70111/rodgersia-pinnata-superba/details',
   },
   {
     id: 'ligularia-britt-marie-crawford',
@@ -3069,7 +3069,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'huge, glossy, chocolate-black rounds',
     notes:
       'Big glossy chocolate-black leaves — the darkest foliage in this palette — with hot orange daisies on black stems in August, a combination that is either magnificent or too much. It must have wet ground and shade from midday sun: it wilts flat by lunchtime in a dry border and only partly recovers overnight. Slugs adore it.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Ligularia%20dentata%20Britt-Marie%20Crawford',
+    source: 'https://www.rhs.org.uk/plants/221771/ligularia-britt-marie-crawford/details',
   },
   {
     id: 'filipendula-ulmaria',
@@ -3109,7 +3109,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'divided dark green, pale beneath',
     notes:
       'A British native of wet ditches and damp meadows, with frothy cream heads in July that smell of almonds and honey — the plant aspirin was originally derived from. Will grow in ground that is properly waterlogged, which very little else here will. Best in a wild or streamside planting rather than a formal border.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Filipendula%20ulmaria',
+    source: 'https://www.rhs.org.uk/plants/32871/filipendula-ulmaria/details',
   },
   {
     id: 'caltha-palustris',
@@ -3148,7 +3148,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'round, glossy, dark green',
     notes:
       'Big lacquered yellow cups in April over round glossy leaves — one of the first strong colours of the year, and a native of wet ditches and pond margins. Wants its feet permanently wet and will grow in standing water at a pond edge. Goes shabby and can die back entirely after flowering in a dry summer.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Caltha%20palustris',
+    source: 'https://www.rhs.org.uk/plants/2803/caltha-palustris/details',
   },
   {
     id: 'iris-pseudacorus',
@@ -3188,7 +3188,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'tall stiff grey-green swords',
     notes:
       'The native waterside iris: tall grey-green swords that give a pond edge its vertical, and strong yellow flags in June. Grows in up to about 30 cm of standing water. Vigorous to the point of being a thug in a small pool — it will fill a wildlife pond in a few seasons if you let it.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Iris%20pseudacorus',
+    source: 'https://www.rhs.org.uk/plants/9334/iris-pseudacorus/details',
   },
   {
     id: 'iris-ensata',
@@ -3228,7 +3228,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'narrow ribbed green swords',
     notes:
       'The flattest, widest iris flower there is — big velvet purple discs held horizontally in late June, quite unlike the upright bearded irises. Wants acid soil that is soaking wet from spring to flowering and drier afterwards, which is the opposite of most bog plants and the reason people fail with it.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Iris%20ensata',
+    source: 'https://www.rhs.org.uk/plants/9240/iris-ensata/details',
   },
   {
     id: 'darmera-peltata',
@@ -3268,7 +3268,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'huge round parasols, scarlet in autumn',
     notes:
       'Does it backwards: domed pink flower heads push out of bare wet ground in April on hairy leafless stems, and only afterwards do the leaves appear — round parasols up to half a metre across, held on stalks joined at the centre. Scarlet in autumn. For a streambank or pond edge; it spreads by thick surface rhizomes.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Darmera%20peltata',
+    source: 'https://www.rhs.org.uk/plants/5347/darmera-peltata/details',
   },
   {
     id: 'primula-florindae',
@@ -3307,7 +3307,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'broad crinkled fresh green',
     notes:
       'A cowslip scaled up to nearly a metre, with a head of nodding sulphur bells dusted in white farina and a strong sweet scent — the easiest of the big primulas and the last to flower, in July. Wants permanently damp ground in dappled shade, and seeds itself freely into a colony along a stream.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Primula%20florindae',
+    source: 'https://www.rhs.org.uk/plants/13757/primula-florindae-si/details',
   },
   {
     id: 'phormium-tenax',
@@ -3347,7 +3347,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'stiff upright bronze-green swords',
     notes:
       'A fan of rigid two-metre swords that never moves and never softens — the strongest architectural statement available from a plant this size, and it holds it in every month of the year. Established clumps throw a much taller black flower spike that stands into winter. H4: coastal and mild gardens, and it hates cold wet clay.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Phormium%20tenax',
+    source: 'https://www.rhs.org.uk/plants/12791/phormium-tenax/details',
   },
   {
     id: 'centranthus-ruber',
@@ -3387,7 +3387,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'fleshy, blue-green',
     notes:
       'The plant that grows out of old walls and railway cuttings across the south of England, and it wants exactly that: poor, chalky, sharply drained ground and full sun. Domed heads of crimson-pink from May into September if the first flush is cut back, with butterflies all over it. It seeds everywhere, into paving and mortar as readily as into the border, so deadhead it before the fluffy seed sets if you want it to stay where you put it.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Centranthus%20ruber',
+    source: 'https://www.rhs.org.uk/plants/93739/centranthus-ruber/details',
   },
   {
     id: 'phlomis-amazone',
@@ -3471,7 +3471,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'blue-green, clover-like',
     notes:
       'A North American prairie plant rather than a Mediterranean one, but deep-rooted and drought-proof once settled, so it holds its own in a dry garden. Lupin-like spikes of indigo-blue in late May and June over a shrubby mound of blue-green leaves, then fat seedpods that turn black and rattle into winter. Slow: it spends two or three years building roots before it looks like much, lives for decades, and resents being moved, so put it where it can stay.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Baptisia%20australis',
+    source: 'https://www.rhs.org.uk/plants/1980/baptisia-australis/details',
   },
   {
     id: 'achillea-terracotta',
@@ -3512,7 +3512,7 @@ export const PERENNIALS: Species[] = [
     foliageColour: 'ferny grey-green',
     notes:
       'Flat heads that open brick-orange and fade through apricot to soft ochre, so one plant carries three colours at once through July and August. The flat plates are a shape nothing else in a border offers, and they dry to brown seedheads that stand into winter. Like all yarrows it wants lean, well-drained ground and full sun; given rich soil it flops and dies out in the middle within a few years.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Achillea%20Terracotta',
+    source: 'https://www.rhs.org.uk/plants/72358/achillea-terracotta/details',
   },
   {
     id: 'leontopodium-alpinum',

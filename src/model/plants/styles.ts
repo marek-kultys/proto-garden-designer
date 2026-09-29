@@ -24,54 +24,75 @@ export const STYLE_LABELS: Record<PlantingStyle, string> = {
 
 export const PLANTING_STYLES = Object.keys(STYLE_LABELS) as PlantingStyle[];
 
-const MEMBERS: Record<PlantingStyle, readonly string[]> = {
-  mediterranean: [
+/**
+ * A style's list has two halves, and the difference is worth keeping: the
+ * plants that were asked for by name, and the ones added afterwards so the
+ * button holds what anyone pressing it would expect. `PLANTS.md` prints them as
+ * two lists, so the split is data here rather than a comment — a comment cannot
+ * be read by the generator, and a second copy of the list in the document would
+ * be free to drift away from this one.
+ */
+export interface StyleGroups {
+  asked: readonly string[];
+  staples: readonly string[];
+}
+
+const GROUPS: Record<PlantingStyle, StyleGroups> = {
+  mediterranean: {
     // The plants asked for by name.
-    'ballota-pseudodictamnus',
-    'brachyglottis-sunshine',
-    'salvia-yangii',
-    'salvia-caradonna',
-    'salvia-jamensis-la-luna',
-    'salvia-officinalis',
-    'salvia-rosmarinus',
-    'rosemary-foxtail',
-    'echium-pininana',
-    'eremurus-cleopatra',
-    'centranthus-ruber',
-    'verbascum-gainsborough',
-    'phlomis-amazone',
-    'baptisia-australis',
-    'achillea-terracotta',
-    'ajuga-atropurpurea',
-    'leontopodium-alpinum',
-    'cistus-purpureus',
-    'cistus-argenteus',
-    'cistus-albidus',
+    asked: [
+      'ballota-pseudodictamnus',
+      'brachyglottis-sunshine',
+      'salvia-yangii',
+      'salvia-caradonna',
+      'salvia-jamensis-la-luna',
+      'salvia-officinalis',
+      'salvia-rosmarinus',
+      'rosemary-foxtail',
+      'echium-pininana',
+      'eremurus-cleopatra',
+      'centranthus-ruber',
+      'verbascum-gainsborough',
+      'phlomis-amazone',
+      'baptisia-australis',
+      'achillea-terracotta',
+      'ajuga-atropurpurea',
+      'leontopodium-alpinum',
+      'cistus-purpureus',
+      'cistus-argenteus',
+      'cistus-albidus',
+    ],
     // The Mediterranean staples already in the library, added so that the
     // button holds what anyone pressing it would expect to find.
-    'lavandula-hidcote',
-    'santolina-chamaecyparissus',
-    'santolina-lemon-fizz',
-    'olea-europaea',
-    'olea-europaea-ancient',
-    'laurus-nobilis',
-    'cupressus-totem',
-    'arbutus-unedo',
-    'euphorbia-characias',
-    'euphorbia-wulfenii',
-    'stipa-gigantea',
-    'phlomis-russeliana',
-    'convolvulus-cneorum',
-    'helianthemum-nummularium',
-    'foeniculum-purpureum',
-    'acanthus-mollis',
-    'cerinthe-purpurascens',
-    'tamarix-tetrandra',
-    'allium-sphaerocephalon',
-    'nectaroscordum-siculum',
-    'festuca-glauca',
-    'helictotrichon-sempervirens',
-  ],
+    staples: [
+      'lavandula-hidcote',
+      'santolina-chamaecyparissus',
+      'santolina-lemon-fizz',
+      'olea-europaea',
+      'olea-europaea-ancient',
+      'laurus-nobilis',
+      'cupressus-totem',
+      'arbutus-unedo',
+      'euphorbia-characias',
+      'euphorbia-wulfenii',
+      'stipa-gigantea',
+      'phlomis-russeliana',
+      'convolvulus-cneorum',
+      'helianthemum-nummularium',
+      'foeniculum-purpureum',
+      'acanthus-mollis',
+      'cerinthe-purpurascens',
+      'tamarix-tetrandra',
+      'allium-sphaerocephalon',
+      'nectaroscordum-siculum',
+      'festuca-glauca',
+      'helictotrichon-sempervirens',
+    ],
+  },
+};
+
+const MEMBERS: Record<PlantingStyle, readonly string[]> = {
+  mediterranean: [...GROUPS.mediterranean.asked, ...GROUPS.mediterranean.staples],
 };
 
 const SETS: Record<PlantingStyle, ReadonlySet<string>> = {
@@ -81,6 +102,11 @@ const SETS: Record<PlantingStyle, ReadonlySet<string>> = {
 /** The plant ids in a style, in the order they are listed above. */
 export function styleMembers(style: PlantingStyle): readonly string[] {
   return MEMBERS[style];
+}
+
+/** The same ids, still split into the ones asked for and the ones added around them. */
+export function styleGroups(style: PlantingStyle): StyleGroups {
+  return GROUPS[style];
 }
 
 export function inStyle(species: Species, style: PlantingStyle): boolean {

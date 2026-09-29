@@ -189,16 +189,20 @@ export interface PlantInstance {
   /** Stable per-instance randomness so the sketchy linework never shimmers. */
   seed: number;
   /**
-   * Which way a climber's plane runs, in degrees from screen-up.
+   * Which way a flat plant's plane runs, in degrees anticlockwise from the
+   * plan's x axis — east–west while north points up the page.
    *
-   * A climber is a flat thing on a support, so unlike anything else here it has
-   * an orientation that matters: it follows the fence, wall or trellis it was
-   * planted against, and only the person drawing knows where that runs. A plane
-   * reads the same from either side, so 0 and 180 are the same thing.
+   * A climber, a pleached tree, a fan and a cordon are flat things on a
+   * support, so unlike anything else here they have an orientation that
+   * matters: they follow the fence, wall or trellis they were planted against,
+   * and only the person drawing knows where that runs. A plane reads the same
+   * from either side, so 0 and 180 are the same thing.
    *
-   * Absent on plants placed before this existed, and on everything that is not
-   * a climber, where it means nothing — the sketchy per-plant rotation is used
-   * instead, exactly as before.
+   * Absent on plants placed before this existed, on plants nobody has turned,
+   * and on everything not grown flat, where it means nothing. `flatFacing` in
+   * `model/flat.ts` answers for the absent case, and is the one place that
+   * does — the drawing and the sun map must agree about which way a plant
+   * faces, or they disagree about the shadow it throws.
    */
   facing?: number;
 
