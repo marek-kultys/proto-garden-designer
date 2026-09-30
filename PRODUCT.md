@@ -57,9 +57,9 @@ A few open questions were settled before building:
 | Which optional extras? | The sun/shade overlay only — soil alerts, save/load and a plant info panel were cut |
 
 Everything after that came from using it: ten plants became thirty, then a
-hundred and fifty-five, then two hundred and ninety-five, plus a phone layout, a 360° view from inside the
-garden, adjustable eye height, duplicating a plant in place, undo, and filtering
-the library by growing conditions.
+hundred and fifty-five, and the palette has gone on growing since, plus a phone
+layout, a 360° view from inside the garden, adjustable eye height, duplicating a
+plant in place, undo, and filtering the library by growing conditions.
 
 ## Who it is for
 
@@ -133,9 +133,9 @@ terrace or an upstairs window.
 
 ### The plant library
 
-Two hundred and ninety-five plants, searchable by common name, Latin name, genus
-or family, each card showing both names, mature dimensions, foliage type and a
-sketch thumbnail. Drag onto the plan to place; on a phone, tap to drop one in the
+The library is searchable by common name, Latin name, genus or family, each
+card showing both names, mature dimensions, foliage type and a sketch
+thumbnail. Drag onto the plan to place; on a phone, tap to drop one in the
 middle and then drag it into position.
 
 A **planted count** on each card shows how many of that plant are already on the
@@ -170,8 +170,8 @@ what a hellebore or a Japanese maple actually wants rather than merely tolerates
 **Mediterranean**. A style cuts across the types — a Mediterranean garden has
 trees, shrubs, grasses and bulbs — so, like *Planted*, it is a switch that
 combines with whichever type is chosen: Mediterranean and Shrubs together shows
-the Mediterranean shrubs, still grouped under their type. It holds forty-two plants,
-listed with their numbers in `PLANTS.md`.
+the Mediterranean shrubs, still grouped under their type. Its plants are listed,
+with their numbers, in `PLANTS.md`.
 
 A style is a designer's grouping, not a botanical one, and that is why its
 members are a list written by hand rather than worked out from sun and soil.
@@ -437,21 +437,24 @@ than ellipses — a solid thing, not a dappled one.
 
 ## The plant palette
 
-Two hundred and ninety-five plants, chosen to span the axes the simulation
-exercises — vigorous to slow, evergreen to fully dormant, sun to deep shade, tree
-to groundcover, and now bulb, fern and climber as well.
+The palette is chosen to span the axes the simulation exercises — vigorous to
+slow, evergreen to fully dormant, sun to deep shade, tree to groundcover, and
+now bulb, fern and climber as well.
 
-| Type | Count | Examples |
-|---|---|---|
-| Trees | 44 | birch, amelanchier, magnolia, crab apple, cherry, beech, hornbeam, oak, lime, ornamental pear, cercis, parrotia, liquidambar, ginkgo, Chusan palm; a Japanese flowering cherry, a pear and an ancient specimen olive; and pleached, umbrella, fan and cordon trained trees |
-| Shrubs | 73 | hydrangeas, lavender, roses, rhododendron, box, privet, Portugal laurel, osmanthus, pittosporum, escallonia, berberis, fatsia, camellia, pieris, skimmia, yucca, sages, cistus, ballota, brachyglottis, beaked yucca, cherry laurel, bay, spotted laurel |
-| Conifers | 8 | clipped yew, dwarf mountain pine, Italian cypress, thuja, blue juniper, Lawson cypress, blue Atlas cedar, cryptomeria |
-| Climbers | 18 | clematis, ivy, honeysuckle, passion flower, star jasmine, wisteria, climbing rose, Boston ivy, climbing hydrangea, akebia, campsis, golden hop, sweet pea |
-| Grasses | 26 | miscanthus, molinia, calamagrostis, stipa, pennisetum, hakonechloa, carex, panicum, sesleria, festuca, luzula, umbrella bamboo, pampas grass, quaking grass |
-| Ferns | 7 | male fern, soft tree fern, soft shield fern, hart's tongue, Japanese painted fern, shuttlecock fern, polypody |
-| Perennials | 90 | hellebore, hosta, epimedium, geranium, aster, peony, dahlia, delphinium, Japanese anemone, achillea, astrantia, nepeta, sedum, heuchera, bergenia, astilbe, rodgersia, ligularia, water iris, red valerian, baptisia, edelweiss, a trailing stonecrop |
-| Bulbs | 21 | snowdrop, cyclamen, narcissus, allium, tulips, crocus, camassia, fritillary, muscari, bluebell, erythronium, colchicum, eremurus |
-| Annuals | 8 | cosmos, love-in-a-mist, marigold, ammi, opium poppy, cerinthe, snapdragon, zinnia |
+The count of each type is in `PLANTS.md`, which is written from the library
+itself; stating it here as well would be a second copy, free to drift.
+
+| Type | Examples |
+|---|---|
+| Trees | birch, amelanchier, magnolia, crab apple, cherry, beech, hornbeam, oak, lime, ornamental pear, cercis, parrotia, liquidambar, ginkgo, Chusan palm; a Japanese flowering cherry, a pear and an ancient specimen olive; and pleached, umbrella, fan and cordon trained trees |
+| Shrubs | hydrangeas, lavender, roses, rhododendron, box, privet, Portugal laurel, osmanthus, pittosporum, escallonia, berberis, fatsia, camellia, pieris, skimmia, yucca, sages, cistus, ballota, brachyglottis, beaked yucca, cherry laurel, bay, spotted laurel |
+| Conifers | clipped yew, dwarf mountain pine, Italian cypress, thuja, blue juniper, Lawson cypress, blue Atlas cedar, cryptomeria |
+| Climbers | clematis, ivy, honeysuckle, passion flower, star jasmine, wisteria, climbing rose, Boston ivy, climbing hydrangea, akebia, campsis, golden hop, sweet pea |
+| Grasses | miscanthus, molinia, calamagrostis, stipa, pennisetum, hakonechloa, carex, panicum, sesleria, festuca, luzula, umbrella bamboo, pampas grass, quaking grass |
+| Ferns | male fern, soft tree fern, soft shield fern, hart's tongue, Japanese painted fern, shuttlecock fern, polypody |
+| Perennials | hellebore, hosta, epimedium, geranium, aster, peony, dahlia, delphinium, Japanese anemone, achillea, astrantia, nepeta, sedum, heuchera, bergenia, astilbe, rodgersia, ligularia, water iris, red valerian, baptisia, edelweiss, a trailing stonecrop |
+| Bulbs | snowdrop, cyclamen, narcissus, allium, tulips, crocus, camassia, fritillary, muscari, bluebell, erythronium, colchicum, eremurus |
+| Annuals | cosmos, love-in-a-mist, marigold, ammi, opium poppy, cerinthe, snapdragon, zinnia |
 
 Everything after the first hundred and fifty-five is a deliberate expansion
 rather than an accumulation. Those first hundred and fifty-five grew out of
@@ -460,10 +463,10 @@ as a working palette instead, that list was full of holes: four clipped subjects
 and no privet, hawthorn, laurel or box substitute; two conifers; two ferns; no
 wisteria, no Japanese anemone, no catmint; and nothing whatever for wet ground,
 so the wettest end of the drainage axis matched nothing at all. The expansion
-was chosen by asking what a UK designer actually specifies. Clipped subjects
-went from four to twenty-seven, conifers from two to eight, ferns from two to
-seven, climbers from ten to eighteen, and bog and waterside planting exists for
-the first time.
+was chosen by asking what a UK designer actually specifies. Clipped subjects,
+conifers, ferns and climbers have each multiplied several times over — the
+tallies are in `PLANTS.md` — and bog and waterside planting exists for the
+first time.
 
 Some plants now appear twice, as a plant and as a clipped hedge — beech, copper
 beech, sarcococca, field maple. That is deliberate: a 2.5 m hedge and a 20 m
@@ -720,10 +723,10 @@ The prototype exists to answer questions about the idea, not about the code:
    *what will this look like*. Early signs are that the 360° view is the one that
    makes people stop talking about the drawing and start talking about the garden
    — but that needs testing, not assuming.
-3. **Is two hundred and ninety-five plants the right size?** The palette started
-   at ten on a depth-over-breadth argument, grew to a hundred and fifty-five
-   because testing kept asking for specific plants, and then on past that
-   because a designer wanted to work in it. The open question is now the
+3. **Is the palette the right size?** It started at ten on a
+   depth-over-breadth argument, grew to a hundred and fifty-five because
+   testing kept asking for specific plants, and then on past that because a
+   designer wanted to work in it. The open question is now the
    opposite one: whether a list this long is harder to work with than a curated
    short one, and whether the filters carry the weight the scrolling no longer
    does. At this size the answer matters — eight filter axes, a search box and

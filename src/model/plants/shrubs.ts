@@ -16,7 +16,7 @@ const SWEET_BOX_YEAR = {
   flowerEnd: 76,
 };
 
-/** Shrubs — 64 of them. Appending here adds the plant to the library. */
+/** Shrubs. Appending here adds the plant to the library; the count is in `PLANTS.md`. */
 export const SHRUBS: Species[] = [
   {
     id: 'hydrangea-limelight',

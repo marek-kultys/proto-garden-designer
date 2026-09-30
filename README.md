@@ -24,10 +24,10 @@ through a slice of it — five to twenty metres deep, as you choose — and a
 on a phone.
 
 Built to test whether the interaction idea has depth rather than to be a
-comprehensive plant database. Two hundred and ninety-five plants, each researched
-rather than invented, chosen to span the axes the simulation actually exercises
-— trees, shrubs, conifers, climbers, grasses, ferns, perennials, bulbs and
-annuals.
+comprehensive plant database. Every plant in it is researched rather than
+invented, and the palette is chosen to span the axes the simulation actually
+exercises — trees, shrubs, conifers, climbers, grasses, ferns, perennials, bulbs
+and annuals. [PLANTS.md](PLANTS.md) holds the current list, and the count.
 
 Plants go in either as nursery stock or as a ten-year-old specimen, so one
 bought-in tree can give a design structure on the day it is planted while
@@ -45,9 +45,9 @@ sent anywhere and there is no backend.
 
 The library is filtered by type and by growing conditions — aspect, soil type,
 soil pH, drainage, foliage, size and hardiness — so a border with dry shade on
-chalk narrows two hundred and ninety-five plants to the few dozen that will
-actually take it. A **Mediterranean** button beside the types gathers the dry,
-sunny, silver-and-aromatic palette in one press.
+chalk narrows the whole library to the few dozen that will actually take it. A
+**Mediterranean** button beside the types gathers the dry, sunny,
+silver-and-aromatic palette in one press.
 
 📄 **[PRODUCT.md](PRODUCT.md)** — what it is, where the brief came from, what it
 does, what was deliberately left out, and the roadmap.

@@ -1,6 +1,6 @@
 import type { Species } from '../types';
 
-/** Perennials — 84 of them. Appending here adds the plant to the library. */
+/** Perennials. Appending here adds the plant to the library; the count is in `PLANTS.md`. */
 export const PERENNIALS: Species[] = [
   {
     id: 'hosta-halcyon',

@@ -77,7 +77,7 @@ const APPLE_YEAR = {
   flowerEnd: 136,
 };
 
-/** Trees — 37 of them. Appending here adds the plant to the library. */
+/** Trees. Appending here adds the plant to the library; the count is in `PLANTS.md`. */
 export const TREES: Species[] = [
   {
     id: 'betula-jacquemontii',
