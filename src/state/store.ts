@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { polygonBounds, rectanglePlot } from '../model/geometry';
+import { polygonBounds, polygonCentroid, rectanglePlot } from '../model/geometry';
 import { DEFAULT_SLICE_DEPTH, SLICE_DEPTH_RANGE } from '../render/constants';
 import { clampSlopeFall, normaliseSlopeDirection } from '../model/terrain';
 import { getSpecies } from '../model/plants';
@@ -724,12 +724,7 @@ export const useStore = create<AppState>((set, get) => ({
     }),
 
   centreObserver: () =>
-    set((s) => {
-      const b = polygonBounds(s.plot);
-      return {
-        observer: { ...s.observer, x: (b.minX + b.maxX) / 2, y: (b.minY + b.maxY) / 2 },
-      };
-    }),
+    set((s) => ({ observer: { ...s.observer, ...polygonCentroid(s.plot) } })),
   turnObserver: (byDegrees) =>
     set((s) => ({
       observer: { ...s.observer, heading: normaliseBearing(s.observer.heading + byDegrees) },

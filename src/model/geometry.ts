@@ -34,7 +34,21 @@ export function pointInPolygon(pt: Vec2, poly: Plot): boolean {
   return inside;
 }
 
-/** Signed area doubled; positive for clockwise winding in screen coordinates. */
+/**
+ * The area a shape encloses, in square metres, never negative.
+ *
+ * The shoelace sum inside is signed — it comes out negative for one winding
+ * direction and positive for the other — but the sign is thrown away here, and
+ * the doc comment used to describe the sum rather than what is returned. That
+ * matters more than a wording slip: a caller who believed the comment would
+ * read the sign to learn which way an outline was drawn, and would get the
+ * same answer whichever way it was. A test pins the behaviour described here.
+ *
+ * Nothing in the app calls this today: no view states a plot's size in square
+ * metres. It is kept, tested and honest rather than deleted, because "how big
+ * is this bed" is a question a designer asks, and the arithmetic for it should
+ * not have to be written again from scratch the day someone wants it shown.
+ */
 export function polygonArea(poly: Plot): number {
   let area = 0;
   for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
@@ -43,9 +57,28 @@ export function polygonArea(poly: Plot): number {
   return Math.abs(area / 2);
 }
 
-export function polygonCentroid(poly: Plot): Vec2 {
-  const b = polygonBounds(poly);
+/**
+ * The middle of a bounding box.
+ *
+ * Three places wanted this and each wrote it out again: dropping a plant in the
+ * middle of the plot, sending the viewer back to the middle, and centring the
+ * plot on the canvas. Three copies of one line is how they come to disagree —
+ * and "the middle of the plot" is the datum the terrain measures height from,
+ * so they have to agree.
+ */
+export function boundsCentre(b: Bounds): Vec2 {
   return { x: (b.minX + b.maxX) / 2, y: (b.minY + b.maxY) / 2 };
+}
+
+/**
+ * The middle of a shape's bounding box — *not* its centre of mass.
+ *
+ * For an L-shaped plot those differ, and this is the box. Pinned by a test,
+ * because the name invites a later "fix" to a true centroid, which would
+ * silently move every plot's datum and with it the terrain's zero height.
+ */
+export function polygonCentroid(poly: Plot): Vec2 {
+  return boundsCentre(polygonBounds(poly));
 }
 
 export function rectanglePlot(width: number, height: number): Plot {
