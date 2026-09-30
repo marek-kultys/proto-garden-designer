@@ -1,5 +1,21 @@
 import type { Species } from '../types';
 
+/**
+ * Sweet box's year, shared by the shrub and the clipped edging.
+ *
+ * They are one plant drawn two ways — the size and the habit differ, the
+ * calendar does not — and typing the dates twice is how a corrected shrub and
+ * a stale hedge come to disagree without anything noticing.
+ */
+const SWEET_BOX_YEAR = {
+  budBurst: 110,
+  fullLeaf: 150,
+  autumnStart: 300,
+  leafFall: 345,
+  flowerStart: 338,
+  flowerEnd: 76,
+};
+
 /** Shrubs — 64 of them. Appending here adds the plant to the library. */
 export const SHRUBS: Species[] = [
   {
@@ -465,12 +481,7 @@ export const SHRUBS: Species[] = [
     matureHeight: 1.5,
     matureSpread: 1.5,
     yearsToMature: 12,
-    budBurst: 110,
-    fullLeaf: 150,
-    autumnStart: 300,
-    leafFall: 345,
-    flowerStart: 338,
-    flowerEnd: 76,
+    ...SWEET_BOX_YEAR,
     fruitStart: 120,
     fruitEnd: 336,
     colors: {
@@ -2088,12 +2099,7 @@ export const SHRUBS: Species[] = [
     matureHeight: 0.7,
     matureSpread: 0.6,
     yearsToMature: 8,
-    budBurst: 110,
-    fullLeaf: 150,
-    autumnStart: 300,
-    leafFall: 345,
-    flowerStart: 338,
-    flowerEnd: 76,
+    ...SWEET_BOX_YEAR,
     fruitStart: 120,
     fruitEnd: 336,
     colors: {

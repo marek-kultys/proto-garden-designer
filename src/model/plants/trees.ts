@@ -1,5 +1,82 @@
 import type { Species } from '../types';
 
+/**
+ * A plant's year, written once for every record that is the same plant.
+ *
+ * Several plants appear here twice because the app draws them two ways: beech
+ * as a tree and as a clipped hedge, hornbeam free-grown and pleached, a lime
+ * and a lime trained over a frame, a young olive and an ancient one. Their size
+ * and shape differ — that is the point of having both — but their year does
+ * not: one plant buds, leafs, colours and drops on one set of dates, however it
+ * is pruned.
+ *
+ * Those dates used to be typed into each record separately, which is two
+ * sources of truth for one fact: correcting a tree's bud burst left its hedge
+ * a fortnight out, and nothing said so. Now the pair shares the calendar below
+ * and a real difference has to be written down as an exception, in the open.
+ */
+const HORNBEAM_YEAR = {
+  budBurst: 104,
+  fullLeaf: 138,
+  autumnStart: 278,
+  leafFall: 356,
+  flowerStart: 108,
+  flowerEnd: 130,
+};
+
+/** Green and purple beech keep the same calendar; only the leaf colour differs. */
+const BEECH_YEAR = {
+  budBurst: 110,
+  fullLeaf: 138,
+  autumnStart: 280,
+  leafFall: 330,
+  flowerStart: 112,
+  flowerEnd: 132,
+};
+
+/**
+ * A clipped beech holds its dead leaves until the new buds push them off, which
+ * is the whole reason for a beech hedge: a screen in January that a beech tree,
+ * bare by December, does not give. The one date the hedge does not share.
+ */
+const BEECH_HEDGE_LEAF_FALL = 356;
+
+const LIME_YEAR = {
+  budBurst: 100,
+  fullLeaf: 132,
+  autumnStart: 270,
+  leafFall: 315,
+  flowerStart: 180,
+  flowerEnd: 200,
+};
+
+const OLIVE_YEAR = {
+  budBurst: 112,
+  fullLeaf: 155,
+  autumnStart: 300,
+  leafFall: 345,
+  flowerStart: 152,
+  flowerEnd: 180,
+};
+
+const MORELLO_YEAR = {
+  budBurst: 98,
+  fullLeaf: 132,
+  autumnStart: 268,
+  leafFall: 308,
+  flowerStart: 106,
+  flowerEnd: 130,
+};
+
+const APPLE_YEAR = {
+  budBurst: 95,
+  fullLeaf: 130,
+  autumnStart: 285,
+  leafFall: 325,
+  flowerStart: 110,
+  flowerEnd: 136,
+};
+
 /** Trees — 37 of them. Appending here adds the plant to the library. */
 export const TREES: Species[] = [
   {
@@ -586,12 +663,7 @@ export const TREES: Species[] = [
     matureHeight: 5,
     matureSpread: 4,
     yearsToMature: 18,
-    budBurst: 98,
-    fullLeaf: 132,
-    autumnStart: 268,
-    leafFall: 308,
-    flowerStart: 106,
-    flowerEnd: 130,
+    ...MORELLO_YEAR,
     fruitStart: 196,
     fruitEnd: 234,
     colors: {
@@ -672,12 +744,7 @@ export const TREES: Species[] = [
     matureHeight: 2.5,
     matureSpread: 1.0,
     yearsToMature: 12,
-    budBurst: 104,
-    fullLeaf: 138,
-    autumnStart: 278,
-    leafFall: 356,
-    flowerStart: 108,
-    flowerEnd: 130,
+    ...HORNBEAM_YEAR,
     colors: {
       leafSpring: '#a8c46a',
       leafSummer: '#4f7046',
@@ -711,12 +778,7 @@ export const TREES: Species[] = [
     matureHeight: 20,
     matureSpread: 15,
     yearsToMature: 60,
-    budBurst: 110,
-    fullLeaf: 138,
-    autumnStart: 280,
-    leafFall: 330,
-    flowerStart: 112,
-    flowerEnd: 132,
+    ...BEECH_YEAR,
     fruitStart: 250,
     fruitEnd: 300,
     colors: {
@@ -753,12 +815,7 @@ export const TREES: Species[] = [
     matureHeight: 20,
     matureSpread: 15,
     yearsToMature: 60,
-    budBurst: 110,
-    fullLeaf: 138,
-    autumnStart: 280,
-    leafFall: 330,
-    flowerStart: 112,
-    flowerEnd: 132,
+    ...BEECH_YEAR,
     fruitStart: 250,
     fruitEnd: 300,
     colors: {
@@ -795,12 +852,7 @@ export const TREES: Species[] = [
     matureHeight: 4.5,
     matureSpread: 4.5,
     yearsToMature: 12,
-    budBurst: 95,
-    fullLeaf: 130,
-    autumnStart: 285,
-    leafFall: 325,
-    flowerStart: 110,
-    flowerEnd: 136,
+    ...APPLE_YEAR,
     fruitStart: 258,
     fruitEnd: 340,
     colors: {
@@ -883,12 +935,8 @@ export const TREES: Species[] = [
     matureHeight: 2.5,
     matureSpread: 1.0,
     yearsToMature: 12,
-    budBurst: 110,
-    fullLeaf: 138,
-    autumnStart: 280,
-    leafFall: 356,
-    flowerStart: 112,
-    flowerEnd: 132,
+    ...BEECH_YEAR,
+    leafFall: BEECH_HEDGE_LEAF_FALL,
     colors: {
       leafSpring: '#a8ce6a',
       leafSummer: '#3f6b3f',
@@ -924,12 +972,8 @@ export const TREES: Species[] = [
     matureHeight: 2.5,
     matureSpread: 1.0,
     yearsToMature: 12,
-    budBurst: 110,
-    fullLeaf: 138,
-    autumnStart: 280,
-    leafFall: 356,
-    flowerStart: 112,
-    flowerEnd: 132,
+    ...BEECH_YEAR,
+    leafFall: BEECH_HEDGE_LEAF_FALL,
     colors: {
       leafSpring: '#8a4a4a',
       leafSummer: '#4f2632',
@@ -1046,12 +1090,7 @@ export const TREES: Species[] = [
     matureHeight: 5.0,
     matureSpread: 3.0,
     yearsToMature: 15,
-    budBurst: 100,
-    fullLeaf: 132,
-    autumnStart: 270,
-    leafFall: 315,
-    flowerStart: 180,
-    flowerEnd: 200,
+    ...LIME_YEAR,
     colors: {
       leafSpring: '#a8ce62',
       leafSummer: '#4a7040',
@@ -1446,12 +1485,7 @@ export const TREES: Species[] = [
     matureHeight: 4.5,
     matureSpread: 4.0,
     yearsToMature: 25,
-    budBurst: 112,
-    fullLeaf: 155,
-    autumnStart: 300,
-    leafFall: 345,
-    flowerStart: 152,
-    flowerEnd: 180,
+    ...OLIVE_YEAR,
     colors: {
       leafSpring: '#a8b898',
       leafSummer: '#8a9c82',
@@ -1528,12 +1562,7 @@ export const TREES: Species[] = [
     matureHeight: 3.3,
     matureSpread: 1.8,
     yearsToMature: 4,
-    budBurst: 104,
-    fullLeaf: 138,
-    autumnStart: 278,
-    leafFall: 356,
-    flowerStart: 108,
-    flowerEnd: 130,
+    ...HORNBEAM_YEAR,
     colors: {
       leafSpring: '#a8c46a',
       leafSummer: '#4f7046',
@@ -1569,12 +1598,7 @@ export const TREES: Species[] = [
     matureHeight: 2.6,
     matureSpread: 3.5,
     yearsToMature: 12,
-    budBurst: 100,
-    fullLeaf: 132,
-    autumnStart: 270,
-    leafFall: 315,
-    flowerStart: 180,
-    flowerEnd: 200,
+    ...LIME_YEAR,
     colors: {
       leafSpring: '#a8ce62',
       leafSummer: '#4a7040',
@@ -1610,12 +1634,7 @@ export const TREES: Species[] = [
     matureHeight: 2.2,
     matureSpread: 3.5,
     yearsToMature: 10,
-    budBurst: 98,
-    fullLeaf: 132,
-    autumnStart: 268,
-    leafFall: 308,
-    flowerStart: 106,
-    flowerEnd: 130,
+    ...MORELLO_YEAR,
     fruitStart: 196,
     fruitEnd: 234,
     colors: {
@@ -1654,12 +1673,7 @@ export const TREES: Species[] = [
     matureHeight: 2.0,
     matureSpread: 1.6,
     yearsToMature: 5,
-    budBurst: 95,
-    fullLeaf: 130,
-    autumnStart: 285,
-    leafFall: 325,
-    flowerStart: 110,
-    flowerEnd: 136,
+    ...APPLE_YEAR,
     fruitStart: 258,
     fruitEnd: 340,
     colors: {
@@ -1777,12 +1791,7 @@ export const TREES: Species[] = [
     matureHeight: 4.5,
     matureSpread: 4.2,
     yearsToMature: 20,
-    budBurst: 112,
-    fullLeaf: 155,
-    autumnStart: 300,
-    leafFall: 345,
-    flowerStart: 152,
-    flowerEnd: 180,
+    ...OLIVE_YEAR,
     colors: {
       leafSpring: '#a8b898',
       leafSummer: '#8a9c82',
