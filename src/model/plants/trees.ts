@@ -1028,7 +1028,7 @@ export const TREES: Species[] = [
     foliageColour: 'lobed mid green, dull yellow-brown in autumn',
     notes:
       'The native oak, and another honest warning: only for a garden measured in acres. Late into leaf — often not until mid-May — and it casts the heaviest shade of any tree here, with a root plate to match. Supports more wildlife than any other British tree by a wide margin. Autumn colour is a dull yellow-brown, not a display.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Quercus%20robur',
+    source: 'https://www.rhs.org.uk/plants/14294/quercus-robur/details',
   },
   {
     id: 'tilia-cordata',
@@ -1069,7 +1069,7 @@ export const TREES: Species[] = [
     foliageColour: 'neat heart-shaped green, clear yellow in autumn',
     notes:
       'Modelled as a pleached tree rather than the forty-metre forest species, because that is what a garden designer specifies: a clear stem with a clipped rectangle of foliage on top, used as a hedge on legs to screen at first-floor height. Chosen over the common lime because it does not produce the sticky aphid honeydew that makes limes notorious over a parking space.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Tilia%20cordata',
+    source: 'https://www.rhs.org.uk/plants/18225/tilia-cordata/details',
   },
   {
     id: 'pyrus-chanticleer',
@@ -1108,7 +1108,7 @@ export const TREES: Species[] = [
     foliageColour: 'glossy green, plum-red very late in autumn',
     notes:
       'The standard tree for a difficult urban site: narrow, tolerant of pollution, wind and compacted ground, and neat enough for a front garden or a street. White blossom in April, then glossy leaves that hang on until December and turn plum-red weeks after everything else has finished. No useful fruit, which is the point.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Pyrus%20calleryana%20Chanticleer',
+    source: 'https://www.rhs.org.uk/plants/89839/pyrus-calleryana-chanticleer/details',
   },
   {
     id: 'cercis-forest-pansy',
@@ -1148,7 +1148,7 @@ export const TREES: Species[] = [
     foliageColour: 'deep wine-purple hearts, scarlet-orange in autumn',
     notes:
       'Flowers directly out of the bare branches and even the trunk in April, before any leaf, then opens huge heart-shaped leaves of deep wine-purple that go orange-scarlet in October. Best as a multistem. Hates being moved and resents cold wet feet, so plant it small, in a sheltered spot, and leave it alone.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Cercis%20canadensis%20Forest%20Pansy',
+    source: 'https://www.rhs.org.uk/plants/95578/cercis-canadensis-forest-pansy/details',
   },
   {
     id: 'parrotia-persica',
@@ -1188,7 +1188,7 @@ export const TREES: Species[] = [
     foliageColour: 'green, then crimson, orange and gold together',
     notes:
       'The best autumn colour of any tree here, and it does not do it all at once — crimson, orange and gold appear on the same tree for weeks. Small red tufts on bare branches in February are a quiet bonus. Wider than it is tall in the end, and the flaking grey, fawn and green bark is worth the space on its own.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Parrotia%20persica',
+    source: 'https://www.rhs.org.uk/plants/12341/parrotia-persica/details',
   },
   {
     id: 'liquidambar-worplesdon',
@@ -1227,7 +1227,7 @@ export const TREES: Species[] = [
     foliageColour: 'maple-like glossy green, purple and orange in autumn',
     notes:
       'Leaves like a maple and colour like nothing else — purple, plum and orange all at once, and this cultivar is the one chosen because it colours reliably in a British autumn where seedlings often just go brown. Needs neutral to acid soil; on chalk it yellows and sulks. Big eventually, and upright while young.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Liquidambar%20styraciflua%20Worplesdon',
+    source: 'https://www.rhs.org.uk/plants/98807/liquidambar-styraciflua-worplesdon/details',
   },
   {
     id: 'gleditsia-sunburst',
@@ -1266,7 +1266,7 @@ export const TREES: Species[] = [
     foliageColour: 'bright gold in spring, cooling to lime',
     notes:
       'Golden in spring, lime through summer, gold again in autumn, and the whole thing so finely divided that it casts almost no shade — you can plant underneath it, which is true of nothing else this size. Thornless and pod-free, unlike the species. Very late into leaf, so it looks dead until the end of May.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Gleditsia%20triacanthos%20Sunburst',
+    source: 'https://www.rhs.org.uk/plants/98663/gleditsia-triacanthos-f-inermis-sunburst/details',
   },
   {
     id: 'cornus-kousa-chinensis',
@@ -1309,7 +1309,7 @@ export const TREES: Species[] = [
     foliageColour: 'green, deep crimson in autumn',
     notes:
       'Held in tiers, and covered in June with white bracts that sit on top of the branches so the whole tree reads as a layered white cloud from above. The bracts age pink over several weeks. Strawberry-like red fruit follows, then crimson autumn colour. Wants neutral to acid soil and shelter from cold wind while young.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Cornus%20kousa%20chinensis',
+    source: 'https://www.rhs.org.uk/plants/96780/cornus-kousa-var-chinensis/details',
   },
   {
     id: 'prunus-cerasifera-nigra',
@@ -1349,7 +1349,7 @@ export const TREES: Species[] = [
     foliageColour: 'deep blackish-purple all summer',
     notes:
       'The first tree of the year in most streets: pale pink blossom on bare black twigs in late February, weeks before anything else. Then deep purple leaves right through to leaf fall, which is either the point of it or too much, depending on the garden. Also used clipped as a purple hedge. Tolerant of almost any soil.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Prunus%20cerasifera%20Nigra',
+    source: 'https://www.rhs.org.uk/plants/61117/prunus-cerasifera-nigra/details',
   },
   {
     id: 'arbutus-unedo',
@@ -1391,7 +1391,7 @@ export const TREES: Species[] = [
     foliageColour: 'glossy dark green on shredding red bark',
     notes:
       'Carries flowers and fruit at the same time, in November, which almost nothing else does — ivory bells hanging beside the previous year’s scarlet strawberries. Add peeling cinnamon-red bark and evergreen leaves and it earns its space three times over. Unusually among the heather family it is happy on chalk.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Arbutus%20unedo',
+    source: 'https://www.rhs.org.uk/plants/1473/arbutus-unedo/details',
   },
   {
     id: 'ginkgo-biloba',
@@ -1430,7 +1430,7 @@ export const TREES: Species[] = [
     foliageColour: 'fan-shaped, turning pure butter yellow',
     notes:
       'A living fossil, unchanged for two hundred million years, with fan-shaped leaves unlike anything else and a butter-yellow autumn so pure it looks artificial — and it drops the entire canopy within a few days of turning. Bombproof in city pollution. Buy a named male: female trees produce fruit that smells strongly of vomit.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Ginkgo%20biloba',
+    source: 'https://www.rhs.org.uk/plants/7990/ginkgo-biloba/details',
   },
   {
     id: 'olea-europaea',
@@ -1469,7 +1469,7 @@ export const TREES: Species[] = [
     foliageColour: 'narrow grey-green, silver underneath',
     notes:
       'Grey-green above and silver beneath, so the whole tree changes colour as the wind turns it — the reason to plant one, since fruit in Britain is a rarity rather than a crop. H4 is the honest warning: it survives cold far better than it survives cold wet roots, so sharp drainage matters more than shelter. Southern gardens and pots.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Olea%20europaea',
+    source: 'https://www.rhs.org.uk/plants/11735/olea-europaea-f/details',
   },
   {
     id: 'acer-campestre',
@@ -1510,7 +1510,7 @@ export const TREES: Species[] = [
     foliageColour: 'neat lobed green, clear butter yellow in autumn',
     notes:
       'Our only native maple, modelled here as the clipped hedge it is most often specified as rather than the fifteen-metre tree it becomes — it mixes into a native hedge with hawthorn and takes chalk and clay equally. Butter-yellow in autumn, which is unusually good colour for a hedging plant.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Acer%20campestre',
+    source: 'https://www.rhs.org.uk/plants/166/acer-campestre/details',
   },
   {
     id: 'pleached-tree',
@@ -1592,7 +1592,7 @@ export const TREES: Species[] = [
     foliageColour: 'neat heart-shaped green, clear yellow in autumn',
     notes:
       'A clear stem of about 2 m with its branches trained out level over a frame into a flat roof of leaf. It gives shade you can sit under, which is the reason for growing one, and a strong shape beside a terrace or over a table. Modelled on lime, the usual choice along with plane and mulberry. The roof takes around a decade to fill its frame, so for the first few years a new one is a stem and a skeleton. Clip once a year, in late summer, to keep the underside level.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Tilia%20cordata',
+    source: 'https://www.rhs.org.uk/plants/18225/tilia-cordata/details',
   },
   {
     id: 'fan-trained-tree',
@@ -1680,7 +1680,7 @@ export const TREES: Species[] = [
     foliageColour: 'mid green',
     notes:
       'A single stem trained at 45 degrees along wires, carrying its fruit on short spurs close to the stem. It is the way to grow a lot of different apples in very little room: plant them 75 cm apart in a slanting row along a fence, or as a low screen. Modelled on apple, with pink-flushed blossom in April and fruit through the autumn. On a dwarfing rootstock it reaches about 2 m and stays there with one summer prune. Turn it to lie along its wires.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Malus%20domestica',
+    source: 'https://www.rhs.org.uk/plants/60558/malus-domestica-f/details',
   },
   {
     id: 'prunus-tai-haku',
@@ -1761,7 +1761,7 @@ export const TREES: Species[] = [
     foliageColour: 'glossy dark green, yellow-orange in autumn',
     notes:
       'The pear most British gardens grow, and the most reliable: long green-russet fruit in late September and October, and partly self-fertile, so it crops without a partner nearby though better with one. White blossom early in April, a week or two ahead of the apples, which is exactly when a late frost can take the crop. The size given is a tree on Quince A rootstock; as with apples, the rootstock decides the final height. Pears take heavier ground than apples but hate drought at the root.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Pyrus%20communis%20Conference',
+    source: 'https://www.rhs.org.uk/plants/74814/pyrus-communis-conference-d/details',
   },
   {
     id: 'olea-europaea-ancient',
@@ -1800,6 +1800,6 @@ export const TREES: Species[] = [
     foliageColour: 'narrow grey-green, silver underneath',
     notes:
       'A specimen rather than a young tree: an olive a century or more old, dug and shipped with a massive, twisted, often hollow trunk and its crown already formed, and planted as a finished feature on the first day. It barely grows after that — the point is its age, not what it will become. Kept apart from the young olive because it arrives the size the young one takes decades to reach. Needs the sharpest drainage and a warm sheltered spot, and the first two winters after moving are the risky ones.',
-    source: 'https://www.rhs.org.uk/plants/search-results?query=Olea%20europaea',
+    source: 'https://www.rhs.org.uk/plants/11735/olea-europaea-f/details',
   },
 ];
