@@ -7,6 +7,7 @@ import type { Site, Structure, Vec2 } from '../model/types';
 import { inkColour, shade, type Lighting } from './palette';
 import { roughLine, roughPolygon, subSeed } from './sketch';
 import { toScreen, type Viewport } from './viewport';
+import { chrome } from './chrome';
 
 /**
  * Drawing the built parts of a garden.
@@ -161,7 +162,7 @@ function drawSelection(
   viewport: Viewport,
 ): void {
   ctx.save();
-  ctx.strokeStyle = '#3f80b0';
+  ctx.strokeStyle = chrome('accent');
   ctx.lineWidth = 1.5;
   ctx.setLineDash([5, 4]);
   // The centre line rather than the outline: it shows where the run actually
@@ -176,7 +177,7 @@ function drawSelection(
 
   for (const p of pts) {
     ctx.fillStyle = '#fff';
-    ctx.strokeStyle = '#3f80b0';
+    ctx.strokeStyle = chrome('accent');
     ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);

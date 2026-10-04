@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 import { useStore } from './state/store';
+import { applyChrome } from './render/chrome';
 import './styles.css';
 
 // Exposed so the screenshot harness can set up an identical design every run
@@ -28,6 +29,9 @@ if (root === null) {
   // in the console to say why — so say why.
   throw new Error('index.html has no #root element to mount the app into');
 }
+
+// Before the first render, so the first paint is already the right colour.
+applyChrome(document.documentElement);
 
 createRoot(root).render(
   <StrictMode>

@@ -18,6 +18,7 @@ import { inkColour, shade, type Lighting } from './palette';
 import { getForm } from './form';
 import { drawPlantElevation } from './plant';
 import { roughLine } from './sketch';
+import { chrome } from './chrome';
 
 /**
  * The 360° view.
@@ -411,18 +412,18 @@ export function drawObserverOnPlan(
   ctx.arc(screen.x, screen.y, reach, facing - half, facing + half);
   ctx.closePath();
   const cone = ctx.createRadialGradient(screen.x, screen.y, 0, screen.x, screen.y, reach);
-  cone.addColorStop(0, 'rgba(63, 128, 176, 0.30)');
-  cone.addColorStop(1, 'rgba(63, 128, 176, 0)');
+  cone.addColorStop(0, chrome('accent', 0.3));
+  cone.addColorStop(1, chrome('accent', 0));
   ctx.fillStyle = cone;
   ctx.fill();
 
-  ctx.strokeStyle = 'rgba(63, 128, 176, 0.55)';
+  ctx.strokeStyle = chrome('accent', 0.55);
   ctx.lineWidth = 1;
   ctx.stroke();
 
   ctx.beginPath();
   ctx.arc(screen.x, screen.y, 8, 0, Math.PI * 2);
-  ctx.fillStyle = '#3f80b0';
+  ctx.fillStyle = chrome('accent');
   ctx.fill();
   ctx.strokeStyle = '#fff';
   ctx.lineWidth = 2;
@@ -434,7 +435,7 @@ export function drawObserverOnPlan(
   ctx.lineTo(screen.x + Math.cos(facing + 2.4) * 7, screen.y + Math.sin(facing + 2.4) * 7);
   ctx.lineTo(screen.x + Math.cos(facing - 2.4) * 7, screen.y + Math.sin(facing - 2.4) * 7);
   ctx.closePath();
-  ctx.fillStyle = '#3f80b0';
+  ctx.fillStyle = chrome('accent');
   ctx.fill();
   ctx.restore();
 }

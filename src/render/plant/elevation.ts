@@ -14,6 +14,7 @@ import {
 } from './herbaceous';
 import { drawElevCordon, drawElevFan, drawElevTrainedHead } from './trained';
 import { drawElevClimber } from './climber';
+import { chrome } from '../chrome';
 
 /**
  * A plant seen from the side, and the choice of which drawing to use.
@@ -54,7 +55,7 @@ export function drawPlantElevation(
   ctx.lineCap = 'round';
 
   if (selected) {
-    ctx.strokeStyle = 'rgba(63, 128, 176, 0.85)';
+    ctx.strokeStyle = chrome('accent', 0.85);
     ctx.lineWidth = 1.5;
     ctx.setLineDash([5, 4]);
     ctx.strokeRect(baseX - w / 2 - 5, baseY - h - 5, w + 10, h + 10);
