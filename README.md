@@ -294,6 +294,7 @@ node scripts/check-mobile.mjs   http://localhost:4173 screenshots  # the documen
 node scripts/check-panorama.mjs http://localhost:4173 screenshots  # turning must change what is in front of you
 node scripts/check-editing.mjs  http://localhost:4173 screenshots  # duplicate-in-place, eye height, hover states
 node scripts/check-habits.mjs   http://localhost:4173 screenshots  # every plant shape actually draws
+node scripts/check-library.mjs  http://localhost:4173              # portraits are drawn late, but never late enough to see
 node scripts/check-drawing.mjs  http://localhost:4173              # the drawing, against docs/golden
 node scripts/readme-images.mjs  http://localhost:4173 docs/img     # the images in this file
 ```
@@ -314,6 +315,16 @@ scenes red, and each failure leaves `screenshots/<scene>.actual.png` and a diff
 with every changed pixel in magenta. When a change is meant, `--update` accepts
 it — deliberately, after looking, and worth a line in the commit saying why the
 drawing changed.
+
+`check-library.mjs` guards an optimisation that is invisible when it works and
+obvious when it breaks. The library holds a card per plant, and each card's
+portrait is the elevation drawing in miniature; drawing all of them on load
+cost fourteen megabytes of canvas and a stall on every filter, for the six that
+fit on screen. They are now drawn when their card comes within eight hundred
+pixels of the library's scrolling box — a figure chosen by measurement, since
+too short a lookahead shows empty boxes to anyone dragging the scrollbar. The
+check drags the list from top to bottom in sixty frames and fails on a single
+blank, and fails equally if every portrait is drawn on load again.
 
 And against the built single file, which is what testers actually receive:
 
