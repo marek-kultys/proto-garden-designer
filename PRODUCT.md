@@ -709,6 +709,18 @@ per-plant page. Cut to keep the focus on the simulation.
   written.
 - **UK and north-west Europe.** The solar maths is global, but the plant palette,
   the phenology baselines and the summer-time rule are not.
+- **The whole state is on the browser's global object, in the build testers
+  receive.** `window.gardenStore` is not a debug build's leftover; it is
+  deliberate, and the twelve browser checks all drive the real app through it
+  rather than trying to automate drag-and-drop. It also means a tester can be
+  walked through an exact scenario over a call. The cost is that anyone who
+  opens the console can read and rewrite the design. In this app that costs
+  nothing worth protecting: there are no accounts, nothing is stored beyond the
+  tab, nothing is transmitted, and whoever has the console already has the
+  garden on the screen in front of them. It is written down here because that
+  reasoning stops being true the moment this grows a login or a server, and at
+  that point the door has to be shut — exposed only behind a flag the checks
+  pass, rather than to everyone who opens the page.
 
 ---
 

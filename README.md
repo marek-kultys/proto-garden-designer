@@ -422,8 +422,10 @@ against the script's own location, and Playwright finds its own browser.
 
 ## Testing with gardeners
 
-`window.gardenStore` is exposed in the browser, so a scenario can be set up from
-the console — on a call, rather than by dragging:
+`window.gardenStore` is exposed in the browser — in every build, not only in
+development — so a scenario can be set up from the console on a call, rather
+than by dragging. What that door costs, and when it would have to be shut, is in
+`PRODUCT.md` under *Known trade-offs*.
 
 ```js
 const s = window.gardenStore.getState();

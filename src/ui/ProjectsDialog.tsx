@@ -262,7 +262,11 @@ export function ProjectsDialog({ onClose }: { onClose: () => void }) {
             ref={fileInput}
             type="file"
             accept="application/json,.json"
+            // Hidden from the page but not from the accessibility tree, which
+            // is the point — the button above opens it, and someone tabbing
+            // through still arrives here and needs to be told what it is.
             className="visually-hidden"
+            aria-label="Choose a garden file to import"
             onChange={(e) => {
               const file = e.target.files?.[0];
               // Cleared so choosing the same file twice in a row still fires.
