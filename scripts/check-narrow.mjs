@@ -5,6 +5,9 @@
  *
  * Same reason as check-singlefile: the output path was one container's scratch
  * directory, so this could not run anywhere else.
+ *
+ * It used to print "SIDEWAYS SCROLL" and exit zero, which reads fine to a
+ * person watching and is invisible to anything else. Now it fails.
  */
 import { chromium } from 'playwright';
 import { mkdir } from 'node:fs/promises';
@@ -16,6 +19,7 @@ const file = process.argv[2] ?? resolve(repo, 'dist/index.html');
 const outDir = process.argv[3] ?? 'screenshots';
 await mkdir(outDir, { recursive: true });
 
+const failures = [];
 const browser = await chromium.launch();
 for (const [w, h, label] of [[820, 1180, 'tablet-portrait'], [1440, 900, 'desktop']]) {
   const page = await browser.newPage({ viewport: { width: w, height: h }, deviceScaleFactor: 2 });
@@ -30,7 +34,15 @@ for (const [w, h, label] of [[820, 1180, 'tablet-portrait'], [1440, 900, 'deskto
   await page.waitForTimeout(400);
   const m = await page.evaluate(() => ({ scrollW: document.documentElement.scrollWidth, clientW: document.documentElement.clientWidth }));
   await page.screenshot({ path: `${outDir}/narrow-${label}.png`, fullPage: label === 'tablet-portrait' });
-  console.log(`${label} ${w}x${h}: scrollW=${m.scrollW} clientW=${m.clientW} -> ${m.scrollW > m.clientW ? 'SIDEWAYS SCROLL' : 'ok'}`);
+  const sideways = m.scrollW > m.clientW;
+  if (sideways) failures.push(label);
+  console.log(`${label} ${w}x${h}: scrollW=${m.scrollW} clientW=${m.clientW} -> ${sideways ? 'SIDEWAYS SCROLL' : 'ok'}`);
   await page.close();
 }
 await browser.close();
+console.log(
+  failures.length === 0
+    ? 'no sideways scroll at any width'
+    : `sideways scroll at: ${failures.join(', ')}`,
+);
+process.exit(failures.length === 0 ? 0 : 1);

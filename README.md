@@ -24,10 +24,10 @@ through a slice of it — five to twenty metres deep, as you choose — and a
 on a phone.
 
 Built to test whether the interaction idea has depth rather than to be a
-comprehensive plant database. Two hundred and ninety-five plants, each researched
-rather than invented, chosen to span the axes the simulation actually exercises
-— trees, shrubs, conifers, climbers, grasses, ferns, perennials, bulbs and
-annuals.
+comprehensive plant database. Every plant in it is researched rather than
+invented, and the palette is chosen to span the axes the simulation actually
+exercises — trees, shrubs, conifers, climbers, grasses, ferns, perennials, bulbs
+and annuals. [PLANTS.md](PLANTS.md) holds the current list, and the count.
 
 Plants go in either as nursery stock or as a ten-year-old specimen, so one
 bought-in tree can give a design structure on the day it is planted while
@@ -45,9 +45,9 @@ sent anywhere and there is no backend.
 
 The library is filtered by type and by growing conditions — aspect, soil type,
 soil pH, drainage, foliage, size and hardiness — so a border with dry shade on
-chalk narrows two hundred and ninety-five plants to the few dozen that will
-actually take it. A **Mediterranean** button beside the types gathers the dry,
-sunny, silver-and-aromatic palette in one press.
+chalk narrows the whole library to the few dozen that will actually take it. A
+**Mediterranean** button beside the types gathers the dry, sunny,
+silver-and-aromatic palette in one press.
 
 📄 **[PRODUCT.md](PRODUCT.md)** — what it is, where the brief came from, what it
 does, what was deliberately left out, and the roadmap.
@@ -80,16 +80,23 @@ src/model/    the simulation — sun, growth, phenology, shade, panorama geometr
               in PLANTS.md, so it is kept even though nothing else reads it)
 src/render/   canvas drawing — sketchy line work, the light palette, and one
               draw pass per view (plant/ holds the drawing of a plant itself,
-              split by view and by the shapes that needed a file of their own)
-src/state/    a single zustand store; all state is plain and serialisable, plus
-              the save/load boundary (projectFile.ts is pure and browser-free,
-              projectStorage.ts is the only code that touches localStorage, and
-              projectTransfer.ts exports and imports a design as a file)
+              split by view and by the shapes that needed a file of their own;
+              chrome.ts holds the interface's own colours, which the stylesheet
+              is given at startup because a canvas cannot read a CSS variable)
+src/state/    one zustand store, assembled in store.ts from a file per subject
+              in slices/ — the plot, the planting, what is built on it, what is
+              selected, the site, the view, undo, and projects; all state is
+              plain and serialisable, plus the save/load boundary (projectFile.ts
+              is pure and browser-free, projectStorage.ts is the only code that
+              touches localStorage, and projectTransfer.ts exports and imports a
+              design as a file)
 src/ui/       React components: the panels, the canvases, the time bar
               (library/ holds the plant library's parts — the chips, a card, a
               thumbnail; which plants match is model/plants/filter.ts, because
               that is a question about plants rather than about a screen)
 scripts/      Playwright checks and screenshot capture
+build/        the one Vite plugin this needs — folding the whole build into a
+              single self-contained index.html
 ```
 
 ## What is simulated
@@ -186,7 +193,7 @@ to the palette widens it. Unknown plants are dropped at the load boundary and
 counted, so the app reports what it could not restore instead of dying.
 
 **Undo coalesces a drag into one step** —
-[`src/state/store.ts`](src/state/store.ts). Moving a plant fires an update on
+[`src/state/slices/history.ts`](src/state/slices/history.ts). Moving a plant fires an update on
 every pointer move, and one undo step per frame would be useless. Rather than
 have pointer handlers announce when a gesture begins and ends — easy to get wrong,
 easy to forget in a new handler — consecutive edits carrying the same key within
@@ -284,7 +291,19 @@ every shape has been accounted for. Add one to the `Habit` union and the build
 stops, naming the shape and the three lines that need it.
 
 The browser checks drive the real app through `window.gardenStore` and assert
-behaviour a screenshot alone would not catch:
+behaviour a screenshot alone would not catch. The nine that decide for
+themselves run as one command — it builds the single file, serves it, runs them
+all and tears down, in about forty seconds:
+
+```bash
+npm run check:browser
+```
+
+That is also what the deploy workflow runs before publishing to GitHub Pages, so
+a drawing regression stops the deploy instead of reaching a gardener. Pass
+`--skip-build` when `dist/` is already current.
+
+To run one on its own, or to run the two that only produce pictures:
 
 ```bash
 npx vite preview --port 4173
@@ -294,6 +313,7 @@ node scripts/check-mobile.mjs   http://localhost:4173 screenshots  # the documen
 node scripts/check-panorama.mjs http://localhost:4173 screenshots  # turning must change what is in front of you
 node scripts/check-editing.mjs  http://localhost:4173 screenshots  # duplicate-in-place, eye height, hover states
 node scripts/check-habits.mjs   http://localhost:4173 screenshots  # every plant shape actually draws
+node scripts/check-library.mjs  http://localhost:4173              # portraits are drawn late, but never late enough to see
 node scripts/check-drawing.mjs  http://localhost:4173              # the drawing, against docs/golden
 node scripts/readme-images.mjs  http://localhost:4173 docs/img     # the images in this file
 ```
@@ -315,15 +335,31 @@ with every changed pixel in magenta. When a change is meant, `--update` accepts
 it — deliberately, after looking, and worth a line in the commit saying why the
 drawing changed.
 
-And against the built single file, which is what testers actually receive:
+`check-library.mjs` guards an optimisation that is invisible when it works and
+obvious when it breaks. The library holds a card per plant, and each card's
+portrait is the elevation drawing in miniature; drawing all of them on load
+cost fourteen megabytes of canvas and a stall on every filter, for the six that
+fit on screen. They are now drawn when their card comes within eight hundred
+pixels of the library's scrolling box — a figure chosen by measurement, since
+too short a lookahead shows empty boxes to anyone dragging the scrollbar. The
+check drags the list from top to bottom in sixty frames and fails on a single
+blank, and fails equally if every portrait is drawn on load again.
+
+And against the built single file, which is what testers actually receive.
+`npm run check:browser` does all of this; the pieces are here for running one:
 
 ```bash
 SINGLEFILE=1 npm run build
-node scripts/check-singlefile.mjs                 # runs from file://, zero off-origin requests
-node scripts/check-narrow.mjs   dist/index.html   # tablet portrait and desktop
-node scripts/make-artifact.mjs                    # repackage as an embeddable fragment
-node scripts/check-artifact.mjs dist/artifact.html
+node scripts/check-singlefile.mjs    # runs from file://, zero off-origin requests
+node scripts/check-narrow.mjs        # tablet portrait and desktop
+node scripts/make-artifact.mjs       # repackage as an embeddable fragment
+node scripts/check-artifact.mjs
 ```
+
+Those last two defaulted to nothing and printed their findings without failing,
+which is why running them by hand used to produce `file://undefined/` and why a
+sideways-scrolling layout could pass. Both now default to the file in `dist/`
+and exit non-zero when they find something.
 
 `screenshots/` is gitignored — it holds the sweep you look through by eye. Only
 the few images in `docs/img/` are committed, which is why `readme-images.mjs` is
@@ -331,6 +367,36 @@ the one to give an output directory unless you mean to replace them.
 
 Each check takes `[url|file] [outDir]`, and needs the browser installed once with
 `npx playwright install chromium`.
+
+### The advisories `npm audit` used to report, and why it reports none
+
+Until October 2026 this said that `npm audit` found three high-severity
+advisories — one fault counted three times: `braces` is vulnerable to
+[stack exhaustion through deeply nested glob patterns](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm),
+`micromatch` depends on `braces`, and `vite-plugin-singlefile` depended on
+`micromatch`. They were accepted deliberately: a build-time dependency only,
+reaching the vulnerable call at two lines both guarded by a glob pattern we
+never passed, and with no patched `braces` to move to — 3.0.3 is both the latest
+release and the vulnerable one. `npm audit fix --force` "fixed" it by
+downgrading the plugin a major version and breaking the single-file build.
+
+That note said the decision should be re-made rather than inherited, and it was.
+The plugin did one thing: paste the built script and stylesheet into
+`index.html`. That is now [`build/inline.ts`](build/inline.ts), about forty
+lines we own, and the dependency is gone along with all three advisories.
+
+The replacement is stricter in the way that matters. The old plugin would
+happily emit an HTML file referring to files it had deleted, which looks perfect
+until someone opens it with no network — the one condition the single file
+exists for. Ours fails the build instead, naming the file it could not inline.
+Its output is otherwise the same: byte-identical JavaScript, byte-identical CSS
+apart from a `/*$vite$:1*/` marker the plugin left behind, and two redundant
+attributes dropped from the tags.
+
+What would change the picture now: any advisory at all, since there are none to
+tune out. One touching `react`, `react-dom` or `zustand` would be in the app
+itself rather than on the machine that builds it, and would need acting on
+rather than recording.
 
 ## Deploying
 
@@ -377,8 +443,10 @@ against the script's own location, and Playwright finds its own browser.
 
 ## Testing with gardeners
 
-`window.gardenStore` is exposed in the browser, so a scenario can be set up from
-the console — on a call, rather than by dragging:
+`window.gardenStore` is exposed in the browser — in every build, not only in
+development — so a scenario can be set up from the console on a call, rather
+than by dragging. What that door costs, and when it would have to be shut, is in
+`PRODUCT.md` under *Known trade-offs*.
 
 ```js
 const s = window.gardenStore.getState();

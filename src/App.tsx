@@ -2,12 +2,13 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { LibraryPanel } from './ui/LibraryPanel';
 import { PlanCanvas, type PlanApi } from './ui/PlanCanvas';
 import { StageBottom } from './ui/StageBottom';
+import { DrawingBoundary } from './ui/DrawingBoundary';
 import { SitePanel } from './ui/SitePanel';
 import { TimeBar } from './ui/TimeBar';
 import { ProjectsDialog } from './ui/ProjectsDialog';
 import { isDirty, useStore } from './state/store';
 import { getSpecies } from './model/plants';
-import { polygonBounds } from './model/geometry';
+import { polygonCentroid } from './model/geometry';
 
 interface DragState {
   speciesId: string;
@@ -86,8 +87,7 @@ export default function App() {
       // A tap rather than a drag: put it in the middle of the plot and get out
       // of the way. On a phone the library covers the canvas, so dragging onto
       // something you cannot see is not a real option — tap, then reposition.
-      const b = polygonBounds(plot);
-      addPlant(current.speciesId, { x: (b.minX + b.maxX) / 2, y: (b.minY + b.maxY) / 2 });
+      addPlant(current.speciesId, polygonCentroid(plot));
       if (window.matchMedia(NARROW).matches) setSheet(null);
     };
 
@@ -260,7 +260,11 @@ export default function App() {
       </aside>
 
       <main className="stage">
-        <PlanCanvas ref={planRef} />
+        {/* Each view gets its own boundary, so a fault in one leaves the
+            others — and the design behind them — still usable. */}
+        <DrawingBoundary view="The plan">
+          <PlanCanvas ref={planRef} />
+        </DrawingBoundary>
         <StageBottom />
       </main>
 

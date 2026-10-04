@@ -218,10 +218,21 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
     }
   }, []);
 
-  // Takes anything with page coordinates — pointer, mouse and context-menu
-  // events all arrive here.
-  const localPoint = (e: { clientX: number; clientY: number }): Vec2 => {
-    const rect = canvasRef.current!.getBoundingClientRect();
+  /*
+   * Where on the plot a pointer is, in metres.
+   *
+   * Takes anything with page coordinates — pointer, mouse and context-menu
+   * events all arrive here — and reads the canvas off the event rather than out
+   * of the ref. Every caller is a handler on the canvas itself, so
+   * `currentTarget` is that canvas and the type says so: there is no absent
+   * case to handle, rather than one handled by asserting it cannot happen.
+   */
+  const localPoint = (e: {
+    clientX: number;
+    clientY: number;
+    currentTarget: HTMLCanvasElement;
+  }): Vec2 => {
+    const rect = e.currentTarget.getBoundingClientRect();
     return toPlot(viewport, e.clientX - rect.left, e.clientY - rect.top);
   };
 

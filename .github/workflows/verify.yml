@@ -1,0 +1,56 @@
+# Run the project's own gate on every push to develop.
+#
+# The point is one machine-checked gate between the working branches and
+# master: work lands on develop, this runs, and a red cross here is the signal
+# not to merge on to master and out to testers. Until now nothing was checked
+# until it was already on master — by which time the deploy was under way.
+#
+# It runs `npm run verify`, the same single command used before committing, so
+# a green tick here and a green run on the laptop mean exactly the same thing.
+# If the two ever disagree it is an environment difference worth knowing about,
+# which is the other reason not to spell the stages out separately here.
+
+name: Verify
+
+on:
+  # Only develop. Pushes to a working branch are the author's own business, and
+  # master is covered by the deploy workflow, which runs the tests again before
+  # publishing. Adding pull requests or a manual button later is one line each.
+  push:
+    branches: [develop]
+
+# Read-only: this job looks at the code and reports. It publishes nothing.
+permissions:
+  contents: read
+
+concurrency:
+  # One run per branch. Pushing three times in a minute cancels the first two
+  # rather than paying for three answers, of which only the last is wanted.
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest # A standard runner, which is free on public repos.
+    steps:
+      - uses: actions/checkout@v4
+
+      # The same LTS the deploy pins to, so a new Node release cannot change
+      # the answer here without the version being changed in both places.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # `ci` rather than `install`: installs exactly what package-lock.json
+      # pins, and fails rather than quietly rewriting the lockfile.
+      - run: npm ci
+
+      # Type check, unit tests, and both build targets, every stage run even
+      # after one fails — so a push that breaks two things reports both.
+      #
+      # The browser checks in scripts/ are deliberately not here. They need a
+      # browser downloaded into the runner, a minute or two and a few hundred
+      # megabytes every run, to check the things a person should be looking at
+      # anyway. They stay a manual step; see the README.
+      - run: npm run verify

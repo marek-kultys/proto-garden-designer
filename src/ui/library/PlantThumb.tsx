@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useOnScreen } from './useOnScreen';
 import { phaseAt } from '../../model/phenology';
 import { matureSize } from '../../model/growth';
 import { lightingFor } from '../../render/palette';
@@ -12,6 +13,11 @@ import type { Species } from '../../model/types';
  * It is the elevation drawing at thumbnail size, so a plant looks in the list
  * exactly as it will look in the garden — no second set of icons to draw, and
  * none to keep in step as the drawing changes.
+ *
+ * Nothing is drawn, and no canvas is given a drawing surface, until the card is
+ * near the screen — see `useOnScreen` for what that saves. The box is sized in
+ * CSS rather than by the drawing, so the list has its full height from the
+ * start and scrolling never jumps as portraits arrive.
  */
 
 const REFERENCE_SITE = {
@@ -36,8 +42,18 @@ const THUMB_LIGHT = lightingFor(46, 180);
  * there is to look at. Flowers and fruit outweigh foliage, which is why the
  * magnolia is drawn in flower on bare wood; but a birch, whose catkins are
  * nothing to look at, still scores highest in full leaf.
+ *
+ * Reaching that day costs seventy-odd phase calculations and the answer can
+ * never change for a given plant, so it is worked out once and kept. Filtering
+ * the list unmounts and remounts cards by the hundred; without this, every pass
+ * would redo the lot.
  */
+const PORTRAIT_DAYS = new Map<string, number>();
+
 function portraitDay(species: Species): number {
+  const known = PORTRAIT_DAYS.get(species.id);
+  if (known !== undefined) return known;
+
   let best = 195;
   let bestScore = -1;
   for (let doy = 5; doy <= 365; doy += 5) {
@@ -54,14 +70,17 @@ function portraitDay(species: Species): number {
       best = doy;
     }
   }
+  PORTRAIT_DAYS.set(species.id, best);
   return best;
 }
 
 /** Each plant is normalised to the same box height, so the shape reads as an icon. */
 export function PlantThumb({ species }: { species: Species }) {
   const ref = useRef<HTMLCanvasElement>(null);
+  const onScreen = useOnScreen(ref);
 
   useEffect(() => {
+    if (!onScreen) return;
     const canvas = ref.current;
     if (!canvas) return;
     const dpr = window.devicePixelRatio || 1;
@@ -87,7 +106,7 @@ export function PlantThumb({ species }: { species: Species }) {
       phase.flowerAge,
       false,
     );
-  }, [species]);
+  }, [species, onScreen]);
 
   return <canvas ref={ref} className="thumb" style={{ width: 56, height: 56 }} aria-hidden />;
 }

@@ -1,13 +1,16 @@
+/*
+ * The colour tokens are not here.
+ *
+ * The canvas cannot read a custom property, so the drawing needs these as
+ * strings; the panels need them as custom properties. Written in both places
+ * they drifted — the selection blue was in eleven lines of drawing code, and
+ * changing `--accent` here turned the panels a new blue and left the plan on
+ * the old one. `render/chrome.ts` now holds the values, and sets
+ * `--paper`, `--panel`, `--ink`, `--ink-soft`, `--ink-faint`, `--line`,
+ * `--line-strong`, `--accent` and `--accent-warm` on this element before React
+ * mounts. Change a colour there and both halves of the app follow.
+ */
 :root {
-  --paper: #f7f4ec;
-  --panel: #fffdf8;
-  --ink: #24221e;
-  --ink-soft: #5f5a51;
-  --ink-faint: #928c80;
-  --line: #e0dacd;
-  --line-strong: #cfc7b6;
-  --accent: #3f80b0;
-  --accent-warm: #b05c30;
   --radius: 8px;
   color-scheme: light;
 }
@@ -34,7 +37,14 @@ body,
 }
 
 body {
-  background: var(--paper);
+  /*
+   * The one colour literal left in this file, and a fallback rather than a
+   * definition: it covers the moment between the page being parsed and the
+   * script setting the real tokens. Without it the page is white for that
+   * moment and then turns cream, which on a slow phone is a visible flash.
+   * Nothing else needs one — nothing else is on screen that early.
+   */
+  background: var(--paper, #f7f4ec);
   color: var(--ink);
   font: 14px/1.45 ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -494,6 +504,71 @@ select {
   font-size: 11px;
   padding: 3px 9px;
   background: rgba(255, 255, 255, 0.78);
+}
+
+/* A view that stopped drawing, in place of the drawing. Deliberately calm:
+   the panel is paper-coloured like everything else, because an alarming
+   treatment would contradict the one thing the message has to get across. */
+
+.drawing-error {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  padding: 18px 22px;
+  overflow: auto;
+  background: var(--panel);
+  border-left: 3px solid var(--accent-warm);
+  box-sizing: border-box;
+}
+
+.elevation-wrap > .drawing-error {
+  height: 100%;
+}
+
+.drawing-error h3 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.drawing-error p {
+  margin: 0;
+  max-width: 46em;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+.drawing-error p.hint {
+  color: var(--ink-soft);
+}
+
+.drawing-error-actions {
+  margin-top: 2px;
+}
+
+.drawing-error details {
+  font-size: 11px;
+  color: var(--ink-faint);
+}
+
+.drawing-error summary {
+  cursor: pointer;
+}
+
+.drawing-error code {
+  display: block;
+  margin-top: 4px;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-size: 10.5px;
+  line-height: 1.4;
+  word-break: break-word;
 }
 
 /* ------------------------------------------------------------- plant menu */

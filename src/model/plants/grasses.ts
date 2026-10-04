@@ -1,6 +1,6 @@
 import type { Species } from '../types';
 
-/** Grasses — 23 of them. Appending here adds the plant to the library. */
+/** Grasses. Appending here adds the plant to the library; the count is in `PLANTS.md`. */
 export const GRASSES: Species[] = [
   {
     id: 'calamagrostis-karl-foerster',

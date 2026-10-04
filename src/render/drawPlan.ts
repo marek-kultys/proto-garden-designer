@@ -26,6 +26,7 @@ import { drawStructurePlan, drawStructureShadowPlan } from './structure';
 import { drawObserverOnPlan } from './drawPanorama';
 import { niceScaleStep, toScreen, type Viewport } from './viewport';
 import { DRAWN_SHADOW_CAP, sliceHalfWidth } from './constants';
+import { CHROME, chrome } from './chrome';
 
 export interface Scene {
   plot: Plot;
@@ -57,7 +58,7 @@ export interface PlanOptions {
   draftCursor?: Vec2 | null;
 }
 
-const PAPER = '#f7f4ec';
+const PAPER = CHROME.paper;
 
 export function drawPlan(
   ctx: CanvasRenderingContext2D,
@@ -333,7 +334,7 @@ function drawDraftPolygon(
 ): void {
   const pts = draft.map((p) => toScreen(viewport, p));
   ctx.save();
-  ctx.strokeStyle = 'rgba(63, 128, 176, 0.95)';
+  ctx.strokeStyle = chrome('accent', 0.95);
   ctx.lineWidth = 2;
   ctx.setLineDash([6, 4]);
   ctx.beginPath();
@@ -347,7 +348,7 @@ function drawDraftPolygon(
   ctx.setLineDash([]);
 
   ctx.fillStyle = '#fff';
-  ctx.strokeStyle = 'rgba(63, 128, 176, 1)';
+  ctx.strokeStyle = chrome('accent');
   ctx.lineWidth = 2;
   for (const p of pts) {
     ctx.beginPath();
@@ -453,7 +454,7 @@ function drawSightLine(
   const len = Math.hypot(dx, dy) || 1;
   const nx = (-dy / len) * band * viewport.scale;
   const ny = (dx / len) * band * viewport.scale;
-  ctx.fillStyle = 'rgba(176, 92, 48, 0.05)';
+  ctx.fillStyle = chrome('accentWarm', 0.05);
   ctx.beginPath();
   ctx.moveTo(a.x + nx, a.y + ny);
   ctx.lineTo(b.x + nx, b.y + ny);
@@ -462,7 +463,7 @@ function drawSightLine(
   ctx.closePath();
   ctx.fill();
 
-  ctx.strokeStyle = 'rgba(176, 92, 48, 0.9)';
+  ctx.strokeStyle = chrome('accentWarm', 0.9);
   ctx.lineWidth = 1.5;
   ctx.setLineDash([9, 6]);
   ctx.beginPath();
@@ -475,7 +476,7 @@ function drawSightLine(
     [a, 'A'],
     [b, 'B'],
   ] as const) {
-    ctx.fillStyle = 'rgba(176, 92, 48, 1)';
+    ctx.fillStyle = chrome('accentWarm');
     ctx.beginPath();
     ctx.arc(pt.x, pt.y, 7, 0, Math.PI * 2);
     ctx.fill();
@@ -535,7 +536,7 @@ function drawScaleBar(
   ctx.save();
   // A plate behind it, because on a small canvas the plot runs right up to the
   // edge and an unbacked hairline rule disappears into the grid.
-  ctx.fillStyle = 'rgba(247, 244, 236, 0.72)';
+  ctx.fillStyle = chrome('paper', 0.72);
   ctx.fillRect(x - 6, y - 11, px + 12, 28);
   ctx.strokeStyle = inkColour(light, 0.8);
   ctx.fillStyle = inkColour(light, 0.8);

@@ -75,6 +75,10 @@ export function LibraryPanel({ onStartDrag }: LibraryProps) {
       <input
         className="search"
         placeholder="Search name, genus or family…"
+        // Named as well as hinted: a placeholder is not a label. It is gone the
+        // moment anything is typed, and a screen reader is free to ignore it,
+        // which leaves the box announced as "edit text" and nothing more.
+        aria-label="Search plants by name, genus or family"
         value={filters.query}
         onChange={(e) => change({ query: e.target.value })}
       />

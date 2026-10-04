@@ -36,8 +36,31 @@ await page.evaluate(() => {
 await page.waitForTimeout(1200);
 await page.screenshot({ path: `${outDir}/singlefile.png` });
 const planted = await page.evaluate(() => window.gardenStore.getState().plants.length);
+
+/**
+ * The interface's colours live in `render/chrome.ts` and are handed to the
+ * stylesheet at startup, because a canvas cannot read a custom property. If
+ * that handover ever stopped happening, every panel would lose its colour while
+ * the drawing kept its own — and the canvas comparisons in check-drawing would
+ * not notice, because the canvas would be untouched. This is what notices.
+ */
+const painted = await page.evaluate(() => {
+  const root = getComputedStyle(document.documentElement);
+  const value = (name) => root.getPropertyValue(name).trim().toLowerCase();
+  return {
+    paper: value('--paper'),
+    accent: value('--accent'),
+    body: getComputedStyle(document.body).backgroundColor,
+  };
+});
+const coloured =
+  painted.paper === '#f7f4ec' &&
+  painted.accent === '#3f80b0' &&
+  painted.body === 'rgb(247, 244, 236)';
+
 await browser.close();
 console.log('plants placed:', planted);
 console.log('off-origin requests:', requests.length ? requests : 'none');
+console.log('interface colours applied:', coloured ? 'yes' : `NO — ${JSON.stringify(painted)}`);
 console.log('errors:', errors.length ? errors : 'none');
-process.exit(errors.length || requests.length ? 1 : 0);
+process.exit(errors.length || requests.length || !coloured ? 1 : 0);

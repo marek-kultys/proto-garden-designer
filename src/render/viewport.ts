@@ -1,4 +1,4 @@
-import type { Bounds } from '../model/geometry';
+import { boundsCentre, type Bounds } from '../model/geometry';
 import type { Vec2 } from '../model/types';
 
 export interface Viewport {
@@ -20,12 +20,11 @@ export function fitViewport(
   // desktop and swallows most of a phone screen.
   const inset = Math.max(12, Math.min(padding, width * 0.07, height * 0.09));
   const scale = Math.min((width - inset * 2) / w, (height - inset * 2) / h);
-  const cx = (bounds.minX + bounds.maxX) / 2;
-  const cy = (bounds.minY + bounds.maxY) / 2;
+  const centre = boundsCentre(bounds);
   return {
     scale,
-    offsetX: width / 2 - cx * scale,
-    offsetY: height / 2 - cy * scale,
+    offsetX: width / 2 - centre.x * scale,
+    offsetY: height / 2 - centre.y * scale,
   };
 }
 

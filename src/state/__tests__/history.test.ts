@@ -15,6 +15,7 @@ beforeEach(() => {
   useStore.setState({
     plants: [],
     plot: rectanglePlot(14, 10),
+    site: { ...useStore.getState().site, northAngle: 0, slopeFall: 0, slopeDirection: 0 },
     selectedId: null,
     past: [],
     future: [],
@@ -209,6 +210,77 @@ describe('what undo covers', () => {
     expect(state().time.doy).toBe(300);
     expect(state().stageView).toBe('panorama');
     expect(state().observer.heading).toBe(45);
+  });
+});
+
+describe('undoing a change to the site', () => {
+  /**
+   * The fault this came from: the site was saved with the design and made a
+   * file count as unsaved, but was missing from the undo snapshot. Turning the
+   * north dial and pressing undo therefore left north where it was and took
+   * back the edit before it — so a plant vanished and the dial did not move.
+   */
+  it('takes back a turn of the north dial', () => {
+    state().setSite({ northAngle: 42 });
+    expect(state().site.northAngle).toBe(42);
+
+    state().undo();
+    expect(state().site.northAngle).toBe(0);
+  });
+
+  it('does not take back the edit before it instead', () => {
+    state().addPlant('hosta-halcyon', { x: 1, y: 1 });
+    state().setSite({ northAngle: 42 });
+
+    state().undo();
+    expect(state().site.northAngle, 'the dial should have come back first').toBe(0);
+    expect(state().plants, 'the planting should still be there').toHaveLength(1);
+
+    state().undo();
+    expect(state().plants).toHaveLength(0);
+  });
+
+  it('folds a whole turn of the dial into one step', () => {
+    const depth = state().past.length;
+    for (const angle of [10, 20, 30, 40, 50]) state().setSite({ northAngle: angle });
+    expect(state().past).toHaveLength(depth + 1);
+
+    state().undo();
+    expect(state().site.northAngle).toBe(0);
+  });
+
+  it('keeps a turn and a slope as two separate steps', () => {
+    state().setSite({ northAngle: 42 });
+    state().setSite({ slopeFall: 0.8 });
+
+    state().undo();
+    expect(state().site.slopeFall).toBe(0);
+    expect(state().site.northAngle, 'the turn is a step of its own').toBe(42);
+  });
+
+  it('records nothing when the value is the one already set', () => {
+    state().setSite({ northAngle: 42 });
+    const depth = state().past.length;
+
+    state().setSite({ northAngle: 42 });
+    expect(state().past, 'an undo that undoes nothing is worse than none').toHaveLength(depth);
+  });
+
+  it('names the step after what the person did', () => {
+    state().setSite({ northAngle: 42 });
+    expect(state().past[state().past.length - 1].label).toBe('Turn north');
+
+    state().setSite({ latitude: 55.95, longitude: -3.19, label: 'Edinburgh' });
+    expect(state().past[state().past.length - 1].label).toBe('Change location');
+  });
+
+  it('puts the site back on redo as well', () => {
+    state().setSite({ northAngle: 42 });
+    state().undo();
+    expect(state().site.northAngle).toBe(0);
+
+    state().redo();
+    expect(state().site.northAngle).toBe(42);
   });
 });
 
