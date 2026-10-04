@@ -332,6 +332,37 @@ the one to give an output directory unless you mean to replace them.
 Each check takes `[url|file] [outDir]`, and needs the browser installed once with
 `npx playwright install chromium`.
 
+### The three advisories `npm audit` reports
+
+As of October 2026 `npm audit` reports three high-severity advisories, and they
+are one advisory counted three times: `braces` is vulnerable to
+[stack exhaustion through deeply nested glob patterns](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm),
+`micromatch` depends on `braces`, and `vite-plugin-singlefile` depends on
+`micromatch`. They are accepted deliberately, on three grounds, and this note
+exists so the decision can be re-made rather than inherited:
+
+1. **It cannot reach anyone using the app.** `vite-plugin-singlefile` is a build
+   dependency; none of it is in the production tree (`npm ls --omit=dev` finds
+   nothing), and nothing from it appears in `dist/index.html`. The only machine
+   that runs this code is the one running the build.
+2. **The vulnerable call is never made.** The plugin reaches `micromatch` at
+   exactly two lines, both guarded by `if (inlinePattern.length && …)`, and
+   `inlinePattern` defaults to `[]` — which is what `vite.config.ts` uses. To be
+   exposed at all, someone would have to pass a deliberately malicious glob to
+   our own build config.
+3. **The offered fix is worse than the fault.** There is no patched `braces`:
+   3.0.3 is both the latest release and the vulnerable one. `npm audit fix
+   --force` "resolves" it by downgrading `vite-plugin-singlefile` to 0.9.0 — a
+   major version backwards, breaking the single-file build that testers receive.
+   **Do not run it.**
+
+What would change the decision: a patched `braces` (then pin it with an
+`overrides` entry and delete this note), any advisory that touches a runtime
+dependency — `react`, `react-dom`, `zustand` — or a new advisory here that is
+not this one wearing three hats. `npm audit` is worth a glance whenever
+dependencies are touched, which is the moment the three known lines should be
+four rather than noise.
+
 ## Deploying
 
 Live at **<https://marekkultys.com/proto-garden-designer/>**.
