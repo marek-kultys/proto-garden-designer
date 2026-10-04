@@ -299,9 +299,19 @@ all and tears down, in about forty seconds:
 npm run check:browser
 ```
 
-That is also what the deploy workflow runs before publishing to GitHub Pages, so
-a drawing regression stops the deploy instead of reaching a gardener. Pass
-`--skip-build` when `dist/` is already current.
+The deploy workflow runs the same command before publishing to GitHub Pages,
+with `--skip-build --skip-drawing`. Pass `--skip-build` yourself when `dist/` is
+already current.
+
+`--skip-drawing` is there because `check-drawing.mjs` is the one check that does
+not travel. It compares the canvas against the pictures in `docs/golden/` pixel
+for pixel with no tolerance, and two machines do not rasterise a translucent
+fill the same way: a commit that matched every reference here differed from 3%
+to 70% of pixels on the Linux runner. Those pixels are nobody's — the published
+app is drawn by whatever browser a designer opens it in, never by the runner —
+so that comparison stays on the machine where the drawing is judged by eye.
+**Run `npm run check:browser` locally before merging to master**, because that
+is now the only thing standing between a drawing regression and a tester.
 
 To run one on its own, or to run the two that only produce pictures:
 
