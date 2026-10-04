@@ -14,7 +14,15 @@ declare global {
 }
 window.gardenStore = useStore;
 
-createRoot(document.getElementById('root')!).render(
+const root = document.getElementById('root');
+if (root === null) {
+  // `index.html` carries the one mount point, and the single-file build inlines
+  // that same document. If it is ever missing, the page is blank with nothing
+  // in the console to say why — so say why.
+  throw new Error('index.html has no #root element to mount the app into');
+}
+
+createRoot(root).render(
   <StrictMode>
     <App />
   </StrictMode>,
