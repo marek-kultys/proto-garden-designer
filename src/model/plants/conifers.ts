@@ -1,6 +1,6 @@
 import type { Species } from '../types';
 
-/** Conifers — 8 of them. Appending here adds the plant to the library. */
+/** Conifers. Appending here adds the plant to the library; the count is in `PLANTS.md`. */
 export const CONIFERS: Species[] = [
   {
     id: 'taxus-baccata',

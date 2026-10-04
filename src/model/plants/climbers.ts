@@ -1,6 +1,6 @@
 import type { Species } from '../types';
 
-/** Climbers — 18 of them. Appending here adds the plant to the library. */
+/** Climbers. Appending here adds the plant to the library; the count is in `PLANTS.md`. */
 export const CLIMBERS: Species[] = [
   {
     id: 'clematis-montana',

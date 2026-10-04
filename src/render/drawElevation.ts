@@ -10,6 +10,7 @@ import { getForm } from './form';
 import { drawPlantElevation } from './plant';
 import { drawStructureElevation, sliceStructure, type StructureSlice } from './structure';
 import { DRAWN_SHADOW_CAP, MIN_ELEVATION_HEIGHT, sliceHalfWidth } from './constants';
+import { chrome } from './chrome';
 
 /**
  * The side-on strip beneath the plan.
@@ -360,7 +361,7 @@ function drawEndMarkers(
     [originX, 'A', groundYAtA],
     [originX + lineWidth, 'B', groundYAtB],
   ] as const) {
-    ctx.strokeStyle = 'rgba(176, 92, 48, 0.5)';
+    ctx.strokeStyle = chrome('accentWarm', 0.5);
     ctx.lineWidth = 1;
     ctx.setLineDash([4, 4]);
     ctx.beginPath();
@@ -369,7 +370,7 @@ function drawEndMarkers(
     ctx.stroke();
     ctx.setLineDash([]);
 
-    ctx.fillStyle = 'rgba(176, 92, 48, 1)';
+    ctx.fillStyle = chrome('accentWarm');
     ctx.beginPath();
     ctx.arc(x, height - 14, 7, 0, Math.PI * 2);
     ctx.fill();

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  boundsCentre,
   convexHull,
   distance,
   pointInPolygon,
@@ -142,6 +143,26 @@ describe('the area of a shape', () => {
   it('is zero for a shape that encloses nothing', () => {
     expect(polygonArea([])).toBe(0);
     expect(polygonArea([{ x: 0, y: 0 }, { x: 5, y: 5 }])).toBeCloseTo(0, 9);
+  });
+});
+
+describe('the middle of a bounding box', () => {
+  /**
+   * Three callers ask for this — where a tapped plant lands, where the viewer
+   * is sent when centred, and how the plot is placed on the canvas — and they
+   * have to agree, because the middle of the plot is the datum the terrain
+   * measures height from.
+   */
+  it('is halfway along each side', () => {
+    expect(boundsCentre({ minX: 0, minY: 0, maxX: 14, maxY: 10 })).toEqual({ x: 7, y: 5 });
+    expect(boundsCentre({ minX: -4, minY: -4, maxX: 4, maxY: 4 })).toEqual({ x: 0, y: 0 });
+    expect(boundsCentre({ minX: 3, minY: 7, maxX: 3, maxY: 7 })).toEqual({ x: 3, y: 7 });
+  });
+
+  it('is what a shape reports as its own middle', () => {
+    const plot = rectanglePlot(14, 10);
+    expect(polygonCentroid(plot)).toEqual(boundsCentre(polygonBounds(plot)));
+    expect(polygonCentroid(L_SHAPE)).toEqual(boundsCentre(polygonBounds(L_SHAPE)));
   });
 });
 

@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "verify": "node scripts/verify.mjs",
+    "check:browser": "node scripts/check-browser.mjs",
     "test:watch": "vitest",
     "plants:md": "node scripts/plants-md.mjs"
   },
@@ -24,7 +25,6 @@
     "playwright": "^1.63.0",
     "typescript": "^7.0.2",
     "vite": "^8.3.0",
-    "vite-plugin-singlefile": "^2.3.3",
     "vitest": "^5.0.1"
   }
 }

@@ -3,6 +3,7 @@ import { useStore } from '../state/store';
 import { SLICE_DEPTH_RANGE } from '../render/constants';
 import { ElevationStrip } from './ElevationStrip';
 import { PanoramaView } from './PanoramaView';
+import { DrawingBoundary } from './DrawingBoundary';
 
 /**
  * The strip under the plan, and the two ways of looking at a design from
@@ -112,10 +113,16 @@ export function StageBottom() {
         title="Drag to resize — double-click to reset"
       />
 
+      {/* Keyed, or React would reuse one boundary instance across the two
+          branches and show a fault from the view you just left. */}
       {stageView === 'elevation' ? (
-        <ElevationStrip width={size.width} height={size.height} />
+        <DrawingBoundary key="elevation" view="The elevation">
+          <ElevationStrip width={size.width} height={size.height} />
+        </DrawingBoundary>
       ) : (
-        <PanoramaView width={size.width} height={size.height} />
+        <DrawingBoundary key="panorama" view="The 360° view">
+          <PanoramaView width={size.width} height={size.height} />
+        </DrawingBoundary>
       )}
 
       <div className="stage-tabs">

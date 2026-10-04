@@ -1,5 +1,19 @@
+/**
+ * The embeddable fragment, opened from a file as a viewer would get it.
+ *
+ *   node scripts/check-artifact.mjs [file] [screenshot]
+ *
+ * The default used to be nothing at all, so running it without an argument
+ * navigated to `file://undefined/` and failed in a way that looked like the
+ * artifact was broken. And horizontal overflow printed "YES — problem" and
+ * exited zero, which no gate can act on.
+ */
 import { chromium } from 'playwright';
-const file = process.argv[2];
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
+
+const repo = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const file = process.argv[2] ?? resolve(repo, 'dist/artifact.html');
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 });
 const errors = [];
@@ -27,7 +41,8 @@ const box = await page.evaluate(() => {
   return { w: Math.round(r.width), h: Math.round(r.height), scrollW: document.documentElement.scrollWidth, clientW: document.documentElement.clientWidth };
 });
 await browser.close();
+const overflows = box.scrollW > box.clientW;
 console.log('layout:', box);
-console.log('horizontal overflow:', box.scrollW > box.clientW ? 'YES — problem' : 'none');
+console.log('horizontal overflow:', overflows ? 'YES — problem' : 'none');
 console.log('errors:', errors.length ? errors : 'none');
-process.exit(errors.length ? 1 : 0);
+process.exit(errors.length || overflows ? 1 : 0);

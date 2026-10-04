@@ -1,6 +1,6 @@
 import type { Species } from '../types';
 
-/** Annuals — 8 of them. Appending here adds the plant to the library. */
+/** Annuals. Appending here adds the plant to the library; the count is in `PLANTS.md`. */
 export const ANNUALS: Species[] = [
   {
     id: 'cosmos-bipinnatus',

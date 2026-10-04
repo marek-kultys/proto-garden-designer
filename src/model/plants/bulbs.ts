@@ -1,6 +1,6 @@
 import type { Species } from '../types';
 
-/** Bulbs — 21 of them. Appending here adds the plant to the library. */
+/** Bulbs. Appending here adds the plant to the library; the count is in `PLANTS.md`. */
 export const BULBS: Species[] = [
   {
     id: 'allium-purple-sensation',

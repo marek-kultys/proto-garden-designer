@@ -505,7 +505,8 @@ forgotten.
 - [ ] Give the two hydrangeas and the hollyhock a winter standing window.
 - [ ] Decide whether dahlias should be marked as tender tubers.
 - [ ] The climber cap at 2.2 m and the missing wall to climb are a design
-      question, not a data one — see `PRODUCT.md`. It now affects eighteen
-      plants rather than ten, so it matters more than it did.
+      question, not a data one — see `PRODUCT.md`. The climbers section above
+      says how many plants it now affects, and it is a good deal more than the
+      ten it began with, so it matters more than it did.
 - [ ] A leaf window that crosses the turn of the year, which would let muscari
       and other autumn-foliage bulbs be drawn honestly.

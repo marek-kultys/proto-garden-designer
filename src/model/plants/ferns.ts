@@ -1,6 +1,6 @@
 import type { Species } from '../types';
 
-/** Ferns — 7 of them. Appending here adds the plant to the library. */
+/** Ferns. Appending here adds the plant to the library; the count is in `PLANTS.md`. */
 export const FERNS: Species[] = [
   {
     id: 'dryopteris-filix-mas',

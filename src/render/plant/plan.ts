@@ -6,6 +6,7 @@ import { type Phase, type PlantSize, type Species } from '../../model/types';
 import { type DrawContext, WOODY, canopyOutline, flowerFill, leafFill } from './shared';
 import { drawDormantMarker, drawPlanFlowers, drawPlanFruit, drawPlanTwigs } from './parts';
 import { drawPlanClimber } from './climber';
+import { chrome } from '../chrome';
 
 /**
  * A plant seen from above.
@@ -52,7 +53,7 @@ export function drawPlantPlan(
   if (selected) {
     ctx.beginPath();
     ctx.arc(cx, cy, radius + 6, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(63, 128, 176, 0.9)';
+    ctx.strokeStyle = chrome('accent', 0.9);
     ctx.lineWidth = 2;
     ctx.setLineDash([5, 4]);
     ctx.stroke();
