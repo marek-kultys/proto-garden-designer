@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { LibraryPanel } from './ui/LibraryPanel';
 import { PlanCanvas, type PlanApi } from './ui/PlanCanvas';
 import { StageBottom } from './ui/StageBottom';
+import { DrawingBoundary } from './ui/DrawingBoundary';
 import { SitePanel } from './ui/SitePanel';
 import { TimeBar } from './ui/TimeBar';
 import { ProjectsDialog } from './ui/ProjectsDialog';
@@ -259,7 +260,11 @@ export default function App() {
       </aside>
 
       <main className="stage">
-        <PlanCanvas ref={planRef} />
+        {/* Each view gets its own boundary, so a fault in one leaves the
+            others — and the design behind them — still usable. */}
+        <DrawingBoundary view="The plan">
+          <PlanCanvas ref={planRef} />
+        </DrawingBoundary>
         <StageBottom />
       </main>
 

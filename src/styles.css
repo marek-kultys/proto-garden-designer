@@ -496,6 +496,71 @@ select {
   background: rgba(255, 255, 255, 0.78);
 }
 
+/* A view that stopped drawing, in place of the drawing. Deliberately calm:
+   the panel is paper-coloured like everything else, because an alarming
+   treatment would contradict the one thing the message has to get across. */
+
+.drawing-error {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  padding: 18px 22px;
+  overflow: auto;
+  background: var(--panel);
+  border-left: 3px solid var(--accent-warm);
+  box-sizing: border-box;
+}
+
+.elevation-wrap > .drawing-error {
+  height: 100%;
+}
+
+.drawing-error h3 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.drawing-error p {
+  margin: 0;
+  max-width: 46em;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+.drawing-error p.hint {
+  color: var(--ink-soft);
+}
+
+.drawing-error-actions {
+  margin-top: 2px;
+}
+
+.drawing-error details {
+  font-size: 11px;
+  color: var(--ink-faint);
+}
+
+.drawing-error summary {
+  cursor: pointer;
+}
+
+.drawing-error code {
+  display: block;
+  margin-top: 4px;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-size: 10.5px;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
 /* ------------------------------------------------------------- plant menu */
 
 .menu-shield {
