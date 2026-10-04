@@ -81,10 +81,13 @@ src/model/    the simulation — sun, growth, phenology, shade, panorama geometr
 src/render/   canvas drawing — sketchy line work, the light palette, and one
               draw pass per view (plant/ holds the drawing of a plant itself,
               split by view and by the shapes that needed a file of their own)
-src/state/    a single zustand store; all state is plain and serialisable, plus
-              the save/load boundary (projectFile.ts is pure and browser-free,
-              projectStorage.ts is the only code that touches localStorage, and
-              projectTransfer.ts exports and imports a design as a file)
+src/state/    one zustand store, assembled in store.ts from a file per subject
+              in slices/ — the plot, the planting, what is built on it, what is
+              selected, the site, the view, undo, and projects; all state is
+              plain and serialisable, plus the save/load boundary (projectFile.ts
+              is pure and browser-free, projectStorage.ts is the only code that
+              touches localStorage, and projectTransfer.ts exports and imports a
+              design as a file)
 src/ui/       React components: the panels, the canvases, the time bar
               (library/ holds the plant library's parts — the chips, a card, a
               thumbnail; which plants match is model/plants/filter.ts, because
@@ -186,7 +189,7 @@ to the palette widens it. Unknown plants are dropped at the load boundary and
 counted, so the app reports what it could not restore instead of dying.
 
 **Undo coalesces a drag into one step** —
-[`src/state/store.ts`](src/state/store.ts). Moving a plant fires an update on
+[`src/state/slices/history.ts`](src/state/slices/history.ts). Moving a plant fires an update on
 every pointer move, and one undo step per frame would be useless. Rather than
 have pointer handlers announce when a gesture begins and ends — easy to get wrong,
 easy to forget in a new handler — consecutive edits carrying the same key within
