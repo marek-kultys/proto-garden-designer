@@ -186,16 +186,23 @@ export type OpenOutcome =
 /**
  * Undo.
  *
- * What it covers is the design — the planting and the plot outline — and not
- * what you are looking at. Scrubbing to April, turning to face west or moving
- * the eye are not edits and would only fill the history with noise; every one of
- * them is also trivially reversible by hand, which is exactly what a destroyed
- * planting is not.
+ * What it covers is the design — the planting, the plot outline, what is built
+ * on it and the site it stands on — and not what you are looking at. Scrubbing
+ * to April, turning to face west or moving the eye are not edits and would only
+ * fill the history with noise; every one of them is also trivially reversible by
+ * hand, which is exactly what a destroyed planting is not.
+ *
+ * The site is here because it is part of the design: it is saved with the file
+ * and it is what makes a file count as unsaved. It was left out at first, and
+ * the result was worse than not being able to undo a turn of the north dial —
+ * pressing undo after turning it silently took back the *previous* edit, so a
+ * plant disappeared instead.
  */
 interface Snapshot {
   plants: PlantInstance[];
   plot: Plot;
   structures: Structure[];
+  site: Site;
   selectedId: string | null;
   selectedStructureId: string | null;
 }
@@ -223,6 +230,7 @@ function snapshot(s: AppState): Snapshot {
     plants: s.plants,
     plot: s.plot,
     structures: s.structures,
+    site: s.site,
     selectedId: s.selectedId,
     selectedStructureId: s.selectedStructureId,
   };
@@ -233,6 +241,7 @@ function restore(snap: Snapshot) {
     plants: snap.plants,
     plot: snap.plot,
     structures: snap.structures,
+    site: snap.site,
     // The selection may name a plant that no longer exists on this side of the
     // edit, which would leave a highlight round nothing.
     selectedId: snap.plants.some((p) => p.id === snap.selectedId) ? snap.selectedId : null,
@@ -240,6 +249,36 @@ function restore(snap: Snapshot) {
       ? snap.selectedStructureId
       : null,
   };
+}
+
+/** Whether two sites are the same garden, field for field. */
+function sameSite(a: Site, b: Site): boolean {
+  return (
+    a.latitude === b.latitude &&
+    a.longitude === b.longitude &&
+    a.altitude === b.altitude &&
+    a.northAngle === b.northAngle &&
+    a.dst === b.dst &&
+    a.label === b.label &&
+    a.slopeFall === b.slopeFall &&
+    a.slopeDirection === b.slopeDirection
+  );
+}
+
+/**
+ * What the undo button should say it will take back.
+ *
+ * The tooltip reads "Undo turn north", so the label has to name the thing the
+ * person just did rather than the field it lives in.
+ */
+function siteLabel(patch: Partial<Site>): string {
+  const keys = Object.keys(patch);
+  if (keys.every((k) => k === 'northAngle')) return 'Turn north';
+  if (keys.every((k) => k === 'slopeFall' || k === 'slopeDirection')) return 'Change slope';
+  if (keys.every((k) => k === 'dst')) return 'Change summer time';
+  if (keys.every((k) => k === 'latitude' || k === 'longitude' || k === 'altitude' || k === 'label'))
+    return 'Change location';
+  return 'Change site';
 }
 
 function pushHistory(s: AppState, label: string, coalesceKey?: string) {
@@ -597,7 +636,16 @@ export const useStore = create<AppState>((set, get) => ({
       if (patch.slopeDirection !== undefined) {
         site.slopeDirection = normaliseSlopeDirection(patch.slopeDirection);
       }
-      return { site };
+      // Nothing moved — a number field re-emitting the value it already had, or
+      // the location already chosen. An undo step that undoes nothing is worse
+      // than none: it spends a press and appears to do nothing.
+      if (sameSite(s.site, site)) return {};
+      // Dragging the dial fires on every pointer move, so the key folds a whole
+      // turn into one step; a turn and then a slope are two keys and two steps.
+      return {
+        ...pushHistory(s, siteLabel(patch), `site:${Object.keys(patch).sort().join(',')}`),
+        site,
+      };
     }),
 
   setTool: (tool) => set({ tool, draft: [], draftCursor: null, redrawingId: null }),
