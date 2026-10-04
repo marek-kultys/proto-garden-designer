@@ -74,6 +74,25 @@ jobs:
       # testers, so the hosted version and the sent version are the same thing.
       - run: SINGLEFILE=1 npm run build
 
+      # The second half of the gate, and the half that looks at the drawing.
+      #
+      # `npm test` above covers the model and the store and cannot see a pixel.
+      # The drawing is the product, and the fault this is here for has already
+      # happened once: ten plants vanished from the side views every winter, for
+      # weeks, and were found by someone happening to look at January. Nothing
+      # machine-checked stood between that and a gardener until now.
+      #
+      # Nine checks, about forty seconds, against the single file built in the
+      # step above — the same bytes that get published. A failure here stops the
+      # job before anything is uploaded, so master can be broken while the live
+      # site stays on the last good version.
+      #
+      # Only the checks that assert run here. `screenshots.mjs` and
+      # `readme-images.mjs` exist to be looked at and stay a manual step, which
+      # is the reasoning verify.yml records for keeping all of this off develop.
+      - run: npx playwright install --with-deps chromium
+      - run: npm run check:browser -- --skip-build
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

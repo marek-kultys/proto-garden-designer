@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "verify": "node scripts/verify.mjs",
+    "check:browser": "node scripts/check-browser.mjs",
     "test:watch": "vitest",
     "plants:md": "node scripts/plants-md.mjs"
   },

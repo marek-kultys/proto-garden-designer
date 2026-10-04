@@ -287,7 +287,19 @@ every shape has been accounted for. Add one to the `Habit` union and the build
 stops, naming the shape and the three lines that need it.
 
 The browser checks drive the real app through `window.gardenStore` and assert
-behaviour a screenshot alone would not catch:
+behaviour a screenshot alone would not catch. The nine that decide for
+themselves run as one command — it builds the single file, serves it, runs them
+all and tears down, in about forty seconds:
+
+```bash
+npm run check:browser
+```
+
+That is also what the deploy workflow runs before publishing to GitHub Pages, so
+a drawing regression stops the deploy instead of reaching a gardener. Pass
+`--skip-build` when `dist/` is already current.
+
+To run one on its own, or to run the two that only produce pictures:
 
 ```bash
 npx vite preview --port 4173
@@ -329,15 +341,21 @@ too short a lookahead shows empty boxes to anyone dragging the scrollbar. The
 check drags the list from top to bottom in sixty frames and fails on a single
 blank, and fails equally if every portrait is drawn on load again.
 
-And against the built single file, which is what testers actually receive:
+And against the built single file, which is what testers actually receive.
+`npm run check:browser` does all of this; the pieces are here for running one:
 
 ```bash
 SINGLEFILE=1 npm run build
-node scripts/check-singlefile.mjs                 # runs from file://, zero off-origin requests
-node scripts/check-narrow.mjs   dist/index.html   # tablet portrait and desktop
-node scripts/make-artifact.mjs                    # repackage as an embeddable fragment
-node scripts/check-artifact.mjs dist/artifact.html
+node scripts/check-singlefile.mjs    # runs from file://, zero off-origin requests
+node scripts/check-narrow.mjs        # tablet portrait and desktop
+node scripts/make-artifact.mjs       # repackage as an embeddable fragment
+node scripts/check-artifact.mjs
 ```
+
+Those last two defaulted to nothing and printed their findings without failing,
+which is why running them by hand used to produce `file://undefined/` and why a
+sideways-scrolling layout could pass. Both now default to the file in `dist/`
+and exit non-zero when they find something.
 
 `screenshots/` is gitignored — it holds the sweep you look through by eye. Only
 the few images in `docs/img/` are committed, which is why `readme-images.mjs` is
