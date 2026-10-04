@@ -80,7 +80,9 @@ src/model/    the simulation — sun, growth, phenology, shade, panorama geometr
               in PLANTS.md, so it is kept even though nothing else reads it)
 src/render/   canvas drawing — sketchy line work, the light palette, and one
               draw pass per view (plant/ holds the drawing of a plant itself,
-              split by view and by the shapes that needed a file of their own)
+              split by view and by the shapes that needed a file of their own;
+              chrome.ts holds the interface's own colours, which the stylesheet
+              is given at startup because a canvas cannot read a CSS variable)
 src/state/    one zustand store, assembled in store.ts from a file per subject
               in slices/ — the plot, the planting, what is built on it, what is
               selected, the site, the view, undo, and projects; all state is
@@ -93,6 +95,8 @@ src/ui/       React components: the panels, the canvases, the time bar
               thumbnail; which plants match is model/plants/filter.ts, because
               that is a question about plants rather than about a screen)
 scripts/      Playwright checks and screenshot capture
+build/        the one Vite plugin this needs — folding the whole build into a
+              single self-contained index.html
 ```
 
 ## What is simulated
@@ -364,36 +368,35 @@ the one to give an output directory unless you mean to replace them.
 Each check takes `[url|file] [outDir]`, and needs the browser installed once with
 `npx playwright install chromium`.
 
-### The three advisories `npm audit` reports
+### The advisories `npm audit` used to report, and why it reports none
 
-As of October 2026 `npm audit` reports three high-severity advisories, and they
-are one advisory counted three times: `braces` is vulnerable to
+Until October 2026 this said that `npm audit` found three high-severity
+advisories — one fault counted three times: `braces` is vulnerable to
 [stack exhaustion through deeply nested glob patterns](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm),
-`micromatch` depends on `braces`, and `vite-plugin-singlefile` depends on
-`micromatch`. They are accepted deliberately, on three grounds, and this note
-exists so the decision can be re-made rather than inherited:
+`micromatch` depends on `braces`, and `vite-plugin-singlefile` depended on
+`micromatch`. They were accepted deliberately: a build-time dependency only,
+reaching the vulnerable call at two lines both guarded by a glob pattern we
+never passed, and with no patched `braces` to move to — 3.0.3 is both the latest
+release and the vulnerable one. `npm audit fix --force` "fixed" it by
+downgrading the plugin a major version and breaking the single-file build.
 
-1. **It cannot reach anyone using the app.** `vite-plugin-singlefile` is a build
-   dependency; none of it is in the production tree (`npm ls --omit=dev` finds
-   nothing), and nothing from it appears in `dist/index.html`. The only machine
-   that runs this code is the one running the build.
-2. **The vulnerable call is never made.** The plugin reaches `micromatch` at
-   exactly two lines, both guarded by `if (inlinePattern.length && …)`, and
-   `inlinePattern` defaults to `[]` — which is what `vite.config.ts` uses. To be
-   exposed at all, someone would have to pass a deliberately malicious glob to
-   our own build config.
-3. **The offered fix is worse than the fault.** There is no patched `braces`:
-   3.0.3 is both the latest release and the vulnerable one. `npm audit fix
-   --force` "resolves" it by downgrading `vite-plugin-singlefile` to 0.9.0 — a
-   major version backwards, breaking the single-file build that testers receive.
-   **Do not run it.**
+That note said the decision should be re-made rather than inherited, and it was.
+The plugin did one thing: paste the built script and stylesheet into
+`index.html`. That is now [`build/inline.ts`](build/inline.ts), about forty
+lines we own, and the dependency is gone along with all three advisories.
 
-What would change the decision: a patched `braces` (then pin it with an
-`overrides` entry and delete this note), any advisory that touches a runtime
-dependency — `react`, `react-dom`, `zustand` — or a new advisory here that is
-not this one wearing three hats. `npm audit` is worth a glance whenever
-dependencies are touched, which is the moment the three known lines should be
-four rather than noise.
+The replacement is stricter in the way that matters. The old plugin would
+happily emit an HTML file referring to files it had deleted, which looks perfect
+until someone opens it with no network — the one condition the single file
+exists for. Ours fails the build instead, naming the file it could not inline.
+Its output is otherwise the same: byte-identical JavaScript, byte-identical CSS
+apart from a `/*$vite$:1*/` marker the plugin left behind, and two redundant
+attributes dropped from the tags.
+
+What would change the picture now: any advisory at all, since there are none to
+tune out. One touching `react`, `react-dom` or `zustand` would be in the app
+itself rather than on the machine that builds it, and would need acting on
+rather than recording.
 
 ## Deploying
 
