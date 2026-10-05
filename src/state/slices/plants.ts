@@ -1,4 +1,5 @@
 import { getSpecies } from '../../model/plants';
+import { pointInPolygon } from '../../model/geometry';
 import type { PlantInstance, Vec2 } from '../../model/types';
 import { newId } from '../ids';
 import type { SliceOf } from '../slice';
@@ -89,11 +90,25 @@ export const plantsSlice: SliceOf<PlantsSlice> = (set) => ({
       // parent rather than exactly on top of it, where it would be invisible
       // and impossible to grab.
       const step = Math.max(0.4, Math.min(2.5, spread * 0.55));
+      // Down and to the right reads as "the next one along" and is what you
+      // want nine times in ten — but a plant near the bottom or right edge
+      // threw its copy off the plot entirely, where it is drawn outside the
+      // outline and cannot be reached. So the other three diagonals are tried
+      // in turn, and only if the plot is too small for any of them does it fall
+      // back to the first: a copy somewhere beats no copy at all.
+      const at = [
+        { x: source.x + step, y: source.y + step * 0.35 },
+        { x: source.x - step, y: source.y + step * 0.35 },
+        { x: source.x + step, y: source.y - step * 0.35 },
+        { x: source.x - step, y: source.y - step * 0.35 },
+      ];
+      const spot = at.find((candidate) => pointInPolygon(candidate, s.plot)) ?? at[0];
+
       const copy: PlantInstance = {
         id: newId(),
         speciesId: source.speciesId,
-        x: source.x + step,
-        y: source.y + step * 0.35,
+        x: spot.x,
+        y: spot.y,
         // A fresh seed: a second plant of the same kind, not a clone of the
         // same individual. Two hostas in a border are never identical.
         seed: Math.floor(Math.random() * 1e9),

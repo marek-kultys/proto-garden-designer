@@ -10,6 +10,7 @@ import {
 } from 'react';
 import { isDrawingTool, useStore } from '../state/store';
 import { getSpecies } from '../model/plants';
+import { isOval, ovalHandles } from '../model/oval';
 import { plantAge, sizeAt } from '../model/growth';
 import { computeShadeGrid, shadeBandLabel, type ShadeGrid } from '../model/shade';
 import { coversPoint, describeStructure, segmentsOf } from '../model/structures';
@@ -34,11 +35,32 @@ type DragMode =
   | { kind: 'sight'; end: 'a' | 'b' }
   | { kind: 'observer' };
 
+/**
+ * How much room at the foot of the plan the readout needs to itself.
+ *
+ * The pill is pinned to the bottom of the plan, which is where it is least in
+ * the way — until the thing you are pointing at is down there too, and then it
+ * lands squarely on top of it. What has to clear it is not the pointer but the
+ * plant drawn around the pointer, so the band is wider than the pill: a hundred
+ * and ten pixels covers it and a good-sized canopy. Capped as a share of the
+ * height so that a short plan does not keep the readout permanently aloft.
+ */
+const FOOT_OF_THE_PLAN = 110;
+
+function nearTheFoot(height: number, y: number): boolean {
+  return y > height - Math.min(FOOT_OF_THE_PLAN, height * 0.3);
+}
+
 export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 800, height: 480 });
-  const [hoverInfo, setHoverInfo] = useState<string | null>(null);
+  /**
+   * What is under the cursor, and whether the readout has to get out of its
+   * way. One piece of state rather than two, because the text and its place are
+   * decided by the same pointer move and must never disagree.
+   */
+  const [hoverInfo, setHoverInfo] = useState<{ text: string; aloft: boolean } | null>(null);
   const [menu, setMenu] = useState<{ x: number; y: number; id: string } | null>(null);
   const drag = useRef<DragMode>({ kind: 'none' });
   // Long press stands in for right-click on a touchscreen, where there is no
@@ -245,10 +267,13 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
   const hitStructurePoint = (p: { x: number; y: number }): number | null => {
     const structure = state.structures.find((x) => x.id === state.selectedStructureId);
     if (structure === undefined) return null;
+    // An oval is grabbed by its four axis handles, never by the forty corners
+    // that happen to describe it — see `model/oval.ts`.
+    const grabbable = isOval(structure) ? ovalHandles(structure.points) : structure.points;
     const grab = 11 / viewport.scale;
     let best: { index: number; d: number } | null = null;
-    for (let i = 0; i < structure.points.length; i += 1) {
-      const d = Math.hypot(structure.points[i].x - p.x, structure.points[i].y - p.y);
+    for (let i = 0; i < grabbable.length; i += 1) {
+      const d = Math.hypot(grabbable[i].x - p.x, grabbable[i].y - p.y);
       if (d <= grab && (best === null || d < best.d)) best = { index: i, d };
     }
     return best === null ? null : best.index;
@@ -281,6 +306,11 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
 
     if (isDrawingTool(state.tool)) {
       state.pushDraftPoint(p);
+      // An oval is two opposite corners and nothing else, so the second click
+      // has said everything there is to say. Waiting for an Enter that could
+      // add nothing would be asking for a keystroke to confirm a decision
+      // already made.
+      if (state.tool === 'draw-oval-bed' && state.draft.length >= 1) state.commitDraft();
       return;
     }
 
@@ -322,9 +352,9 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
     }
 
     state.select(id);
-    if (id) {
-      const plant = state.plants.find((x) => x.id === id)!;
-      drag.current = { kind: 'plant', id, grabX: p.x - plant.x, grabY: p.y - plant.y };
+    const grabbed = id === null ? undefined : state.plants.find((x) => x.id === id);
+    if (id && grabbed !== undefined) {
+      drag.current = { kind: 'plant', id, grabX: p.x - grabbed.x, grabY: p.y - grabbed.y };
       canvasRef.current?.setPointerCapture(e.pointerId);
 
       if (e.pointerType !== 'mouse') {
@@ -376,30 +406,34 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
       return;
     }
 
-    // Idle: report what is under the cursor.
+    // Idle: report what is under the cursor, somewhere it is not covering it.
+    const rect = e.currentTarget.getBoundingClientRect();
+    const aloft = nearTheFoot(rect.height, e.clientY - rect.top);
+    const report = (text: string | null) => setHoverInfo(text === null ? null : { text, aloft });
+
     if (hitStructurePoint(p) !== null) {
-      setHoverInfo('Drag this corner to reshape');
+      report('Drag this corner to reshape');
       return;
     }
     const id = hitPlant(p);
     const structureId = id === null ? hitStructure(p) : null;
     const hoveredStructure = state.structures.find((x) => x.id === structureId);
-    if (id) {
-      const plant = state.plants.find((x) => x.id === id)!;
+    const plant = id === null ? undefined : state.plants.find((x) => x.id === id);
+    if (plant !== undefined) {
       const species = getSpecies(plant.speciesId);
       const s = sizeAt(species, plantAge(plant.plantedAge, state.time.year));
-      setHoverInfo(`${species.common} · ${s.height.toFixed(1)} m tall, ${s.spread.toFixed(1)} m across`);
+      report(`${species.common} · ${s.height.toFixed(1)} m tall, ${s.spread.toFixed(1)} m across`);
     } else if (hoveredStructure !== undefined) {
-      setHoverInfo(describeStructure(hoveredStructure));
+      report(describeStructure(hoveredStructure));
     } else if (shadeGrid) {
       const hours = sampleShade(shadeGrid, p.x, p.y);
-      setHoverInfo(
+      report(
         hours === null
           ? null
           : `${hours.toFixed(1)} h of direct sun here today — ${shadeBandLabel(hours, shadeGrid.thresholds)}`,
       );
     } else {
-      setHoverInfo(null);
+      report(null);
     }
   };
 
@@ -474,13 +508,36 @@ export const PlanCanvas = forwardRef<PlanApi>(function PlanCanvas(_props, ref) {
       )}
 
       {hoverInfo && !isDrawingTool(state.tool) && (
-        <div className="canvas-readout">{hoverInfo}</div>
+        <div className={`canvas-readout ${hoverInfo.aloft ? 'aloft' : ''}`}>{hoverInfo.text}</div>
       )}
 
       {selected && (
-        <button className="delete-chip" onClick={() => state.removePlant(selected.id)}>
-          Remove {getSpecies(selected.speciesId).common}
-        </button>
+        /*
+         * What you can do to the plant you have just selected, without going
+         * anywhere for it. Duplicating was already here twice — on the
+         * right-click menu and on ⌘D — but both are things you have to know
+         * about, and planting is done in threes and fives.
+         *
+         * These never move. They were briefly made to step aside when the
+         * readout came up, which meant they fled the cursor that was reaching
+         * for them: moving towards a button leaves the canvas, which clears the
+         * readout, which sent the buttons back where they came from. The
+         * readout gets out of their way instead — see `.canvas-readout.aloft`.
+         */
+        <div className="plant-chips">
+          <button
+            onClick={() => state.removePlant(selected.id)}
+            title={`Remove ${getSpecies(selected.speciesId).common}`}
+          >
+            Remove {getSpecies(selected.speciesId).common}
+          </button>
+          <button
+            onClick={() => state.duplicatePlant(selected.id)}
+            title="Plant another of the same, just off this one (⌘D)"
+          >
+            Duplicate
+          </button>
+        </div>
       )}
 
       {state.showOverlay && shadeGrid && <ShadeLegend grid={shadeGrid} />}
