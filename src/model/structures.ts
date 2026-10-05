@@ -12,8 +12,18 @@ import type { Structure, Vec2 } from './types';
 
 /** Metres. A wall taller than this is a building, which this is not modelling. */
 export const WALL_HEIGHT_RANGE = { min: 0.2, max: 4, step: 0.1 };
-/** A raised bed above about a metre is a terrace wall, and should be drawn as one. */
-export const BED_HEIGHT_RANGE = { min: 0.1, max: 1.2, step: 0.05 };
+/**
+ * A raised bed above about a metre is a terrace wall, and should be drawn as
+ * one. The shallow end goes down to two centimetres, which is not a bed you
+ * step up into but an edging — a steel or timber lip holding gravel back from
+ * soil, which is a real thing to draw and casts a shadow of nearly nothing.
+ *
+ * The step is a centimetre rather than five, so every round height stays
+ * reachable from a minimum that is not a multiple of five: at five-centimetre
+ * steps from two, the heights would run 2, 7, 12 and never land on the forty
+ * every new bed starts at.
+ */
+export const BED_HEIGHT_RANGE = { min: 0.02, max: 1.2, step: 0.01 };
 export const WALL_THICKNESS_RANGE = { min: 0.05, max: 0.6, step: 0.05 };
 
 export const DEFAULT_WALL_HEIGHT = 1.8;

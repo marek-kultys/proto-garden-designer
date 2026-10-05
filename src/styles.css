@@ -783,12 +783,42 @@ select {
   color: var(--ink-soft);
 }
 
-.delete-chip {
+/* Pointing at something at the foot of the plan: the readout goes over the top
+   of the drawing instead of over the plant. On a second row, below where the
+   plant's buttons sit, because the two are each wide enough to meet in the
+   middle — and the buttons must not move, or they flee the cursor reaching for
+   them. The north arrow is drawn top right, clear of both. */
+.canvas-readout.aloft {
+  top: 48px;
+  bottom: auto;
+}
+
+.plant-chips {
   position: absolute;
   top: 12px;
   left: 12px;
+  display: flex;
+  gap: 6px;
+  /* The longest name in the library is "Double pink flowering plum", which on a
+     small plan ran the pair most of the way across it. The name gives way
+     rather than the layout. */
+  max-width: calc(100% - 24px);
+}
+
+.plant-chips button {
   font-size: 12px;
   padding: 4px 10px;
+  white-space: nowrap;
+}
+
+.plant-chips button:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.plant-chips button + button {
+  flex: 0 0 auto;
 }
 
 .legend {
@@ -1725,12 +1755,17 @@ button.on .project-dot {
 
 .structure-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
   margin-top: 12px;
 }
 
+/* Four of these no longer fit the panel on one line, and a row that cannot wrap
+   pushes the last of them — Remove — off the edge, where it can be neither seen
+   nor reached. Two to a line instead. */
 .structure-actions button {
-  flex: 1;
+  flex: 1 1 calc(50% - 3px);
+  min-width: 0;
   padding: 6px 8px;
   font-size: 12px;
 }

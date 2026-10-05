@@ -246,6 +246,16 @@ export interface Structure {
   thickness: number;
   /** Stable per-instance randomness, so the sketchy linework never shimmers. */
   seed: number;
+  /**
+   * Set on a bed drawn with the oval tool. Absent on everything else, and on
+   * every bed drawn before the tool existed.
+   *
+   * It changes nothing about the shape — `points` is still the whole truth, and
+   * a reader that ignores this draws the bed correctly. What it changes is the
+   * handling: an oval is grabbed by four handles on its axes and stretched,
+   * rather than by a handle on each of its forty corners. See `model/oval.ts`.
+   */
+  shape?: 'oval';
 }
 
 export interface Site {
