@@ -237,6 +237,12 @@ function parseStructures(v: unknown): { structures: Structure[]; dropped: number
       id,
       kind: raw.kind,
       points,
+      // Only a bed can be an oval, and anything else claiming to be one is
+      // simply not marked: the outline is the whole truth either way, so the
+      // worst a dropped marker costs is handles on the corners instead of the
+      // axes. A file written before the oval tool existed has no marker at all,
+      // which is the same case.
+      ...(raw.shape === 'oval' && raw.kind === 'bed' ? { shape: 'oval' as const } : {}),
       // Clamped rather than refused: a height outside the range is a number
       // that means something, unlike a missing one.
       height: clampHeight(raw.kind, height),

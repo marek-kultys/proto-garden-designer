@@ -199,7 +199,16 @@ including them would bury a deleted border under a scrub of the season slider.
 
 Two built things can be drawn on the plan. A **wall** is a run of points with a
 height and a thickness — a garden wall, or a solid fence, which is the same thing
-thinner. A **raised bed** is a closed outline with a low height.
+thinner. A **raised bed** is a closed outline with a low height — anything from
+two centimetres, which is an edging holding gravel back from soil rather than a
+bed you step up into, to a metre and a fifth, above which it is a terrace wall
+and should be drawn as one.
+
+A bed can be drawn freehand, clicking round its edge, or as an **oval**: two
+clicks give opposite corners of the box it fills, and a box near enough to
+square gives a circle, which is the common case of a round bed round a specimen
+tree. Ovals are upright — a bed at an angle is drawn freehand, which is what
+that tool is good at.
 
 Both are part of the simulation rather than marks on a drawing, which was the
 decision that shaped the work:
@@ -213,6 +222,28 @@ decision that shaped the work:
   hides what is behind it and is hidden by what is in front. This is the view
   where a boundary wall stops being a line and becomes the thing you are looking
   at from the terrace.
+- **A wall or a bed can be built again beside itself.** Beds come in pairs and
+  runs far more often than they come alone — two matching borders either side of
+  a path, a row of them down a plot — and redrawing the second by hand never
+  quite matches the first. The copy keeps the height, the thickness and the
+  shape, takes its own line work so that two built things do not look like one
+  drawing twice, and lands clear of its original rather than overlapping it,
+  which would read as one lumpy bed. Where it lands is chosen so the whole
+  outline stays on the plot; if the bed is nearly as big as the plot and nothing
+  fits, it is nudged clear anyway, because the person asked for one and can drag
+  it.
+- **An oval is a many-cornered outline, not a curve.** There is no curve
+  anywhere in this app's geometry and the oval tool does not add one: it writes
+  out an outline of forty-odd corners, which is what a freehand bed already is.
+  That is why an oval casts a real shadow, blocks the 360° view, lifts the
+  plants standing in it and overlaps its neighbours correctly without any of
+  that code being told it exists. It is also why a design with an oval bed in it
+  opens in a build that has never heard of ovals, as a bed with forty corners.
+  What the app remembers beyond the outline is a single marker saying the bed
+  was drawn as an oval, and it buys one thing: four grab handles on the ends of
+  the axes instead of one on each of the forty corners. Dragging a handle
+  stretches the whole shape and keeps the opposite side where it was. Lose the
+  marker and nothing is damaged — the bed is simply handled corner by corner.
 - **A raised bed is drawn as one solid mass**, sides and soil together, rather
   than as a set of separate walls. This was arrived at the hard way. Hiding the
   walls that face away works for a rectangle and fails for the shapes people

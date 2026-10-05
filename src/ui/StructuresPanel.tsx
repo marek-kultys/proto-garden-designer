@@ -26,9 +26,10 @@ export function StructuresPanel() {
   const removeStructure = useStore((s) => s.removeStructure);
   const redrawStructure = useStore((s) => s.redrawStructure);
   const redrawingId = useStore((s) => s.redrawingId);
+  const duplicateStructure = useStore((s) => s.duplicateStructure);
 
   const selected = structures.find((x) => x.id === selectedStructureId);
-  const drawing = tool === 'draw-wall' || tool === 'draw-bed';
+  const drawing = tool === 'draw-wall' || tool === 'draw-bed' || tool === 'draw-oval-bed';
 
   const walls = structures.filter((x) => x.kind === 'wall');
   const beds = structures.filter((x) => x.kind === 'bed');
@@ -50,17 +51,26 @@ export function StructuresPanel() {
         >
           Draw raised bed
         </button>
+        <button
+          className={`chip ${tool === 'draw-oval-bed' ? 'on' : ''}`}
+          onClick={() => setTool(tool === 'draw-oval-bed' ? 'select' : 'draw-oval-bed')}
+          title="Two clicks set opposite corners of the box the bed fills"
+        >
+          Oval bed
+        </button>
       </div>
 
       {drawing ? (
         <p className="hint">
-          {redrawingId !== null
-            ? tool === 'draw-wall'
-              ? 'Click a new line for this wall. Enter finishes it, Escape leaves it as it was.'
-              : 'Click a new outline for this bed. Enter closes it, Escape leaves it as it was.'
-            : tool === 'draw-wall'
-              ? 'Click along the line of the wall. Enter finishes it, Escape cancels.'
-              : 'Click round the edge of the bed. Enter closes it, Escape cancels.'}
+          {tool === 'draw-oval-bed'
+            ? 'Click two opposite corners of the box the bed sits in. A square box gives a circle; Escape cancels.'
+            : redrawingId !== null
+              ? tool === 'draw-wall'
+                ? 'Click a new line for this wall. Enter finishes it, Escape leaves it as it was.'
+                : 'Click a new outline for this bed. Enter closes it, Escape leaves it as it was.'
+              : tool === 'draw-wall'
+                ? 'Click along the line of the wall. Enter finishes it, Escape cancels.'
+                : 'Click round the edge of the bed. Enter closes it, Escape cancels.'}
         </p>
       ) : (
         <p className="hint">
@@ -135,6 +145,12 @@ export function StructuresPanel() {
 
           <div className="structure-actions">
             <button onClick={() => redrawStructure(selected.id)}>Redraw shape</button>
+            <button
+              onClick={() => duplicateStructure(selected.id)}
+              title={`Build another ${selected.kind === 'wall' ? 'wall' : 'bed'} the same, beside this one`}
+            >
+              Duplicate
+            </button>
             <button onClick={() => selectStructure(null)}>Done</button>
             <button className="danger" onClick={() => removeStructure(selected.id)}>
               Remove

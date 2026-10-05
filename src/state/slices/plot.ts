@@ -1,4 +1,5 @@
 import { rectanglePlot } from '../../model/geometry';
+import { ovalOutline } from '../../model/oval';
 import {
   DEFAULT_BED_HEIGHT,
   DEFAULT_WALL_HEIGHT,
@@ -13,11 +14,15 @@ import { pushHistory } from './history';
 /**
  * What a click on the plan does.
  *
- * The three drawing tools share one drafting mechanism — points collected as
- * you click, committed when you finish — because they are the same gesture
+ * The drawing tools share one drafting mechanism — points collected as you
+ * click, committed when you finish — because they are the same gesture
  * producing different things. Only `commitDraft` knows the difference.
+ *
+ * The oval tool is the same gesture cut short: two clicks give opposite corners
+ * of the box the oval fills, and the second commits on its own rather than
+ * waiting for an Enter that would have nothing left to add.
  */
-export type Tool = 'select' | 'draw-plot' | 'draw-wall' | 'draw-bed';
+export type Tool = 'select' | 'draw-plot' | 'draw-wall' | 'draw-bed' | 'draw-oval-bed';
 
 export function isDrawingTool(tool: Tool): boolean {
   return tool !== 'select';
@@ -60,6 +65,49 @@ export const plotSlice: SliceOf<PlotSlice> = (set) => ({
       // A wall or a bed is the same gesture as a plot outline, producing a
       // different thing — so the drafting, the preview and the cancel are
       // shared, and only the commit knows which tool was in hand.
+      if (s.tool === 'draw-oval-bed') {
+        // Two corners of a box, and the oval fills it. Fewer than two means it
+        // was abandoned; the original of a redraw is left exactly as it was.
+        if (s.draft.length < 2) {
+          return { tool: 'select', draft: [], draftCursor: null, redrawingId: null };
+        }
+        const points = ovalOutline(s.draft[0], s.draft[1]);
+
+        if (s.redrawingId !== null) {
+          const id = s.redrawingId;
+          return {
+            ...pushHistory(s, 'Redraw shape'),
+            structures: s.structures.map((x) =>
+              x.id === id ? { ...x, points, shape: 'oval' as const } : x,
+            ),
+            selectedStructureId: id,
+            draft: [],
+            draftCursor: null,
+            redrawingId: null,
+            tool: 'select',
+          };
+        }
+
+        const oval: Structure = {
+          id: newId(),
+          kind: 'bed',
+          shape: 'oval',
+          points,
+          height: DEFAULT_BED_HEIGHT,
+          thickness: DEFAULT_WALL_THICKNESS,
+          seed: Math.floor(Math.random() * 1e9),
+        };
+        return {
+          ...pushHistory(s, 'Draw oval bed'),
+          structures: [...s.structures, oval],
+          selectedStructureId: oval.id,
+          selectedId: null,
+          draft: [],
+          draftCursor: null,
+          tool: 'select',
+        };
+      }
+
       if (s.tool === 'draw-wall' || s.tool === 'draw-bed') {
         const kind = s.tool === 'draw-wall' ? 'wall' : 'bed';
         if (s.draft.length < minimumPoints(kind)) {

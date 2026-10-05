@@ -8,6 +8,7 @@ import { inkColour, shade, type Lighting } from './palette';
 import { roughLine, roughPolygon, subSeed } from './sketch';
 import { toScreen, type Viewport } from './viewport';
 import { chrome } from './chrome';
+import { isOval, ovalHandles } from '../model/oval';
 
 /**
  * Drawing the built parts of a garden.
@@ -175,7 +176,13 @@ function drawSelection(
   ctx.stroke();
   ctx.setLineDash([]);
 
-  for (const p of pts) {
+  // An oval is held by four handles on the ends of its axes, not by the forty
+  // corners that describe it: a ring of forty dots reads as noise, and dragging
+  // one would dent what should be a curve. These must be the same four the plan
+  // hit-tests against — see `model/oval.ts`.
+  const handles = isOval(structure) ? screenPoly(viewport, ovalHandles(structure.points)) : pts;
+
+  for (const p of handles) {
     ctx.fillStyle = '#fff';
     ctx.strokeStyle = chrome('accent');
     ctx.lineWidth = 1.5;
